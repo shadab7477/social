@@ -49,7 +49,11 @@ class Register extends Component
 
         Auth::login($user);
 
-        session()->flash('success', "Welcome to SocialPilotX, {$user->name}! Your workspace '{$this->workspace_name}' is ready.");
+        session()->flash('success', "Welcome to PostSync, {$user->name}! Your workspace '{$this->workspace_name}' is ready.");
+
+        if ($inviteToken = session('pending_invite_token')) {
+            return $this->redirect(route('invitations.accept', ['token' => $inviteToken]), navigate: true);
+        }
 
         return $this->redirect(route('dashboard'), navigate: true);
     }

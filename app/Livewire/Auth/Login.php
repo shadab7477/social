@@ -40,6 +40,10 @@ class Login extends Component
 
             session()->flash('success', "Welcome back, {$user->name}!");
 
+            if ($inviteToken = session('pending_invite_token')) {
+                return $this->redirect(route('invitations.accept', ['token' => $inviteToken]), navigate: true);
+            }
+
             return $this->redirectIntended(route('dashboard'), navigate: true);
         }
 

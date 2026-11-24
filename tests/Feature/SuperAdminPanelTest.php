@@ -95,3 +95,4 @@ class SuperAdminPanelTest extends TestCase
         $this->assertTrue($targetUser->is_super_admin);
     }
 }
+

@@ -54,7 +54,7 @@ class ReportBuilder extends Component
     public function mount(): void
     {
         $workspace = Auth::user()->activeWorkspace() ?? app('current_workspace');
-        $this->agencyName = $workspace?->name ?? 'SocialPilotX Agency';
+        $this->agencyName = $workspace?->name ?? 'PostSync Agency';
         $this->reportTitle = 'Monthly Performance Review — ' . now()->format('F Y');
         $this->customDateFrom = now()->subDays(30)->format('Y-m-d');
         $this->customDateTo = now()->format('Y-m-d');

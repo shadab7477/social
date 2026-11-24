@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'SocialPilotX' }} — All-in-One Social Media Management SaaS</title>
+    <title>{{ $title ?? 'PostSync' }} — All-in-One Social Media Management SaaS</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
                 <div class="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
                     <i class="bi bi-send-fill fs-6"></i>
                 </div>
-                SocialPilot<span class="text-primary">X</span>
+                Post<span class="text-primary">Sync</span>
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
@@ -53,7 +53,7 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="d-flex align-items-center gap-2 fw-bold fs-4 text-white mb-2">
-                        <i class="bi bi-send-fill text-primary"></i> SocialPilotX
+                        <i class="bi bi-send-fill text-primary"></i> PostSync
                     </div>
                     <p class="text-secondary small">The commercial-grade, multi-tenant social media management SaaS built for modern digital marketing agencies, enterprises, and local businesses.</p>
                 </div>
@@ -82,7 +82,7 @@
             </div>
             <hr class="border-secondary my-4">
             <div class="text-center text-secondary small">
-                &copy; {{ date('Y') }} SocialPilotX SaaS. Developed with Laravel 11, Livewire 3 & Bootstrap 5.
+                &copy; {{ date('Y') }} PostSync SaaS. Developed with Laravel 11, Livewire 3 & Bootstrap 5.
             </div>
         </div>
     </footer>

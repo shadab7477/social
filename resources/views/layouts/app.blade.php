@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name', 'SocialPilotX') }} — Social Media Management SaaS</title>
+    <title>{{ $title ?? config('app.name', 'PostSync') }} — Social Media Management SaaS</title>
 
     <!-- Google Fonts (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
                         <i class="bi bi-send-fill"></i>
                     </div>
                     <div class="brand-name">
-                        SocialPilot<span class="text-primary">X</span>
+                        Post<span class="text-primary">Sync</span>
                     </div>
                 </div>
                 <button class="btn-close d-lg-none ms-auto" type="button" onclick="toggleMobileSidebar()" aria-label="Close"></button>
@@ -177,7 +177,11 @@
                                 @endforeach
                             @endauth
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="bi bi-plus-circle me-2"></i>Manage Workspaces</a></li>
+                            <li>
+                                <button type="button" class="dropdown-item text-primary fw-semibold d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
+                                    <i class="bi bi-plus-circle me-2"></i>+ Create New Workspace
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
@@ -253,6 +257,51 @@
                 {{ $slot ?? '' }}
                 @yield('content')
             </main>
+        </div>
+    </div>
+
+    <!-- Create Workspace Modal -->
+    <div class="modal fade" id="createWorkspaceModal" tabindex="-1" aria-labelledby="createWorkspaceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form method="POST" action="{{ route('workspaces.create') }}">
+                    @csrf
+                    <div class="modal-header border-bottom py-3">
+                        <h5 class="modal-title fs-6 fw-bold mb-0" id="createWorkspaceModalLabel">
+                            <i class="bi bi-briefcase-fill text-primary me-2"></i>Create New Client Workspace
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-3">
+                            Workspaces provide 100% data isolation. Create separate workspaces for each client or brand to manage their own dedicated social channels, media assets, content calendars, and team members.
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-dark">Client Brand / Workspace Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Nike India, Starbucks Digital, Apex Media" required minlength="2" maxlength="60" autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-dark">Timezone</label>
+                            <select name="timezone" class="form-select form-select-sm">
+                                <option value="Asia/Kolkata" selected>Asia/Kolkata (IST - UTC+05:30)</option>
+                                <option value="UTC">UTC (Universal Time)</option>
+                                <option value="America/New_York">America/New_York (EST)</option>
+                                <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
+                                <option value="Europe/London">Europe/London (GMT/BST)</option>
+                                <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                                <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top py-2">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-check-lg"></i>
+                            <span>Create & Enter Workspace</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

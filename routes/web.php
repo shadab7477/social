@@ -42,6 +42,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', Register::class)->name('register');
 });
 
+// Workspace Team Invitation Acceptance (Public or Auth)
+Route::get('/invite/accept/{token}', \App\Http\Controllers\WorkspaceInviteController::class)->name('invitations.accept');
+
 // Authenticated User Session Termination
 Route::post('/logout', function () {
     auth()->logout();
@@ -52,8 +55,9 @@ Route::post('/logout', function () {
 
 // Protected Multi-Tenant SaaS Workspace Routes
 Route::middleware(['auth', 'workspace'])->group(function () {
-    // Workspace Switching
+    // Workspace Switching & Creation
     Route::post('/workspace/switch/{workspaceId}', WorkspaceSwitchController::class)->name('workspace.switch');
+    Route::post('/workspaces/create', \App\Http\Controllers\WorkspaceCreateController::class)->name('workspaces.create');
 
     // Dashboard & Overview
     Route::get('/dashboard', function () {

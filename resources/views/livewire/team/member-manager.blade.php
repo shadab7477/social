@@ -17,6 +17,19 @@
         </div>
     </div>
 
+    @if ($lastInviteLink)
+        <div class="alert alert-info border-0 shadow-sm p-3 mb-4 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <div class="fw-bold text-dark"><i class="bi bi-link-45deg fs-5 text-primary me-1"></i>Shareable Invite Link for {{ $lastInviteEmail }}:</div>
+                <code class="small user-select-all text-break">{{ $lastInviteLink }}</code>
+                <div class="text-muted small mt-1">You can send this URL directly on WhatsApp, Slack, or Email.</div>
+            </div>
+            <button class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" onclick="navigator.clipboard.writeText('{{ $lastInviteLink }}'); this.innerHTML='<i class=\'bi bi-check2\'></i> Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copy Link', 2000);">
+                <i class="bi bi-clipboard"></i> Copy Link
+            </button>
+        </div>
+    @endif
+
     <!-- Active Team Members Card -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white py-3">
@@ -125,9 +138,14 @@
                                         {{ $inv->expires_at->diffForHumans() }}
                                     </td>
                                     <td class="pe-3 text-end">
-                                        <button wire:click="cancelInvitation({{ $inv->id }})" class="btn btn-sm btn-light border text-danger" title="Cancel Invitation">
-                                            Revoke
-                                        </button>
+                                        <div class="d-flex align-items-center justify-content-end gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.75rem;" onclick="navigator.clipboard.writeText('{{ route('invitations.accept', ['token' => $inv->token]) }}'); this.innerHTML='<i class=\'bi bi-check2\'></i> Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-link-45deg\'></i> Copy Link', 2000);" title="Copy Invite Link">
+                                                <i class="bi bi-link-45deg"></i> Copy Link
+                                            </button>
+                                            <button wire:click="cancelInvitation({{ $inv->id }})" class="btn btn-sm btn-light border text-danger py-1 px-2" style="font-size: 0.75rem;" title="Cancel Invitation">
+                                                Revoke
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

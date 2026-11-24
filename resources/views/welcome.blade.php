@@ -1,4 +1,4 @@
-@extends('layouts.public', ['title' => 'SocialPilotX — Enterprise Social Media Management SaaS'])
+@extends('layouts.public', ['title' => 'PostSync — Enterprise Social Media Management SaaS'])
 
 @section('content')
 <!-- Hero Section -->
@@ -36,7 +36,7 @@
                             <span class="badge bg-danger rounded-circle p-1"></span>
                             <span class="badge bg-warning rounded-circle p-1"></span>
                             <span class="badge bg-success rounded-circle p-1"></span>
-                            <span class="small fw-semibold ms-2">SocialPilotX Composer</span>
+                            <span class="small fw-semibold ms-2">PostSync Composer</span>
                         </div>
                         <span class="badge bg-success-subtle text-success small">Live Engine</span>
                     </div>
@@ -107,7 +107,7 @@
 <section id="features" class="py-5 bg-light border-top border-bottom">
     <div class="container py-4">
         <div class="text-center mb-5">
-            <h6 class="text-uppercase text-primary fw-bold small mb-2">Why Agencies Choose SocialPilotX</h6>
+            <h6 class="text-uppercase text-primary fw-bold small mb-2">Why Agencies Choose PostSync</h6>
             <h2 class="fw-bold">Enterprise Architecture in a Single Laravel Monolith</h2>
         </div>
 

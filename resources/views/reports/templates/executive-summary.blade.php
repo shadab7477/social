@@ -300,7 +300,7 @@
 
         <!-- Footer -->
         <div style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 16px; text-align: center; font-size: 0.75rem; color: #94a3b8;">
-            Report compiled by <strong>{{ $data['agency_name'] }}</strong> using SocialPilotX Enterprise Platform.
+            Report compiled by <strong>{{ $data['agency_name'] }}</strong> using PostSync Enterprise Platform.
         </div>
     </div>
 </body>

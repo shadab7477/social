@@ -192,3 +192,4 @@ class AdminDashboard extends Component
         ])->title('Master Control Panel — Super Admin');
     }
 }
+

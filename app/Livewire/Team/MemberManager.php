@@ -19,6 +19,8 @@ class MemberManager extends Component
     // Invite fields
     public string $inviteEmail = '';
     public string $inviteRole = 'editor';
+    public ?string $lastInviteLink = null;
+    public ?string $lastInviteEmail = null;
 
     // Role Edit fields
     public ?int $selectedMemberId = null;
@@ -46,9 +48,12 @@ class MemberManager extends Component
         $workspace = app('current_workspace');
         $role = WorkspaceRole::from($this->inviteRole);
 
-        $workspaceManager->inviteMember($workspace, auth()->user(), $this->inviteEmail, $role);
+        $invitation = $workspaceManager->inviteMember($workspace, auth()->user(), $this->inviteEmail, $role);
 
-        session()->flash('success', "Invitation sent to {$this->inviteEmail}.");
+        $this->lastInviteLink = route('invitations.accept', ['token' => $invitation->token]);
+        $this->lastInviteEmail = $this->inviteEmail;
+
+        session()->flash('success', "Invitation generated for {$this->inviteEmail}. You can also copy and share the direct invite link below!");
         $this->showInviteModal = false;
         $this->reset(['inviteEmail', 'inviteRole']);
     }
