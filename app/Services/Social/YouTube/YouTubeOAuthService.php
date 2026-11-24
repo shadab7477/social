@@ -177,19 +177,22 @@ class YouTubeOAuthService implements OAuthProviderInterface, ProfileDiscoveryInt
                     $customUrl = $snippet['customUrl'] ?? $snippet['title'];
 
                     $profiles[] = new DiscoveredProfileDTO(
-                        platform: SocialPlatform::YOUTUBE,
+                        platform: SocialPlatform::YOUTUBE->value,
                         profileId: $channelId,
                         name: $snippet['title'] . ' (YouTube Channel)',
                         username: ltrim($customUrl, '@'),
                         avatarUrl: $snippet['thumbnails']['default']['url'] ?? null,
                         profileUrl: "https://www.youtube.com/channel/{$channelId}",
-                        accountType: 'channel',
+                        accessToken: $accessToken,
                         capabilities: [
                             'supports_video' => true,
                             'supports_shorts' => true,
                             'supports_scheduling' => true,
                             'supports_comments' => true,
                             'supports_analytics' => true,
+                        ],
+                        metadata: [
+                            'custom_url' => $customUrl,
                         ]
                     );
                 }
