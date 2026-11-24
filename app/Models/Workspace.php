@@ -88,6 +88,14 @@ class Workspace extends Model
     }
 
     /**
+     * Social profiles connected to this workspace.
+     */
+    public function socialProfiles(): HasMany
+    {
+        return $this->hasMany(SocialProfile::class);
+    }
+
+    /**
      * Check if a given user is the primary owner.
      */
     public function isOwner(User $user): bool

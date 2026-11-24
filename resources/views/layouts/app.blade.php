@@ -21,13 +21,16 @@
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon">
-                    <i class="bi bi-send-fill"></i>
+            <div class="sidebar-brand d-flex align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="brand-icon">
+                        <i class="bi bi-send-fill"></i>
+                    </div>
+                    <div class="brand-name">
+                        SocialPilot<span class="text-primary">X</span>
+                    </div>
                 </div>
-                <div class="brand-name">
-                    SocialPilot<span class="text-primary">X</span>
-                </div>
+                <button class="btn-close d-lg-none ms-auto" type="button" onclick="toggleMobileSidebar()" aria-label="Close"></button>
             </div>
 
             <div class="sidebar-menu">
@@ -106,6 +109,21 @@
                         <span>Settings & Audit</span>
                     </a>
                 </nav>
+
+                @auth
+                    @if (auth()->user()->is_super_admin)
+                        <div class="menu-header mt-3 text-danger d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-shield-lock-fill me-1"></i> Governance</span>
+                            <span class="badge bg-danger" style="font-size: 0.6rem;">SUPER ADMIN</span>
+                        </div>
+                        <nav class="nav flex-column">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }} text-danger fw-semibold">
+                                <i class="bi bi-speedometer2 text-danger"></i>
+                                <span>Admin Panel</span>
+                            </a>
+                        </nav>
+                    @endif
+                @endauth
             </div>
 
             <div class="sidebar-footer">
@@ -123,20 +141,23 @@
             </div>
         </aside>
 
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div class="sidebar-backdrop d-lg-none" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
         <!-- Main Content Area -->
         <div class="app-content">
             <!-- Top Navbar -->
             <header class="app-header">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse">
+                <div class="d-flex align-items-center gap-2 gap-sm-3">
+                    <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation">
                         <i class="bi bi-list fs-5"></i>
                     </button>
 
                     <!-- Active Workspace Dropdown -->
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light border text-dark dropdown-toggle d-flex align-items-center gap-2 fw-medium" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-sm btn-outline-light border text-dark dropdown-toggle d-flex align-items-center gap-1 gap-sm-2 fw-medium" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-briefcase-fill text-primary"></i>
-                            <span>{{ session('active_workspace_name', 'Select Workspace') }}</span>
+                            <span class="text-truncate d-inline-block" style="max-width: 130px;">{{ session('active_workspace_name', 'Select Workspace') }}</span>
                         </button>
                         <ul class="dropdown-menu shadow-sm">
                             <li class="dropdown-header text-uppercase small fw-bold">Switch Workspace</li>
@@ -237,6 +258,17 @@
 
     @livewireScripts
     @stack('scripts')
+    <script>
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.app-sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('show-mobile');
+                backdrop.classList.toggle('show');
+                document.body.classList.toggle('overflow-hidden');
+            }
+        }
+    </script>
 </body>
 </html>
 

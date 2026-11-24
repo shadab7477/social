@@ -295,3 +295,101 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
     overflow: hidden;
 }
 
+// -------------------------------------------------------------
+// 5. Responsive Mobile & Tablet Layout Rules
+// -------------------------------------------------------------
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -280px;
+        width: 270px;
+        height: 100vh;
+        z-index: 1055;
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.25);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.show-mobile {
+            transform: translateX(280px);
+        }
+    }
+
+    .sidebar-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(3px);
+        z-index: 1050;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+
+        &.show {
+            display: block;
+            opacity: 1;
+        }
+    }
+
+    .app-header {
+        padding: 0 1rem;
+        height: 58px;
+    }
+
+    .app-content {
+        width: 100%;
+        min-width: 0;
+
+        .main-body {
+            padding: 1rem 0.75rem;
+        }
+    }
+
+    // Modal dialogs on mobile
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .app-header {
+        padding: 0 0.75rem;
+
+        .workspace-switcher {
+            max-width: 130px;
+        }
+    }
+
+    .main-body {
+        padding: 0.85rem 0.5rem !important;
+    }
+
+    .card {
+        margin-bottom: 0.85rem;
+        border-radius: $border-radius-sm;
+
+        .card-header, .card-body, .card-footer {
+            padding: 0.75rem;
+        }
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.55rem;
+        font-size: 0.75rem;
+    }
+
+    .table {
+        font-size: 0.8rem;
+    }
+}
+
+// Touch momentum scrolling for all tables and grids
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+

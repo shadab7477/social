@@ -101,6 +101,11 @@ Route::middleware(['auth', 'workspace'])->group(function () {
     })->name('settings.index');
 });
 
+// Super Administrator Platform Master Control Panel
+Route::middleware(['auth', 'super_admin'])->prefix('admin')->group(function () {
+    Route::get('/', \App\Livewire\Admin\AdminDashboard::class)->name('admin.dashboard');
+});
+
 // Background Cron Runner Trigger (for shared hosting or external cron services)
 Route::get('/cron/run', function () {
     \Illuminate\Support\Facades\Artisan::call('schedule:run');

@@ -54,6 +54,16 @@ class WorkspaceManagerService
      */
     public function switchWorkspace(User $user, int $workspaceId): Workspace
     {
+        // Super Admin can switch directly to any active workspace in the system
+        if ($user->is_super_admin) {
+            $workspace = Workspace::where('is_active', true)->findOrFail($workspaceId);
+            session([
+                'active_workspace_id' => $workspace->id,
+                'active_workspace_name' => $workspace->name,
+            ]);
+            return $workspace;
+        }
+
         $member = WorkspaceMember::where('workspace_id', $workspaceId)
             ->where('user_id', $user->id)
             ->where('is_active', true)
