@@ -49,7 +49,18 @@ enum SocialPlatform: string
 
     public function cssClass(): string
     {
-        return $this->value;
+        return match ($this) {
+            self::FACEBOOK => 'bg-primary text-white',
+            self::INSTAGRAM => 'bg-danger text-white',
+            self::LINKEDIN => 'bg-info text-dark',
+            self::YOUTUBE => 'bg-danger text-white',
+            self::TIKTOK => 'bg-dark text-white',
+            self::PINTEREST => 'bg-danger text-white',
+            self::X => 'bg-dark text-white',
+            self::THREADS => 'bg-dark text-white',
+            self::GOOGLE_BUSINESS => 'bg-success text-white',
+            self::BLUESKY => 'bg-info text-white',
+        };
     }
 
     public function supportsPKCE(): bool

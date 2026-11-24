@@ -177,6 +177,7 @@ class PostComposer extends Component
         }
 
         $workspace = app('current_workspace');
+        $tz = $workspace->timezone ?? config('app.timezone', 'Asia/Kolkata');
         $author = auth()->user();
 
         $status = match ($action) {
@@ -187,7 +188,7 @@ class PostComposer extends Component
 
         $scheduledAt = null;
         if ($action === 'schedule') {
-            $scheduledAt = Carbon::parse("{$this->scheduledDate} {$this->scheduledTime}");
+            $scheduledAt = Carbon::parse("{$this->scheduledDate} {$this->scheduledTime}", $tz);
         } elseif ($action === 'now') {
             $scheduledAt = now();
         }
@@ -202,12 +203,19 @@ class PostComposer extends Component
             'media_asset_ids' => $this->selectedMediaAssetIds,
             'status' => $status,
             'scheduled_at' => $scheduledAt,
+            'timezone' => $tz,
         ]);
+
+        if ($action === 'now') {
+            foreach ($post->variants as $variant) {
+                \App\Jobs\Publishing\PublishPostVariantJob::dispatch($variant->id, (string) \Illuminate\Support\Str::uuid());
+            }
+        }
 
         $message = match ($action) {
             'draft' => "Post draft saved successfully!",
             'schedule' => "Post scheduled for " . $scheduledAt->format('M d, Y h:i A') . "!",
-            'now' => "Post queued for immediate publishing!",
+            'now' => "Post published immediately!",
         };
 
         session()->flash('success', $message);

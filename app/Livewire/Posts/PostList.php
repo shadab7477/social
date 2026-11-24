@@ -102,8 +102,12 @@ class PostList extends Component
         PublishPostVariantJob::dispatch($variant->id, (string) Str::uuid())
             ->onQueue('publishing');
 
-        $this->feedbackMessage = "Retry job dispatched to worker for {$variant->socialProfile?->name}!";
+        $this->feedbackMessage = "Retry job dispatched for {$variant->socialProfile?->name}!";
         $this->feedbackType = 'info';
+
+        if ($this->selectedPostId) {
+            $this->openDetailModal($this->selectedPostId);
+        }
     }
 
     /**

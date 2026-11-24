@@ -101,6 +101,16 @@ Route::middleware(['auth', 'workspace'])->group(function () {
     })->name('settings.index');
 });
 
+// Background Cron Runner Trigger (for shared hosting or external cron services)
+Route::get('/cron/run', function () {
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Scheduler executed successfully',
+        'output' => trim(\Illuminate\Support\Facades\Artisan::output()),
+    ]);
+})->name('cron.run');
+
 // Storage Asset Serving Fallback (ensures uploaded media works even without symlinks or on shared hosting)
 Route::get('/storage/{path}', function (string $path) {
     $cleanPath = str_replace(['../', '..\\'], '', $path);
