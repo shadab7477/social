@@ -247,7 +247,7 @@ class FacebookAndInstagramIntegrationTest extends TestCase
     public function test_meta_webhook_challenge_verification(): void
     {
         $challenge = 'sample_random_challenge_123456';
-        $verifyToken = 'socialpilotx_meta_secret_token';
+        $verifyToken = config('services.facebook.verify_token', 'postsync_meta_verify_2026');
 
         $response = $this->get("/webhooks/meta?hub_mode=subscribe&hub_verify_token={$verifyToken}&hub_challenge={$challenge}");
 
@@ -291,6 +291,38 @@ class FacebookAndInstagramIntegrationTest extends TestCase
         $this->assertNotNull($event);
         $this->assertEquals('pending', $event->status);
         $this->assertEquals('page', $event->event_name);
+    }
+
+    /**
+     * Test Meta User Data Deletion Callback and Status Page.
+     */
+    public function test_meta_user_data_deletion_callback(): void
+    {
+        $response = $this->postJson('/webhooks/meta/data-deletion', [
+            'signed_request' => 'mock_test_request',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['url', 'confirmation_code']);
+
+        $data = $response->json();
+        $this->assertStringStartsWith('DEL_', $data['confirmation_code']);
+        $this->assertStringContainsString('/deletion-status?code=', $data['url']);
+
+        // Verify status page
+        $statusPage = $this->get($data['url']);
+        $statusPage->assertStatus(200);
+        $statusPage->assertSee($data['confirmation_code']);
+    }
+
+    /**
+     * Test Meta Legal Pages (Privacy Policy, Terms of Service, Data Deletion Instructions).
+     */
+    public function test_meta_legal_compliance_pages(): void
+    {
+        $this->get('/privacy-policy')->assertStatus(200)->assertSee('postsync.cloud');
+        $this->get('/terms')->assertStatus(200)->assertSee('postsync.cloud');
+        $this->get('/data-deletion')->assertStatus(200)->assertSee('postsync.cloud');
     }
 }
 

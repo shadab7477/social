@@ -27,9 +27,14 @@ Route::get('/data-deletion', function () {
     return view('legal.deletion');
 })->name('legal.deletion');
 
+Route::get('/deletion-status', function () {
+    return view('legal.deletion-status');
+})->name('legal.deletion.status');
+
 // Webhooks Endpoints (CSRF Exempt)
 Route::get('/webhooks/meta', [\App\Http\Controllers\MetaWebhookController::class, 'verify'])->name('webhooks.meta.verify');
 Route::post('/webhooks/meta', [\App\Http\Controllers\MetaWebhookController::class, 'handle'])->name('webhooks.meta.handle');
+Route::post('/webhooks/meta/data-deletion', [\App\Http\Controllers\MetaWebhookController::class, 'dataDeletion'])->name('webhooks.meta.data-deletion');
 
 // Guest Authentication Routes (Livewire 3)
 Route::middleware('guest')->group(function () {
