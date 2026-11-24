@@ -56,7 +56,7 @@ return new class extends Migration
             $table->foreignId('assigned_by_user_id')->constrained('users')->onDelete('cascade');
             $table->timestamp('created_at')->useCurrent();
 
-            $table->index(['conversation_id', 'assigned_to_user_id']);
+            $table->index(['conversation_id', 'assigned_to_user_id'], 'idx_conv_assign');
         });
     }
 
