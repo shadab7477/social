@@ -375,11 +375,32 @@
                                             @endif
 
                                             @if($variant->status === \App\Enums\PostStatus::FAILED && $variant->error_message)
-                                                <div class="alert alert-danger py-2 px-3 mb-2 small">
-                                                    <strong>Error:</strong> {{ $variant->error_message }}
-                                                    @if($variant->retry_count > 0)
-                                                        <span class="badge bg-danger ms-2">Attempts: {{ $variant->retry_count }}</span>
-                                                    @endif
+                                                <div class="alert alert-danger p-3 mb-2 rounded-3 border-danger shadow-xs">
+                                                    <div class="d-flex align-items-start gap-2">
+                                                        <i class="bi bi-exclamation-octagon-fill fs-5 text-danger flex-shrink-0 mt-1"></i>
+                                                        <div>
+                                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                                <h6 class="fw-bold mb-0 text-danger small">Publishing Failed</h6>
+                                                                @if($variant->retry_count > 0)
+                                                                    <span class="badge bg-danger">Attempts: {{ $variant->retry_count }}</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="small text-dark mb-2">
+                                                                {{ $variant->error_message }}
+                                                            </div>
+                                                            @if(str_contains($variant->error_message, '200') || str_contains(strtolower($variant->error_message), 'permission'))
+                                                                <div class="p-2 bg-white bg-opacity-75 rounded border border-danger-subtle small mt-1">
+                                                                    <strong class="d-block text-dark mb-1"><i class="bi bi-lightbulb-fill text-warning me-1"></i> How to fix:</strong>
+                                                                    <ol class="mb-0 ps-3 text-secondary" style="font-size: 0.75rem;">
+                                                                        <li>Open <a href="https://developers.facebook.com/apps" target="_blank" class="fw-bold text-decoration-underline text-danger">developers.facebook.com</a> & select your App.</li>
+                                                                        <li>Go to <strong>Use Cases ➡️ Manage and access Pages</strong> & add <strong>pages_manage_posts</strong>.</li>
+                                                                        <li>Go to <strong>App Roles ➡️ Roles</strong> and ensure your Facebook profile is listed as <strong>Admin</strong> or <strong>Developer</strong>.</li>
+                                                                        <li>Go to <a href="{{ route('social-accounts.index') }}" class="fw-bold text-decoration-underline text-primary">Social Accounts</a> and click <strong>Reconnect</strong>.</li>
+                                                                    </ol>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             @endif
 

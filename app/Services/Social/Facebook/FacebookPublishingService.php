@@ -177,7 +177,21 @@ class FacebookPublishingService implements SocialProviderInterface, PublishingPr
 
         $errorData = $response->json('error') ?? [];
         $errorCode = (string)($errorData['code'] ?? $response->status());
-        $errorMessage = $errorData['message'] ?? 'Unknown Meta Graph API error.';
+        $rawMessage = $errorData['message'] ?? 'Unknown Meta Graph API error.';
+        $userMsg = $errorData['error_user_msg'] ?? null;
+
+        // Human-friendly contextual diagnostics
+        if ((int)$errorCode === 200 || str_contains(strtolower($rawMessage), 'permission')) {
+            $errorMessage = "(#200) Permissions error: Missing 'pages_manage_posts' permission. Your Meta App requires 'pages_manage_posts' in Use Cases, your Facebook profile must be an App Admin/Developer, and the Page must be reconnected.";
+        } elseif ((int)$errorCode === 190) {
+            $errorMessage = "(#190) Invalid Access Token: Session has expired or was revoked. Please reconnect this Facebook account.";
+        } elseif (in_array((int)$errorCode, [32, 613], true)) {
+            $errorMessage = "(#{$errorCode}) Meta API rate limit exceeded. Please wait a few minutes before retrying.";
+        } elseif (!empty($userMsg)) {
+            $errorMessage = "(#{$errorCode}) {$rawMessage} - {$userMsg}";
+        } else {
+            $errorMessage = "(#{$errorCode}) {$rawMessage}";
+        }
 
         // Determine if retriable (Rate limits: code 32, 613; Temporary server error: code 1, 2)
         $retriable = in_array((int)$errorCode, [1, 2, 32, 613], true);
