@@ -36,6 +36,7 @@ return [
         'client_secret' => env('META_APP_SECRET'),
         'redirect' => env('META_REDIRECT_URI', env('APP_URL', 'http://localhost:8000') . '/oauth/callback/facebook'),
         'verify_token' => env('META_WEBHOOK_VERIFY_TOKEN', 'postsync_meta_verify_2026'),
+        'scopes' => env('META_SCOPES', 'pages_show_list,pages_read_engagement,instagram_basic'),
     ],
 
     'linkedin' => [

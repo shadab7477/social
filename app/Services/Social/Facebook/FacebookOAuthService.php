@@ -37,14 +37,18 @@ class FacebookOAuthService implements SocialProviderInterface, OAuthProviderInte
 
     public function getAuthorizationUrl(OAuthTransaction $transaction): string
     {
-        $scopes = [
-            'pages_show_list',
-            'pages_read_engagement',
-            'pages_manage_posts',
-            'read_insights',
-            'instagram_basic',
-            'instagram_content_publish',
-        ];
+        $configuredScopes = config('services.facebook.scopes');
+        if (is_array($configuredScopes)) {
+            $scopes = $configuredScopes;
+        } elseif (is_string($configuredScopes) && !empty($configuredScopes)) {
+            $scopes = array_filter(array_map('trim', explode(',', $configuredScopes)));
+        } else {
+            $scopes = [
+                'pages_show_list',
+                'pages_read_engagement',
+                'instagram_basic',
+            ];
+        }
 
         $params = http_build_query([
             'client_id' => $this->appId,

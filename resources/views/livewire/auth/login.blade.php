@@ -1,5 +1,5 @@
 <div>
-    <h4 class="fw-bold text-dark mb-1">Sign In to SocialPilotX</h4>
+    <h4 class="fw-bold text-dark mb-1">Sign In to PostSync</h4>
     <p class="text-muted small mb-4">Enter your credentials to access your agency workspace.</p>
 
     <form wire:submit="login">
@@ -27,9 +27,9 @@
 
         <!-- Remember Me -->
         <div class="form-check mb-4">
-            <input class="form-check-input" type="checkbox" id="rememberMe" wire:model="remember">
+            <input class="form-check-input" type="checkbox" id="rememberMe" wire:model="remember" checked>
             <label class="form-check-label small text-muted" for="rememberMe">
-                Remember me on this device
+                Remember me on this device (Stay signed in)
             </label>
         </div>
 
