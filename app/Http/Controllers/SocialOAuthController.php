@@ -71,14 +71,18 @@ class SocialOAuthController extends Controller
         }
 
         $stateToken = Str::random(64);
-        $redirectUrl = route('oauth.callback', ['platform' => $platform]);
+
+        // Instagram uses Meta/Facebook Graph OAuth underneath; reuse the facebook callback URI
+        // so users don't need a separate redirect URI whitelisted in Meta
+        $callbackPlatform = ($platformEnum === SocialPlatform::INSTAGRAM) ? 'facebook' : $platform;
+        $redirectUrl = route('oauth.callback', ['platform' => $callbackPlatform]);
 
         // Save ephemeral transaction record
         $transaction = OAuthTransaction::create([
             'state_token' => $stateToken,
             'workspace_id' => $workspace->id,
             'user_id' => $user->id,
-            'platform' => $platform,
+            'platform' => $callbackPlatform,
             'code_verifier' => $codeVerifier,
             'redirect_url' => $redirectUrl,
             'is_consumed' => false,
@@ -111,7 +115,6 @@ class SocialOAuthController extends Controller
 
         // 1. Anti-CSRF & State Validation
         $transaction = OAuthTransaction::where('state_token', $stateToken)
-            ->where('platform', $platform)
             ->where('is_consumed', false)
             ->first();
 
