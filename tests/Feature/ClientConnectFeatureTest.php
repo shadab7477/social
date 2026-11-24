@@ -47,6 +47,7 @@ class ClientConnectFeatureTest extends TestCase
             'is_active' => true,
         ]);
 
+        // Facebook direct redirect
         $response = $this->get(route('client-connect.oauth', [
             'uuid' => $workspace->uuid,
             'platform' => 'facebook',
@@ -60,6 +61,15 @@ class ClientConnectFeatureTest extends TestCase
             'user_id' => $owner->id,
             'platform' => 'facebook',
         ]);
+
+        // Direct Instagram connect URL redirects straight to Meta dialog
+        $igResponse = $this->get(route('client-connect.oauth', [
+            'uuid' => $workspace->uuid,
+            'platform' => 'instagram',
+        ]));
+
+        $igResponse->assertRedirect();
+        $this->assertStringContainsString('facebook.com', $igResponse->headers->get('Location'));
     }
 
     public function test_client_oauth_callback_auto_imports_profiles_and_redirects_to_success(): void

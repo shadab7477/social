@@ -162,6 +162,16 @@
                                 @endif
                             </div>
                         </div>
+
+                        @if (in_array($platform->value, ['facebook', 'instagram', 'linkedin', 'youtube', 'google_business']))
+                            @php
+                                $currWs = app('current_workspace');
+                                $cardDirectUrl = $currWs ? route('client-connect.oauth', ['uuid' => $currWs->uuid, 'platform' => $platform->value]) : '';
+                            @endphp
+                            <button type="button" class="btn btn-xs btn-light border text-muted px-2 py-1 rounded-pill" onclick="navigator.clipboard.writeText('{{ $cardDirectUrl }}'); this.innerHTML='<i class=\'bi bi-check text-success\'></i> Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-link-45deg\'></i> Link', 2000);" title="Copy Direct Client URL (Instant redirect to {{ $platform->label() }})">
+                                <i class="bi bi-link-45deg"></i> Link
+                            </button>
+                        @endif
                     </div>
 
                     <p class="text-muted small mb-4" style="min-height: 38px;">
@@ -181,10 +191,49 @@
 
                     <div class="mt-auto">
                         @if (in_array($platform->value, ['facebook', 'instagram', 'linkedin', 'youtube', 'google_business']))
-                            <a href="{{ route('oauth.connect', ['platform' => $platform->value]) }}" class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-plus-lg"></i>
-                                <span>Connect {{ $platform->label() }}</span>
-                            </a>
+                            @php
+                                $currWs = app('current_workspace');
+                                $cardDirectUrl = $currWs ? route('client-connect.oauth', ['uuid' => $currWs->uuid, 'platform' => $platform->value]) : '';
+                                $platformWaText = 'Hi! Please click this secure link to connect your official ' . $platform->label() . ' account for ' . ($currWs?->name ?? 'our agency') . ': ' . $cardDirectUrl;
+                            @endphp
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="{{ route('oauth.connect', ['platform' => $platform->value]) }}" class="btn btn-outline-primary btn-sm flex-grow-1 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="bi bi-plus-lg"></i>
+                                    <span>Connect {{ $platform->label() }}</span>
+                                </a>
+
+                                <!-- Client Direct Connect Share Dropdown -->
+                                <div class="dropdown">
+                                    <button type="button" class="btn btn-primary btn-sm px-2 d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-expanded="false" title="Copy / Share Client Direct URL (Instant Redirect to {{ $platform->label() }})">
+                                        <i class="bi bi-link-45deg fs-6"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 250px;">
+                                        <li class="px-2 py-1">
+                                            <span class="small fw-bold text-dark d-block">Client Direct URL</span>
+                                            <span class="text-muted" style="font-size: 0.72rem;">Client taps this link and logs in directly with {{ $platform->label() }}.</span>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <button type="button" class="dropdown-item small d-flex align-items-center gap-2 py-2 rounded" onclick="navigator.clipboard.writeText('{{ $cardDirectUrl }}'); this.innerHTML='<i class=\'bi bi-check-lg text-success\'></i> <span>URL Copied!</span>'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> <span>Copy Direct URL</span>', 2000);">
+                                                <i class="bi bi-clipboard"></i>
+                                                <span>Copy Direct URL</span>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item small d-flex align-items-center gap-2 py-2 rounded text-success" href="https://api.whatsapp.com/send?text={{ urlencode($platformWaText) }}" target="_blank">
+                                                <i class="bi bi-whatsapp"></i>
+                                                <span>Share on WhatsApp</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item small d-flex align-items-center gap-2 py-2 rounded text-muted" href="mailto:?subject={{ urlencode('Connect your ' . $platform->label() . ' account') }}&body={{ urlencode($platformWaText) }}">
+                                                <i class="bi bi-envelope"></i>
+                                                <span>Share via Email</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         @else
                             <button class="btn btn-light border btn-sm w-100 text-muted" disabled>
                                 <i class="bi bi-clock-history me-1"></i> Phase 15
