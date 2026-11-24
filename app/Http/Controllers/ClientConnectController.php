@@ -105,3 +105,4 @@ class ClientConnectController extends Controller
         return view('client-connect.success', compact('workspace', 'connectedProfiles'));
     }
 }
+
