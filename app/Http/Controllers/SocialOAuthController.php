@@ -125,15 +125,22 @@ class SocialOAuthController extends Controller
         // 2. Anti-Replay: Immediately consume the transaction state
         $transaction->consume();
 
-        // 3. Prevent Cross-User / Account Hijacking
+        // Check if this was initiated via public Client Connect link
+        $isClientConnect = (session('client_connect_state') === $stateToken) || (session('client_connect_workspace_id') === $transaction->workspace_id);
         $currentUser = $request->user();
-        if ($currentUser->id !== $transaction->user_id) {
-            abort(403, "OAuth transaction initiator does not match the current authenticated user.");
-        }
 
-        // 4. Verify user still has active access to the transaction workspace
-        if (!$currentUser->belongsToWorkspace($transaction->workspace_id)) {
-            abort(403, "You no longer belong to the workspace that initiated this connection.");
+        if ($isClientConnect) {
+            $workspace = $transaction->workspace;
+        } else {
+            // 3. Prevent Cross-User / Account Hijacking
+            if (!$currentUser || $currentUser->id !== $transaction->user_id) {
+                abort(403, "OAuth transaction initiator does not match the current authenticated user.");
+            }
+
+            // 4. Verify user still has active access to the transaction workspace
+            if (!$currentUser->belongsToWorkspace($transaction->workspace_id)) {
+                abort(403, "You no longer belong to the workspace that initiated this connection.");
+            }
         }
 
         try {
@@ -178,7 +185,42 @@ class SocialOAuthController extends Controller
             // 8. Discover available profiles / pages
             $discoveredProfiles = $oauthProvider->discoverProfiles($tokenDto);
 
-            // 9. Put discovered profiles in session for the profile selection modal
+            // 9. Client Connect Flow: Automatically import profiles into client workspace
+            if ($isClientConnect) {
+                $importedCount = 0;
+                foreach ($discoveredProfiles as $profileDto) {
+                    $pData = is_array($profileDto) ? $profileDto : $profileDto->toArray();
+                    \App\Models\SocialProfile::withoutGlobalScopes()->updateOrCreate(
+                        [
+                            'workspace_id' => $transaction->workspace_id,
+                            'platform' => $pData['platform'],
+                            'profile_id' => $pData['profileId'],
+                        ],
+                        [
+                            'connection_id' => $connection->id,
+                            'name' => $pData['name'],
+                            'username' => $pData['username'] ?? null,
+                            'avatar_url' => $pData['avatarUrl'] ?? null,
+                            'profile_url' => $pData['profileUrl'] ?? null,
+                            'access_token' => $pData['accessToken'] ?? null,
+                            'capabilities' => $pData['capabilities'] ?? [],
+                            'metadata' => $pData['metadata'] ?? [],
+                            'is_active' => true,
+                            'publishing_enabled' => true,
+                            'last_health_check_at' => now(),
+                        ]
+                    );
+                    $importedCount++;
+                }
+
+                $clientUuid = session('client_connect_uuid') ?? $transaction->workspace?->uuid;
+                session()->forget(['client_connect_uuid', 'client_connect_state', 'client_connect_workspace_id']);
+
+                return redirect()->route('client-connect.success', ['uuid' => $clientUuid])
+                    ->with('success', "🎉 Your '{$connection->account_name}' account and {$importedCount} profile(s) have been successfully linked!");
+            }
+
+            // Normal Dashboard Flow: Put discovered profiles in session for the profile selection modal
             session([
                 'pending_connection_id' => $connection->id,
                 'pending_discovered_profiles' => serialize($discoveredProfiles),
@@ -188,6 +230,11 @@ class SocialOAuthController extends Controller
                 ->with('success', "Account '{$connection->account_name}' connected successfully! Please select the pages or channels you want to import.");
 
         } catch (Exception $e) {
+            if ($isClientConnect && ($clientUuid = session('client_connect_uuid') ?? $transaction->workspace?->uuid)) {
+                return redirect()->route('client-connect.show', ['uuid' => $clientUuid])
+                    ->with('error', "Failed to complete connection: " . $e->getMessage());
+            }
+
             return redirect()->route('social-accounts.index')->with('error', "Failed to complete connection: " . $e->getMessage());
         }
     }

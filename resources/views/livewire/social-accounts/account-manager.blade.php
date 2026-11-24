@@ -10,9 +10,13 @@
             </p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <button type="button" wire:click="connectDemoProfiles" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 shadow-sm">
+            <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#clientConnectModal">
+                <i class="bi bi-link-45deg fs-6"></i>
+                <span class="fw-semibold">🔗 Share Client Connect Link</span>
+            </button>
+            <button type="button" wire:click="connectDemoProfiles" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 shadow-sm">
                 <i class="bi bi-lightning-charge-fill text-warning"></i>
-                <span class="fw-semibold">⚡ Connect Demo Accounts (Sandbox)</span>
+                <span class="fw-semibold">⚡ Demo Accounts</span>
             </button>
         </div>
     </div>
@@ -258,4 +262,68 @@
             </div>
         </div>
     @endif
+
+    <!-- Client Connect Share Modal -->
+    @php
+        $currWs = app('current_workspace');
+        $clientConnectUrl = $currWs ? route('client-connect.show', ['uuid' => $currWs->uuid]) : '';
+        $waMessage = 'Hi! Please click this link to securely connect your official Facebook, Instagram, or LinkedIn accounts so we can manage your social media marketing: ' . $clientConnectUrl;
+    @endphp
+    <div class="modal fade" id="clientConnectModal" tabindex="-1" aria-labelledby="clientConnectModalLabel" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="clientConnectModalLabel">
+                        <i class="bi bi-link-45deg text-primary fs-4"></i>
+                        <span>Client Social Connect Link</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">
+                        Send this secure link to your client via WhatsApp or Email. Your client can open the link on their mobile or PC, log into their Facebook, Instagram, or LinkedIn, and authorize access directly. <strong>You will never need to ask them for their passwords!</strong>
+                    </p>
+
+                    <label class="form-label small fw-semibold text-dark">Shareable Client Connect URL:</label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control form-control-sm bg-light" id="clientConnectUrlInput" value="{{ $clientConnectUrl }}" readonly>
+                        <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" type="button" onclick="navigator.clipboard.writeText(document.getElementById('clientConnectUrlInput').value); this.innerHTML='<i class=\'bi bi-check2\'></i> Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copy', 2000);">
+                            <i class="bi bi-clipboard"></i>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($waMessage) }}" target="_blank" class="btn btn-sm btn-success d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-whatsapp"></i>
+                            <span>Share on WhatsApp</span>
+                        </a>
+                        <a href="mailto:?subject={{ urlencode('Connect your social media accounts for ' . ($currWs?->name ?? 'our agency')) }}&body={{ urlencode($waMessage) }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-envelope"></i>
+                            <span>Share via Email</span>
+                        </a>
+                        <a href="{{ $clientConnectUrl }}" target="_blank" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span>Preview Client Page</span>
+                        </a>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <h6 class="fw-bold text-dark small mb-1">
+                            <i class="bi bi-people-fill text-primary me-1"></i>Want client to also log into PostSync dashboard?
+                        </h6>
+                        <p class="text-muted small mb-2">
+                            If you want your client to log into PostSync to review the content calendar and approve posts, invite them as a team member with the <strong>Client Viewer</strong> role.
+                        </p>
+                        <a href="{{ route('team.index') }}" class="btn btn-sm btn-light border text-primary fw-semibold">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Go to Team Page to Invite Client
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

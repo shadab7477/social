@@ -27,3 +27,4 @@ class WorkspaceCreateController extends Controller
         return redirect()->route('dashboard')->with('success', "Workspace '{$workspace->name}' created successfully! You are now managing this workspace.");
     }
 }
+

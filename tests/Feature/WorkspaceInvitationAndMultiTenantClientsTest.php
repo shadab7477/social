@@ -107,3 +107,4 @@ class WorkspaceInvitationAndMultiTenantClientsTest extends TestCase
         $this->assertEquals($invitation->token, session('pending_invite_token'));
     }
 }
+

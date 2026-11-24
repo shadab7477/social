@@ -45,6 +45,14 @@ Route::middleware('guest')->group(function () {
 // Workspace Team Invitation Acceptance (Public or Auth)
 Route::get('/invite/accept/{token}', \App\Http\Controllers\WorkspaceInviteController::class)->name('invitations.accept');
 
+// Public Client Social Account Connect (Client can connect their own Facebook/Instagram/LinkedIn/YouTube)
+Route::get('/client-connect/{uuid}', [\App\Http\Controllers\ClientConnectController::class, 'show'])->name('client-connect.show');
+Route::get('/client-connect/{uuid}/connect/{platform}', [\App\Http\Controllers\ClientConnectController::class, 'connect'])->name('client-connect.oauth');
+Route::get('/client-connect/{uuid}/success', [\App\Http\Controllers\ClientConnectController::class, 'success'])->name('client-connect.success');
+
+// OAuth 2.0 Callback (Public endpoint: handles both dashboard users and external client connect handshakes)
+Route::get('/oauth/callback/{platform}', [\App\Http\Controllers\SocialOAuthController::class, 'callback'])->name('oauth.callback');
+
 // Authenticated User Session Termination
 Route::post('/logout', function () {
     auth()->logout();
@@ -74,9 +82,8 @@ Route::middleware(['auth', 'workspace'])->group(function () {
     // Engagement & Social Profiles
     Route::get('/social-accounts', \App\Livewire\SocialAccounts\AccountManager::class)->name('social-accounts.index');
 
-    // OAuth 2.0 PKCE Handshake Endpoints
+    // OAuth 2.0 PKCE Handshake Initiator (Workspace Users)
     Route::get('/oauth/connect/{platform}', [\App\Http\Controllers\SocialOAuthController::class, 'connect'])->name('oauth.connect');
-    Route::get('/oauth/callback/{platform}', [\App\Http\Controllers\SocialOAuthController::class, 'callback'])->name('oauth.callback');
 
     Route::get('/inbox', \App\Livewire\Inbox\UnifiedInbox::class)->name('inbox.index');
 
