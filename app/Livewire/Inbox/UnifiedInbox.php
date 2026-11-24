@@ -147,6 +147,42 @@ class UnifiedInbox extends Component
         $this->replyText = $text;
     }
 
+    /**
+     * Synchronize live comments from connected social accounts.
+     */
+    public function syncLiveComments(SocialInboxService $inboxService): void
+    {
+        $workspace = app('current_workspace');
+        $count = $inboxService->syncLiveInteractions($workspace);
+
+        if ($count > 0) {
+            $this->feedbackMessage = "Successfully synced {$count} live comment(s) from your connected social pages!";
+            $this->feedbackType = 'success';
+        } else {
+            $this->feedbackMessage = "Checked connected social accounts. No new comments were found on your pages. (Tip: Use '⚡ Add Test Interaction' to test replying in real-time).";
+            $this->feedbackType = 'info';
+        }
+
+        if (!$this->selectedConversationId) {
+            $first = Conversation::where('status', ConversationStatus::OPEN)->latest('last_activity_at')->first();
+            if ($first) {
+                $this->selectedConversationId = $first->id;
+            }
+        }
+    }
+
+    /**
+     * Generate a realistic test conversation so user can immediately test replying.
+     */
+    public function generateTestInteraction(SocialInboxService $inboxService): void
+    {
+        $workspace = app('current_workspace');
+        $conv = $inboxService->generateSampleConversation($workspace);
+        $this->selectedConversationId = $conv->id;
+        $this->feedbackMessage = "Test interaction generated from {$conv->sender_name}! You can now type a reply below.";
+        $this->feedbackType = 'success';
+    }
+
     public function render()
     {
         $query = Conversation::query()

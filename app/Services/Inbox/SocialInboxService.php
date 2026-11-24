@@ -92,11 +92,11 @@ class SocialInboxService
             $profile = $conversation->socialProfile;
             $accessToken = $profile->access_token ?? $profile->connection?->access_token;
 
-            // Mock/Live Meta Graph API Comment Reply dispatch
-            if ($accessToken && config('services.facebook.live_replies', false)) {
+            // Live Meta Graph API Comment Reply dispatch
+            if ($accessToken && !empty($conversation->external_conversation_id) && !str_starts_with($conversation->external_conversation_id, 'demo_')) {
                 try {
                     $url = "https://graph.facebook.com/v20.0/{$conversation->external_conversation_id}/comments";
-                    Http::withToken($accessToken)->post($url, ['message' => $replyText]);
+                    Http::withToken($accessToken)->timeout(10)->post($url, ['message' => $replyText]);
                 } catch (\Exception $e) {
                     Log::warning("Provider reply dispatch skipped: " . $e->getMessage());
                 }
@@ -153,6 +153,103 @@ class SocialInboxService
             'assigned_to_user_id' => $assignTo->id,
             'assigned_by_user_id' => $assignedBy->id,
         ]);
+    }
+
+    /**
+     * Poll Meta Graph API for recent comments on published posts.
+     */
+    public function syncLiveInteractions(\App\Models\Workspace $workspace): int
+    {
+        $profiles = SocialProfile::where('workspace_id', $workspace->id)
+            ->where('is_active', true)
+            ->whereIn('platform', [\App\Enums\SocialPlatform::FACEBOOK, \App\Enums\SocialPlatform::INSTAGRAM])
+            ->get();
+
+        $ingested = 0;
+        foreach ($profiles as $profile) {
+            $token = $profile->access_token ?? $profile->connection?->access_token;
+            if (!$token || !$profile->profile_id) {
+                continue;
+            }
+
+            try {
+                $res = Http::withToken($token)
+                    ->timeout(10)
+                    ->get("https://graph.facebook.com/v20.0/{$profile->profile_id}/feed", [
+                        'fields' => 'id,message,comments{id,message,from,created_time}',
+                        'limit' => 10,
+                    ]);
+
+                if ($res->successful()) {
+                    $posts = $res->json('data') ?? [];
+                    foreach ($posts as $post) {
+                        $comments = $post['comments']['data'] ?? [];
+                        foreach ($comments as $comment) {
+                            $this->ingestInboundMessage(
+                                profile: $profile,
+                                extConvId: $comment['id'],
+                                type: ConversationType::COMMENT_THREAD,
+                                senderName: $comment['from']['name'] ?? 'Facebook Visitor',
+                                senderId: (string) ($comment['from']['id'] ?? 'fb_guest'),
+                                senderAvatar: null,
+                                extMsgId: $comment['id'],
+                                body: $comment['message'] ?? 'New comment',
+                                sentAt: isset($comment['created_time']) ? Carbon::parse($comment['created_time']) : now()
+                            );
+                            $ingested++;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning("Live inbox sync failed for profile {$profile->id}: " . $e->getMessage());
+            }
+        }
+
+        return $ingested;
+    }
+
+    /**
+     * Generate a realistic sample conversation for testing the unified inbox.
+     */
+    public function generateSampleConversation(\App\Models\Workspace $workspace): Conversation
+    {
+        $profile = SocialProfile::where('workspace_id', $workspace->id)->first();
+        if (!$profile) {
+            $profile = SocialProfile::create([
+                'workspace_id' => $workspace->id,
+                'platform' => \App\Enums\SocialPlatform::FACEBOOK,
+                'profile_id' => 'demo_page_' . Str::random(8),
+                'name' => $workspace->name . ' Page',
+                'is_active' => true,
+                'publishing_enabled' => true,
+            ]);
+        }
+
+        $sampleNames = ['Rahul Sharma', 'Ananya Verma', 'Vikram Malhotra', 'Priya Patel', 'Alex Morgan'];
+        $sampleMessages = [
+            'Hello! What are your business operating hours for this weekend?',
+            'Loved your latest post! Can you share more details about your pricing plans?',
+            'Do you offer customer support on WhatsApp as well?',
+            'Great content! Looking forward to collaborating with your agency.',
+        ];
+
+        $randomName = $sampleNames[array_rand($sampleNames)];
+        $randomMsg = $sampleMessages[array_rand($sampleMessages)];
+        $uniqueId = 'demo_conv_' . Str::random(10);
+
+        $msg = $this->ingestInboundMessage(
+            profile: $profile,
+            extConvId: $uniqueId,
+            type: ConversationType::COMMENT_THREAD,
+            senderName: $randomName,
+            senderId: 'demo_user_' . rand(100, 999),
+            senderAvatar: null,
+            extMsgId: 'msg_' . Str::random(10),
+            body: $randomMsg,
+            sentAt: now()
+        );
+
+        return $msg->conversation;
     }
 }
 

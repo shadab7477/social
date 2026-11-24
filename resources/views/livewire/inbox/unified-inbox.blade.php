@@ -3,11 +3,30 @@
         <div class="row g-0 h-100">
             <!-- Column 1: Folders & Filters Sidebar -->
             <div class="col-lg-3 col-md-4 border-end h-100 d-flex flex-column bg-light">
-                <div class="p-3 border-bottom bg-white">
-                    <h5 class="fw-bold mb-0 text-dark d-flex align-items-center">
-                        <i class="bi bi-chat-dots-fill text-primary me-2"></i> Social Inbox
-                    </h5>
-                    <small class="text-muted">Unified comments & direct messages</small>
+                <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark d-flex align-items-center">
+                            <i class="bi bi-chat-dots-fill text-primary me-2"></i> Social Inbox
+                        </h5>
+                        <small class="text-muted">Unified comments & direct messages</small>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-xs btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-lightning-charge"></i> Actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li>
+                                <button class="dropdown-item small d-flex align-items-center gap-2" wire:click="syncLiveComments">
+                                    <i class="bi bi-arrow-repeat text-primary"></i> Sync Live Comments
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item small d-flex align-items-center gap-2" wire:click="generateTestInteraction">
+                                    <i class="bi bi-plus-circle text-success"></i> Add Test Interaction
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Folders Navigation -->
@@ -120,9 +139,19 @@
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-5 text-muted small">
-                            <i class="bi bi-chat-left-dots fs-2 text-secondary d-block mb-2"></i>
-                            No conversations in this view.
+                        <div class="text-center py-5 px-3 text-muted small">
+                            <i class="bi bi-chat-left-dots fs-1 text-secondary opacity-50 d-block mb-2"></i>
+                            <h6 class="fw-bold text-dark mb-1">No Conversations in this View</h6>
+                            <p class="text-muted small mb-3">Sync live comments from your connected social pages or create a test interaction.</p>
+                            <div class="d-flex flex-column gap-2">
+                                <button wire:click="syncLiveComments" wire:loading.attr="disabled" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center gap-1">
+                                    <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat"></i> Sync Live Comments</span>
+                                    <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm"></span> Syncing...</span>
+                                </button>
+                                <button wire:click="generateTestInteraction" class="btn btn-sm btn-light border text-dark">
+                                    <i class="bi bi-plus-circle text-success me-1"></i> Add Test Interaction
+                                </button>
+                            </div>
                         </div>
                     @endforelse
                 </div>
@@ -257,9 +286,14 @@
                 @else
                     <!-- Empty State -->
                     <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5 text-muted">
-                        <i class="bi bi-chat-square-text fs-1 text-secondary mb-3"></i>
-                        <h6 class="fw-semibold text-dark">No Conversation Selected</h6>
-                        <p class="small mb-0">Select a conversation thread from the left list to view messages and respond.</p>
+                        <i class="bi bi-chat-square-text fs-1 text-secondary opacity-50 mb-3"></i>
+                        <h6 class="fw-bold text-dark mb-1">No Conversation Selected</h6>
+                        <p class="small text-muted mb-4" style="max-width: 320px;">
+                            Select a thread from the list on the left to read messages, send replies, or assign tickets.
+                        </p>
+                        <button wire:click="generateTestInteraction" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Add Test Conversation
+                        </button>
                     </div>
                 @endif
             </div>

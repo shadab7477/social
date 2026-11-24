@@ -68,9 +68,7 @@ Route::middleware(['auth', 'workspace'])->group(function () {
     Route::post('/workspaces/create', \App\Http\Controllers\WorkspaceCreateController::class)->name('workspaces.create');
 
     // Dashboard & Overview
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', \App\Livewire\Dashboard\WorkspaceDashboard::class)->name('dashboard');
 
     // Publishing & Content
     Route::get('/composer', \App\Livewire\Composer\PostComposer::class)->name('composer');
