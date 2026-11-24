@@ -89,7 +89,11 @@
                                 <!-- Media Thumbnail Preview -->
                                 <div class="position-relative bg-dark d-flex align-items-center justify-content-center" style="height: 180px; overflow: hidden;">
                                     @if ($asset->isImage() || $asset->media_type === 'gif')
-                                        <img src="{{ $asset->public_url }}" alt="{{ $asset->file_name }}" class="w-100 h-100" style="object-fit: cover;">
+                                        <img src="{{ $asset->public_url }}" alt="{{ $asset->file_name }}" class="w-100 h-100" style="object-fit: cover;" onerror="this.onerror=null; this.classList.add('d-none'); if (this.nextElementSibling) this.nextElementSibling.classList.remove('d-none');">
+                                        <div class="d-none text-center p-3 text-white-50">
+                                            <i class="bi bi-image fs-1 d-block mb-1"></i>
+                                            <span style="font-size: 0.75rem;">Preview unavailable</span>
+                                        </div>
                                     @elseif ($asset->isVideo())
                                         <video src="{{ $asset->public_url }}" class="w-100 h-100" style="object-fit: cover;"></video>
                                         <div class="position-absolute text-white fs-2" style="background: rgba(0,0,0,0.4); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
@@ -188,7 +192,11 @@
                             <!-- Preview Column -->
                             <div class="col-md-6 text-center bg-light p-3 rounded-3 d-flex align-items-center justify-content-center" style="min-height: 250px;">
                                 @if ($selectedAsset->isImage() || $selectedAsset->media_type === 'gif')
-                                    <img src="{{ $selectedAsset->public_url }}" alt="{{ $selectedAsset->file_name }}" class="img-fluid rounded shadow-xs" style="max-height: 300px; object-fit: contain;">
+                                    <img src="{{ $selectedAsset->public_url }}" alt="{{ $selectedAsset->file_name }}" class="img-fluid rounded shadow-xs" style="max-height: 300px; object-fit: contain;" onerror="this.onerror=null; this.classList.add('d-none'); if (this.nextElementSibling) this.nextElementSibling.classList.remove('d-none');">
+                                    <div class="d-none text-center p-3 text-muted">
+                                        <i class="bi bi-image fs-1 d-block mb-1 text-secondary"></i>
+                                        <span class="small">Image preview not available</span>
+                                    </div>
                                 @elseif ($selectedAsset->isVideo())
                                     <video src="{{ $selectedAsset->public_url }}" controls class="w-100 rounded" style="max-height: 300px;"></video>
                                 @endif

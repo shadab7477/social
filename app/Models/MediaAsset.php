@@ -79,6 +79,24 @@ class MediaAsset extends Model
         return $this->media_type === 'video';
     }
 
+    public function getPublicUrlAttribute(?string $value): string
+    {
+        if ($this->disk === 'public') {
+            return asset('storage/' . ltrim($this->storage_path, '/'));
+        }
+
+        return $value ?? asset('storage/' . ltrim($this->storage_path, '/'));
+    }
+
+    public function getThumbnailUrlAttribute(?string $value): ?string
+    {
+        if ($this->isImage()) {
+            return $this->public_url;
+        }
+
+        return $value;
+    }
+
     public function humanFileSize(): string
     {
         $bytes = $this->file_size;

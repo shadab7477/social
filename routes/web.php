@@ -100,3 +100,33 @@ Route::middleware(['auth', 'workspace'])->group(function () {
         return view('dashboard', ['headerTitle' => 'Workspace Settings']);
     })->name('settings.index');
 });
+
+// Storage Asset Serving Fallback (ensures uploaded media works even without symlinks or on shared hosting)
+Route::get('/storage/{path}', function (string $path) {
+    $cleanPath = str_replace(['../', '..\\'], '', $path);
+    $fullPath = storage_path('app/public/' . ltrim($cleanPath, '/\\'));
+
+    if (!file_exists($fullPath) || is_dir($fullPath)) {
+        abort(404);
+    }
+
+    $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+    $mimeType = match ($extension) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'avif' => 'image/avif',
+        'svg' => 'image/svg+xml',
+        'mp4' => 'video/mp4',
+        'mov' => 'video/quicktime',
+        'pdf' => 'application/pdf',
+        default => mime_content_type($fullPath) ?: 'application/octet-stream',
+    };
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.local');
+

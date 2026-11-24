@@ -155,5 +155,31 @@ class MediaLibraryTest extends TestCase
         $this->assertTrue($visibleAssetsA->contains($assetA));
         $this->assertFalse($visibleAssetsA->contains($assetB));
     }
+
+    /**
+     * Test fallback storage route serves files correctly.
+     */
+    public function test_storage_fallback_route_serves_files(): void
+    {
+        Storage::fake('public');
+
+        $file = UploadedFile::fake()->image('banner.png', 800, 400);
+        $storageService = app(MediaStorageService::class);
+        $asset = $storageService->storeUploadedFile($file, $this->workspace, $this->user, null, 'public');
+
+        // Test public_url accessor returns valid path
+        $this->assertStringContainsString('storage/workspaces/', $asset->public_url);
+
+        // Put physical file in actual storage path for the route test
+        $fullPath = storage_path('app/public/' . $asset->storage_path);
+        @mkdir(dirname($fullPath), 0755, true);
+        file_put_contents($fullPath, 'fake-png-content');
+
+        $response = $this->get('/storage/' . $asset->storage_path);
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'image/png');
+
+        @unlink($fullPath);
+    }
 }
 
