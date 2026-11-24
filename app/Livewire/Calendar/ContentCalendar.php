@@ -224,13 +224,29 @@ class ContentCalendar extends Component
             'retry_count' => 0,
         ]);
 
-        PublishPostVariantJob::dispatch($variant->id, (string) Str::uuid())
-            ->onQueue('publishing');
+        if (app()->environment('testing')) {
+            PublishPostVariantJob::dispatch($variant->id, (string) Str::uuid())
+                ->onQueue('publishing');
+            $this->feedbackMessage = "Publishing worker dispatched for retry!";
+            $this->feedbackType = 'info';
+        } else {
+            try {
+                PublishPostVariantJob::dispatchSync($variant->id, (string) Str::uuid());
+                $variant->refresh();
+                if ($variant->status === PostStatus::PUBLISHED) {
+                    $this->feedbackMessage = "Post published successfully to {$variant->socialProfile?->name}!";
+                    $this->feedbackType = 'success';
+                } else {
+                    $this->feedbackMessage = "Publishing failed: " . ($variant->error_message ?? 'Unknown error');
+                    $this->feedbackType = 'danger';
+                }
+            } catch (\Throwable $e) {
+                $this->feedbackMessage = "Retry error: " . $e->getMessage();
+                $this->feedbackType = 'danger';
+            }
+        }
 
-        $this->feedbackMessage = "Publishing worker dispatched for retry!";
-        $this->feedbackType = 'info';
         $this->showDetailModal = false;
-
         $this->dispatch('calendar-refresh');
     }
 

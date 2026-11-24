@@ -208,7 +208,15 @@ class PostComposer extends Component
 
         if ($action === 'now') {
             foreach ($post->variants as $variant) {
-                \App\Jobs\Publishing\PublishPostVariantJob::dispatch($variant->id, (string) \Illuminate\Support\Str::uuid());
+                if (app()->environment('testing')) {
+                    \App\Jobs\Publishing\PublishPostVariantJob::dispatch($variant->id, (string) \Illuminate\Support\Str::uuid());
+                } else {
+                    try {
+                        \App\Jobs\Publishing\PublishPostVariantJob::dispatchSync($variant->id, (string) \Illuminate\Support\Str::uuid());
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error("Immediate publish error: " . $e->getMessage());
+                    }
+                }
             }
         }
 

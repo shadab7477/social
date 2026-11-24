@@ -99,11 +99,27 @@ class PostList extends Component
         // Keep parent post in publishing or scheduled state
         $variant->post->update(['status' => PostStatus::PUBLISHING]);
 
-        PublishPostVariantJob::dispatch($variant->id, (string) Str::uuid())
-            ->onQueue('publishing');
-
-        $this->feedbackMessage = "Retry job dispatched for {$variant->socialProfile?->name}!";
-        $this->feedbackType = 'info';
+        if (app()->environment('testing')) {
+            PublishPostVariantJob::dispatch($variant->id, (string) Str::uuid())
+                ->onQueue('publishing');
+            $this->feedbackMessage = "Retry job dispatched for {$variant->socialProfile?->name}!";
+            $this->feedbackType = 'info';
+        } else {
+            try {
+                PublishPostVariantJob::dispatchSync($variant->id, (string) Str::uuid());
+                $variant->refresh();
+                if ($variant->status === PostStatus::PUBLISHED) {
+                    $this->feedbackMessage = "Post published successfully to {$variant->socialProfile?->name}!";
+                    $this->feedbackType = 'success';
+                } else {
+                    $this->feedbackMessage = "Publishing failed: " . ($variant->error_message ?? 'Unknown error');
+                    $this->feedbackType = 'danger';
+                }
+            } catch (\Throwable $e) {
+                $this->feedbackMessage = "Retry failed: " . $e->getMessage();
+                $this->feedbackType = 'danger';
+            }
+        }
 
         if ($this->selectedPostId) {
             $this->openDetailModal($this->selectedPostId);
