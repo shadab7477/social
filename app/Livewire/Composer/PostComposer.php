@@ -38,7 +38,8 @@ class PostComposer extends Component
     public array $customizedFlags = []; // [profileId => bool]
     public array $platformSettings = []; // [profileId => ['setting_key' => 'val']]
 
-    // Direct File Upload for Custom Thumbnail
+    // Direct File Upload for Post Media & Custom Thumbnail
+    public $directMediaUpload = null;
     public $directThumbnailUpload = null;
 
     // Media Library Selector Modal
@@ -103,7 +104,12 @@ class PostComposer extends Component
     {
         $this->activeTab = $tab;
         if ($tab !== 'base' && is_numeric($tab)) {
-            $this->ensurePlatformSettingsInitialized((int)$tab);
+            $profileId = (int)$tab;
+            $this->ensurePlatformSettingsInitialized($profileId);
+            $this->customizedFlags[$profileId] = true;
+            if (!isset($this->customCaptions[$profileId]) || empty($this->customCaptions[$profileId])) {
+                $this->customCaptions[$profileId] = $this->baseCaption;
+            }
         }
     }
 
@@ -149,6 +155,34 @@ class PostComposer extends Component
             $url = Storage::disk('public')->url($path);
             $this->selectThumbnailAsset($this->selectingThumbnailForProfileId, $url);
             $this->directThumbnailUpload = null;
+        }
+    }
+
+    public function updatedDirectMediaUpload(): void
+    {
+        $this->validate([
+            'directMediaUpload' => 'file|max:102400', // max 100MB
+        ]);
+
+        if ($this->directMediaUpload) {
+            $workspace = app('current_workspace');
+            $file = $this->directMediaUpload;
+            $mime = $file->getMimeType() ?: 'application/octet-stream';
+            $mediaType = str_starts_with($mime, 'video/') ? 'video' : 'image';
+            $path = $file->store('media/' . $workspace->id, 'public');
+
+            $asset = MediaAsset::create([
+                'workspace_id' => $workspace->id,
+                'client_id' => $this->selectedClientId,
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $path,
+                'media_type' => $mediaType,
+                'mime_type' => $mime,
+                'file_size_bytes' => $file->getSize(),
+            ]);
+
+            $this->selectedMediaAssetIds[] = $asset->id;
+            $this->directMediaUpload = null;
         }
     }
 
@@ -250,19 +284,26 @@ class PostComposer extends Component
         $profiles = SocialProfile::whereIn('id', $this->selectedProfileIds)->get();
 
         foreach ($profiles as $profile) {
+            $plat = $profile->platform instanceof SocialPlatform ? $profile->platform->value : (string)$profile->platform;
             $caption = $this->getEffectiveCaption($profile);
             $limit = $this->getCharacterLimit($profile);
 
             if (mb_strlen($caption) > $limit) {
-                $errors[] = "Caption for {$profile->name} exceeds {$profile->platform} limit of {$limit} characters (current: " . mb_strlen($caption) . ").";
+                $errors[] = "Caption for {$profile->name} exceeds {$plat} limit of {$limit} characters (current: " . mb_strlen($caption) . ").";
             }
 
-            if ($profile->platform === 'instagram' && empty($this->selectedMediaAssetIds)) {
+            if ($plat === 'instagram' && empty($this->selectedMediaAssetIds)) {
                 $errors[] = "Instagram profile '{$profile->name}' requires at least one image or video.";
             }
 
-            if ($profile->platform === 'youtube' && empty($this->selectedMediaAssetIds)) {
-                $errors[] = "YouTube profile '{$profile->name}' requires an uploaded video.";
+            if ($plat === 'youtube') {
+                if (empty($this->selectedMediaAssetIds)) {
+                    $errors[] = "YouTube profile '{$profile->name}' requires an uploaded video (MP4/MOV).";
+                }
+                $ytSettings = $this->platformSettings[$profile->id] ?? [];
+                if (empty(trim($ytSettings['title'] ?? '')) && empty(trim($this->baseCaption))) {
+                    $errors[] = "YouTube profile '{$profile->name}' requires a Video Title.";
+                }
             }
         }
 

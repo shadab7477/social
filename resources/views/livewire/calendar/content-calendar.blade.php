@@ -223,69 +223,92 @@
 
 @push('scripts')
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('calendarHandler', (wire) => ({
-        calendar: null,
+(function() {
+    function getCalendarHandler(wire) {
+        return {
+            calendar: null,
 
-        initCalendar() {
-            const calendarEl = document.getElementById('fullcalendar-mount');
-            if (!calendarEl || !window.FullCalendar) return;
+            initCalendar() {
+                const calendarEl = document.getElementById('fullcalendar-mount');
+                if (!calendarEl || !window.FullCalendar) return;
 
-            const { Calendar, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin } = window.FullCalendar;
+                const { Calendar, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin } = window.FullCalendar;
 
-            this.calendar = new Calendar(calendarEl, {
-                plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-                },
-                buttonText: {
-                    today: 'Today',
-                    month: 'Month',
-                    week: 'Week',
-                    day: 'Day',
-                    list: 'Agenda'
-                },
-                navLinks: true,
-                editable: true,
-                selectable: true,
-                nowIndicator: true,
-                dayMaxEvents: 3,
-                events: (info, successCallback, failureCallback) => {
-                    wire.getEvents(info.startStr, info.endStr)
-                        .then(events => successCallback(events))
-                        .catch(err => {
-                            console.error('Failed to load calendar events', err);
-                            failureCallback(err);
-                        });
-                },
-                eventClick: (info) => {
-                    info.jsEvent.preventDefault();
-                    wire.openVariantModal(parseInt(info.event.id));
-                },
-                eventDrop: (info) => {
-                    const variantId = parseInt(info.event.id);
-                    const newDateIso = info.event.start.toISOString();
-                    wire.rescheduleVariantFromCalendar(variantId, newDateIso);
+                if (this.calendar) {
+                    try { this.calendar.destroy(); } catch (e) {}
                 }
-            });
 
-            this.calendar.render();
+                this.calendar = new Calendar(calendarEl, {
+                    plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                    },
+                    buttonText: {
+                        today: 'Today',
+                        month: 'Month',
+                        week: 'Week',
+                        day: 'Day',
+                        list: 'Agenda'
+                    },
+                    navLinks: true,
+                    editable: true,
+                    selectable: true,
+                    nowIndicator: true,
+                    dayMaxEvents: 3,
+                    events: (info, successCallback, failureCallback) => {
+                        wire.getEvents(info.startStr, info.endStr)
+                            .then(events => successCallback(events))
+                            .catch(err => {
+                                console.error('Failed to load calendar events', err);
+                                failureCallback(err);
+                            });
+                    },
+                    eventClick: (info) => {
+                        info.jsEvent.preventDefault();
+                        wire.openVariantModal(parseInt(info.event.id));
+                    },
+                    eventDrop: (info) => {
+                        const variantId = parseInt(info.event.id);
+                        const newDateIso = info.event.start.toISOString();
+                        wire.rescheduleVariantFromCalendar(variantId, newDateIso);
+                    }
+                });
 
-            // Refresh events when Livewire fires calendar-refresh
-            window.addEventListener('calendar-refresh', () => {
-                this.calendar.refetchEvents();
-            });
+                this.calendar.render();
 
-            // Watch filters
-            wire.$watch('selectedClientId', () => this.calendar.refetchEvents());
-            wire.$watch('selectedPlatform', () => this.calendar.refetchEvents());
-            wire.$watch('selectedStatus', () => this.calendar.refetchEvents());
+                // Refresh events when Livewire fires calendar-refresh
+                window.addEventListener('calendar-refresh', () => {
+                    if (this.calendar) this.calendar.refetchEvents();
+                });
+
+                // Watch filters
+                wire.$watch('selectedClientId', () => this.calendar && this.calendar.refetchEvents());
+                wire.$watch('selectedPlatform', () => this.calendar && this.calendar.refetchEvents());
+                wire.$watch('selectedStatus', () => this.calendar && this.calendar.refetchEvents());
+            }
+        };
+    }
+
+    window.calendarHandler = getCalendarHandler;
+
+    if (window.Alpine) {
+        window.Alpine.data('calendarHandler', getCalendarHandler);
+    } else {
+        document.addEventListener('alpine:init', () => {
+            window.Alpine.data('calendarHandler', getCalendarHandler);
+        });
+    }
+
+    document.addEventListener('livewire:navigated', () => {
+        window.calendarHandler = getCalendarHandler;
+        if (window.Alpine) {
+            window.Alpine.data('calendarHandler', getCalendarHandler);
         }
-    }));
-});
+    });
+})();
 </script>
 @endpush
 
