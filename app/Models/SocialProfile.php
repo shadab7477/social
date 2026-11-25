@@ -65,6 +65,11 @@ class SocialProfile extends Model
         return $this->belongsTo(SocialConnection::class, 'connection_id');
     }
 
+    public function getValidAccessToken(): ?string
+    {
+        return $this->access_token ?? $this->connection?->getValidAccessToken();
+    }
+
     public function analyticsSnapshots(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AnalyticsSnapshot::class);

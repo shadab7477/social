@@ -65,6 +65,11 @@ class PostVariant extends Model
         return $this->hasOne(PublishingRecord::class);
     }
 
+    public function analyticsSnapshots(): HasMany
+    {
+        return $this->hasMany(AnalyticsSnapshot::class);
+    }
+
     /**
      * Get the effective caption (custom variant caption if set, otherwise parent post base caption).
      */

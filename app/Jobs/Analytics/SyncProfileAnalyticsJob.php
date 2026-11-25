@@ -34,6 +34,9 @@ class SyncProfileAnalyticsJob implements ShouldQueue
             return;
         }
 
+        // Ensure fresh access token
+        $profile->connection?->getValidAccessToken();
+
         $startDate = $this->startDate ?? now()->subDays(30)->toDateString();
         $endDate = $this->endDate ?? now()->toDateString();
         $recordsCount = 0;

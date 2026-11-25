@@ -21,6 +21,11 @@ class WorkspaceDashboard extends Component
     {
         $workspace = app('current_workspace');
 
+        // Self-healing: auto-dispatch any due scheduled posts
+        if (!app()->environment('testing') && PostVariant::where('status', PostStatus::SCHEDULED)->whereNotNull('scheduled_at')->where('scheduled_at', '<=', now())->exists()) {
+            \App\Jobs\Publishing\DispatchDuePostsJob::dispatch();
+        }
+
         // 1. Dynamic Key Metrics
         $totalConnectedProfiles = SocialProfile::where('workspace_id', $workspace->id)
             ->where('is_active', true)

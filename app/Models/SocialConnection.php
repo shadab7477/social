@@ -91,7 +91,52 @@ class SocialConnection extends Model
 
     public function isPublishable(): bool
     {
-        return $this->status->isPublishable() && !$this->isExpired();
+        return $this->status->isPublishable() && (!$this->isExpired() || !empty($this->refresh_token));
+    }
+
+    /**
+     * Get guaranteed valid access token, auto-refreshing via refresh token if expired.
+     */
+    public function getValidAccessToken(): ?string
+    {
+        if (!$this->isExpired()) {
+            return $this->access_token;
+        }
+
+        if (empty($this->refresh_token)) {
+            return $this->access_token;
+        }
+
+        try {
+            $refreshed = false;
+            if ($this->platform === SocialPlatform::YOUTUBE) {
+                $service = app(\App\Services\Social\YouTube\YouTubeOAuthService::class);
+                $dto = $service->refreshToken($this->refresh_token);
+                $this->update([
+                    'access_token' => $dto->accessToken,
+                    'refresh_token' => $dto->refreshToken ?? $this->refresh_token,
+                    'token_expires_at' => $dto->expiresAt,
+                ]);
+                $refreshed = true;
+            } elseif ($this->platform === SocialPlatform::GOOGLE_BUSINESS) {
+                $service = app(\App\Services\Social\GoogleBusiness\GoogleBusinessOAuthService::class);
+                $dto = $service->refreshToken($this->refresh_token);
+                $this->update([
+                    'access_token' => $dto->accessToken,
+                    'refresh_token' => $dto->refreshToken ?? $this->refresh_token,
+                    'token_expires_at' => $dto->expiresAt,
+                ]);
+                $refreshed = true;
+            }
+
+            if ($refreshed) {
+                return $this->fresh()->access_token;
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Auto-refreshing token for connection {$this->id} failed: " . $e->getMessage());
+        }
+
+        return $this->access_token;
     }
 }
 

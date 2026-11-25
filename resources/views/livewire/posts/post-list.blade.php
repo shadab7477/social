@@ -2,107 +2,89 @@
     <!-- Header & Action Row -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h4 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-collection text-primary me-2"></i> Posts Directory
+            <h4 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
+                <i class="bi bi-collection me-2 text-dark"></i> Posts Directory
             </h4>
             <p class="text-muted small mb-0">Manage scheduled posts, inspect delivery status across platforms, and retry failed publications.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('calendar') }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center">
+            <a href="{{ route('calendar') }}" class="btn btn-sm btn-white bg-white border rounded-pill px-3 py-2 text-dark shadow-xs" style="font-size: 0.82rem; font-weight: 600;">
                 <i class="bi bi-calendar3 me-1"></i> Calendar View
             </a>
-            <a href="{{ route('composer') }}" class="btn btn-primary btn-sm d-inline-flex align-items-center">
-                <i class="bi bi-plus-lg me-1"></i> Create Post
+            <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">
+                <i class="bi bi-plus-lg"></i> <span>Create Post</span>
             </a>
         </div>
     </div>
 
     <!-- Flash message -->
     @if($feedbackMessage)
-        <div class="alert alert-{{ $feedbackType }} alert-dismissible fade show mb-4 py-2 d-flex align-items-center" role="alert">
+        <div class="alert alert-{{ $feedbackType }} alert-dismissible fade show mb-4 py-2 d-flex align-items-center rounded-3" role="alert">
             <i class="bi bi-info-circle-fill me-2"></i>
             <div>{{ $feedbackMessage }}</div>
             <button type="button" class="btn-close py-2" wire:click="$set('feedbackMessage', null)"></button>
         </div>
     @endif
 
-    <!-- Status Tabs Nav -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-bottom-0 pb-0 pt-3">
-            <ul class="nav nav-tabs card-header-tabs border-bottom-0 gap-1">
-                <li class="nav-item">
-                    <button wire:click="setStatusFilter('all')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'all' ? 'active text-primary fw-bold' : 'text-muted' }}">
-                        All Posts
-                        <span class="badge bg-secondary-subtle text-secondary ms-1 rounded-pill">{{ $metrics['all'] }}</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button wire:click="setStatusFilter('scheduled')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'scheduled' ? 'active text-primary fw-bold' : 'text-muted' }}">
-                        <i class="bi bi-clock me-1 text-indigo"></i> Scheduled
-                        <span class="badge bg-indigo-subtle text-indigo ms-1 rounded-pill">{{ $metrics['scheduled'] }}</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button wire:click="setStatusFilter('published')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'published' ? 'active text-primary fw-bold' : 'text-muted' }}">
-                        <i class="bi bi-check-circle me-1 text-success"></i> Published
-                        <span class="badge bg-success-subtle text-success ms-1 rounded-pill">{{ $metrics['published'] }}</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button wire:click="setStatusFilter('failed')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'failed' ? 'active text-danger fw-bold' : 'text-muted' }}">
-                        <i class="bi bi-exclamation-triangle me-1 text-danger"></i> Failed
-                        <span class="badge {{ $metrics['failed'] > 0 ? 'bg-danger text-white' : 'bg-light text-muted' }} ms-1 rounded-pill">
-                            {{ $metrics['failed'] }}
-                        </span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button wire:click="setStatusFilter('pending_approval')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'pending_approval' ? 'active text-warning fw-bold' : 'text-muted' }}">
-                        <i class="bi bi-hourglass-split me-1 text-warning"></i> Needs Approval
-                        <span class="badge bg-warning-subtle text-warning ms-1 rounded-pill">{{ $metrics['pending_approval'] }}</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button wire:click="setStatusFilter('draft')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'draft' ? 'active text-primary fw-bold' : 'text-muted' }}">
-                        <i class="bi bi-file-earmark-text me-1"></i> Drafts
-                        <span class="badge bg-light text-dark ms-1 rounded-pill">{{ $metrics['draft'] }}</span>
-                    </button>
-                </li>
-            </ul>
+    <!-- Status Pills Nav -->
+    <div class="card-frosted p-3 mb-4">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button wire:click="setStatusFilter('all')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'all' ? 'btn-dark' : 'btn-light border bg-white' }}">
+                All Posts
+                <span class="badge {{ $statusFilter === 'all' ? 'bg-white text-dark' : 'bg-light text-secondary border' }} ms-1 rounded-pill">{{ $metrics['all'] }}</span>
+            </button>
+            <button wire:click="setStatusFilter('scheduled')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'scheduled' ? 'btn-dark' : 'btn-light border bg-white' }}">
+                <i class="bi bi-clock me-1"></i> Scheduled
+                <span class="badge {{ $statusFilter === 'scheduled' ? 'bg-white text-dark' : 'bg-light text-secondary border' }} ms-1 rounded-pill">{{ $metrics['scheduled'] }}</span>
+            </button>
+            <button wire:click="setStatusFilter('published')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'published' ? 'btn-dark' : 'btn-light border bg-white' }}">
+                <i class="bi bi-check-circle me-1 text-success"></i> Published
+                <span class="badge {{ $statusFilter === 'published' ? 'bg-white text-dark' : 'bg-light text-secondary border' }} ms-1 rounded-pill">{{ $metrics['published'] }}</span>
+            </button>
+            <button wire:click="setStatusFilter('failed')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'failed' ? 'btn-danger' : 'btn-light border bg-white text-danger' }}">
+                <i class="bi bi-exclamation-triangle me-1"></i> Failed
+                <span class="badge {{ $statusFilter === 'failed' ? 'bg-white text-danger' : 'bg-danger text-white' }} ms-1 rounded-pill">{{ $metrics['failed'] }}</span>
+            </button>
+            <button wire:click="setStatusFilter('pending_approval')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'pending_approval' ? 'btn-dark' : 'btn-light border bg-white' }}">
+                <i class="bi bi-hourglass-split me-1 text-warning"></i> Needs Approval
+                <span class="badge {{ $statusFilter === 'pending_approval' ? 'bg-white text-dark' : 'bg-light text-secondary border' }} ms-1 rounded-pill">{{ $metrics['pending_approval'] }}</span>
+            </button>
+            <button wire:click="setStatusFilter('draft')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'draft' ? 'btn-dark' : 'btn-light border bg-white' }}">
+                <i class="bi bi-file-earmark-text me-1"></i> Drafts
+                <span class="badge {{ $statusFilter === 'draft' ? 'bg-white text-dark' : 'bg-light text-secondary border' }} ms-1 rounded-pill">{{ $metrics['draft'] }}</span>
+            </button>
         </div>
 
         <!-- Filter Controls -->
-        <div class="card-body bg-light border-top py-3">
-            <div class="row g-2 align-items-center">
-                <div class="col-md-5">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control border-start-0" placeholder="Search caption, title, or client...">
-                    </div>
+        <div class="row g-2 align-items-center pt-2 border-top">
+            <div class="col-md-5">
+                <div class="search-pill-box w-100">
+                    <i class="bi bi-search text-muted small"></i>
+                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search caption, title, or client...">
                 </div>
-                <div class="col-md-3">
-                    <select wire:model.live="clientId" class="form-select form-select-sm">
-                        <option value="">All Clients</option>
-                        @foreach($clients as $c)
-                            <option value="{{ $c->id }}">{{ $c->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select wire:model.live="platform" class="form-select form-select-sm">
-                        <option value="">All Social Platforms</option>
-                        @foreach($platforms as $p)
-                            <option value="{{ $p->value }}">{{ $p->label() }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-1 text-end">
-                    @if($search || $clientId || $platform || $statusFilter !== 'all')
-                        <button wire:click="$set('search', ''); $set('clientId', null); $set('platform', ''); $set('statusFilter', 'all');" class="btn btn-sm btn-link text-muted p-0" title="Reset Filters">
-                            <i class="bi bi-x-circle fs-5"></i>
-                        </button>
-                    @endif
-                </div>
+            </div>
+            <div class="col-md-3">
+                <select wire:model.live="clientId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                    <option value="">All Clients</option>
+                    @foreach($clients as $c)
+                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select wire:model.live="platform" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                    <option value="">All Social Platforms</option>
+                    @foreach($platforms as $p)
+                        <option value="{{ $p->value }}">{{ $p->label() }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-1 text-end">
+                @if($search || $clientId || $platform || $statusFilter !== 'all')
+                    <button wire:click="$set('search', ''); $set('clientId', null); $set('platform', ''); $set('statusFilter', 'all');" class="btn btn-sm btn-link text-muted p-0" title="Reset Filters">
+                        <i class="bi bi-x-circle fs-5"></i>
+                    </button>
+                @endif
             </div>
         </div>
     </div>

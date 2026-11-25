@@ -1,76 +1,72 @@
 <div class="content-calendar-wrapper">
     <!-- Top Action & Filter Bar -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body py-3">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-4">
-                    <h5 class="mb-0 fw-bold d-flex align-items-center text-dark">
-                        <i class="bi bi-calendar3 text-primary me-2"></i> Content Calendar
-                    </h5>
-                    <small class="text-muted">Interactive schedule, queue timeline & publishing manager</small>
-                </div>
-
-                <div class="col-md-8">
-                    <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
-                        <!-- Client Filter -->
-                        <div style="min-width: 150px;">
-                            <select wire:model.live="selectedClientId" class="form-select form-select-sm">
-                                <option value="">All Clients</option>
-                                @foreach($clients as $c)
-                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Platform Filter -->
-                        <div style="min-width: 140px;">
-                            <select wire:model.live="selectedPlatform" class="form-select form-select-sm">
-                                <option value="">All Platforms</option>
-                                @foreach($platforms as $p)
-                                    <option value="{{ $p->value }}">{{ $p->label() }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Status Filter -->
-                        <div style="min-width: 130px;">
-                            <select wire:model.live="selectedStatus" class="form-select form-select-sm">
-                                <option value="">All Statuses</option>
-                                @foreach($statuses as $s)
-                                    <option value="{{ $s->value }}">{{ $s->label() }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Create Post CTA -->
-                        <a href="{{ route('composer') }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">
-                            <i class="bi bi-plus-lg me-1"></i> Create Post
-                        </a>
-                    </div>
-                </div>
+    <div class="card-frosted p-3 p-md-4 mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <h4 class="mb-0 fw-bold d-flex align-items-center text-dark" style="letter-spacing: -0.02em;">
+                    <i class="bi bi-calendar3 me-2 text-dark"></i> Content Calendar
+                </h4>
+                <small class="text-muted">Interactive schedule, queue timeline & publishing manager</small>
             </div>
 
-            <!-- Flash notification -->
-            @if($feedbackMessage)
-                <div class="alert alert-{{ $feedbackType }} alert-dismissible fade show mt-3 mb-0 py-2 d-flex align-items-center" role="alert">
-                    <i class="bi bi-info-circle-fill me-2"></i>
-                    <div>{{ $feedbackMessage }}</div>
-                    <button type="button" class="btn-close py-2" wire:click="$set('feedbackMessage', null)"></button>
+            <div class="col-md-8">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
+                    <!-- Client Filter -->
+                    <div style="min-width: 150px;">
+                        <select wire:model.live="selectedClientId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                            <option value="">All Clients</option>
+                            @foreach($clients as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Platform Filter -->
+                    <div style="min-width: 140px;">
+                        <select wire:model.live="selectedPlatform" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                            <option value="">All Platforms</option>
+                            @foreach($platforms as $p)
+                                <option value="{{ $p->value }}">{{ $p->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div style="min-width: 130px;">
+                        <select wire:model.live="selectedStatus" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                            <option value="">All Statuses</option>
+                            @foreach($statuses as $s)
+                                <option value="{{ $s->value }}">{{ $s->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Create Post CTA -->
+                    <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">
+                        <i class="bi bi-plus-lg"></i> <span>Create Post</span>
+                    </a>
                 </div>
-            @endif
+            </div>
         </div>
+
+        <!-- Flash notification -->
+        @if($feedbackMessage)
+            <div class="alert alert-{{ $feedbackType }} alert-dismissible fade show mt-3 mb-0 py-2 d-flex align-items-center rounded-3" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>{{ $feedbackMessage }}</div>
+                <button type="button" class="btn-close py-2" wire:click="$set('feedbackMessage', null)"></button>
+            </div>
+        @endif
     </div>
 
     <!-- Calendar Card Canvas -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-3 p-md-4">
-            <div 
-                x-data="calendarHandler($wire)" 
-                x-init="initCalendar()"
-                wire:ignore
-            >
-                <div id="fullcalendar-mount" class="fc-theme-custom"></div>
-            </div>
+    <div class="card-frosted p-3 p-md-4 mb-4">
+        <div 
+            x-data="calendarHandler($wire)" 
+            x-init="initCalendar()"
+            wire:ignore
+        >
+            <div id="fullcalendar-mount" class="fc-theme-custom"></div>
         </div>
     </div>
 

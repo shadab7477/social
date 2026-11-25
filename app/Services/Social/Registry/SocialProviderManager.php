@@ -64,7 +64,8 @@ class SocialProviderManager
         return match ($platformEnum) {
             SocialPlatform::FACEBOOK => app(\App\Services\Social\Facebook\FacebookAnalyticsService::class),
             SocialPlatform::INSTAGRAM => app(\App\Services\Social\Instagram\InstagramAnalyticsService::class),
-            default => throw new InvalidArgumentException("Analytics adapter for '{$platformEnum->value}' not registered."),
+            SocialPlatform::YOUTUBE => app(\App\Services\Social\YouTube\YouTubeAnalyticsService::class),
+            default => app(\App\Services\Social\Facebook\FacebookAnalyticsService::class),
         };
     }
 

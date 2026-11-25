@@ -11,6 +11,12 @@ class AnalyticsSyncLog extends Model
     use HasFactory;
 
     public $timestamps = false;
+    const CREATED_AT = 'synced_at';
+
+    public function scopeLatest($query, $column = 'synced_at')
+    {
+        return $query->orderBy($column, 'desc');
+    }
 
     protected $fillable = [
         'social_profile_id',

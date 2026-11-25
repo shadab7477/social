@@ -83,8 +83,10 @@ class ReportBuilder extends Component
     /**
      * Generate report synchronously via ReportBuilderService.
      */
-    public function generateReport(ReportBuilderService $reportService): void
+    public function generateReport(?ReportBuilderService $reportService = null): void
     {
+        $reportService = $reportService ?? app(ReportBuilderService::class);
+
         $this->validate([
             'reportTitle' => 'required|min:3|max:255',
             'modalFormat' => 'required|in:pdf,csv',
@@ -107,13 +109,15 @@ class ReportBuilder extends Component
             'primary_color' => $this->brandColor,
         ];
 
+        $clientId = !empty($this->modalClientId) ? (int)$this->modalClientId : null;
+
         $report = $reportService->createReport(
             Auth::user(),
             $this->reportTitle,
             $format,
             $dateFrom,
             $dateTo,
-            $this->modalClientId,
+            $clientId,
             $branding
         );
 
