@@ -197,6 +197,21 @@ class LinkedInYouTubeGoogleBusinessIntegrationTest extends TestCase
         $this->assertTrue($result->success);
         $this->assertNotEmpty($result->providerPostId);
         $this->assertStringContainsString('youtube.com/watch?v=', $result->postUrl);
+
+        // YouTube Shorts & Custom Thumbnail test
+        $shortsPayload = new PublishingPayloadDTO(
+            caption: "Crazy Tech Hack #Shorts",
+            mediaUrls: ['https://storage.example.com/videos/short.mp4'],
+            platformSettings: [
+                'post_type' => 'shorts',
+                'title' => 'Crazy Tech Hack',
+                'thumbnail_url' => 'https://storage.example.com/images/thumb.jpg',
+            ]
+        );
+        $shortsResult = $publishingService->publish($profile, $shortsPayload);
+        $this->assertTrue($shortsResult->success);
+        $this->assertEquals('shorts', $shortsResult->rawResponse['post_type']);
+        $this->assertEquals('https://storage.example.com/images/thumb.jpg', $shortsResult->rawResponse['thumbnail_url']);
     }
 
     public function test_google_business_profile_oauth_and_local_post(): void

@@ -273,6 +273,96 @@ class AnalyticsDashboard extends Component
         // Talking About This metric (Engagement or interactions)
         $talkingAboutThis = (int) $currEngagement;
 
+        // Platform-Adaptive Terminology & Labels
+        $platformValue = $selectedProfile?->platform instanceof SocialPlatform 
+            ? $selectedProfile->platform->value 
+            : (is_string($selectedProfile?->platform) ? $selectedProfile->platform : 'all');
+
+        $platformLabels = match ($platformValue) {
+            'youtube' => [
+                'fansTitle' => 'Total Subscribers',
+                'fansIcon' => 'bi-youtube',
+                'talkingTitle' => 'Channel Lifetime Views',
+                'talkingIcon' => 'bi-play-circle-fill',
+                'followsTitle' => 'New Subscribers',
+                'viewsTitle' => 'Total Video Views',
+                'engagementTitle' => 'Audience Engagement',
+                'interactionsTitle' => 'Video Comments',
+                'publishedTitle' => 'Videos & Shorts Published',
+                'reachTitle' => 'Estimated Impressions',
+                'reactionsTitle' => 'Video Likes',
+                'overviewHeading' => 'YouTube Channel Overview',
+                'overviewSubheading' => 'Live performance metrics for your YouTube channel & Shorts.',
+            ],
+            'instagram' => [
+                'fansTitle' => 'Total Followers',
+                'fansIcon' => 'bi-instagram',
+                'talkingTitle' => 'Accounts Engaged',
+                'talkingIcon' => 'bi-fire',
+                'followsTitle' => 'New Followers',
+                'viewsTitle' => 'Total Impressions',
+                'engagementTitle' => 'Engagement Rate',
+                'interactionsTitle' => 'Post Saves & Interactions',
+                'publishedTitle' => 'Posts & Reels Published',
+                'reachTitle' => 'Profile & Reel Reach',
+                'reactionsTitle' => 'Likes & Comments',
+                'overviewHeading' => 'Instagram Profile Overview',
+                'overviewSubheading' => 'Live stats for your Instagram Professional account.',
+            ],
+            'linkedin' => [
+                'fansTitle' => 'Followers & Connections',
+                'fansIcon' => 'bi-linkedin',
+                'talkingTitle' => 'Post Impressions',
+                'talkingIcon' => 'bi-graph-up',
+                'followsTitle' => 'New Followers',
+                'viewsTitle' => 'Post Impressions',
+                'engagementTitle' => 'Engagement Rate',
+                'interactionsTitle' => 'Comments & Reposts',
+                'publishedTitle' => 'Articles & Updates Published',
+                'reachTitle' => 'Unique Members Reached',
+                'reactionsTitle' => 'Reactions',
+                'overviewHeading' => 'LinkedIn Page Overview',
+                'overviewSubheading' => 'Audience and content engagement for LinkedIn.',
+            ],
+            'facebook' => [
+                'fansTitle' => 'Total Fans',
+                'fansIcon' => 'bi-person',
+                'talkingTitle' => 'Talking About This',
+                'talkingIcon' => 'bi-chat-left-text',
+                'followsTitle' => 'Total Follows',
+                'viewsTitle' => 'Total Impressions',
+                'engagementTitle' => 'Engagement',
+                'interactionsTitle' => 'Content Interactions',
+                'publishedTitle' => 'Published Posts',
+                'reachTitle' => 'Page Views / Reach',
+                'reactionsTitle' => 'Reactions',
+                'overviewHeading' => 'Profile Overview',
+                'overviewSubheading' => 'Live stats for your Facebook Page.',
+            ],
+            default => [
+                'fansTitle' => 'Total Audience',
+                'fansIcon' => 'bi-people',
+                'talkingTitle' => 'Active Engagements',
+                'talkingIcon' => 'bi-chat-left-text',
+                'followsTitle' => 'Total Follows',
+                'viewsTitle' => 'Total Impressions',
+                'engagementTitle' => 'Engagement',
+                'interactionsTitle' => 'Content Interactions',
+                'publishedTitle' => 'Published Posts',
+                'reachTitle' => 'Page Views / Reach',
+                'reactionsTitle' => 'Reactions',
+                'overviewHeading' => 'Profile Overview',
+                'overviewSubheading' => 'Live stats for your connected channels.',
+            ]
+        };
+
+        if ($platformValue === 'youtube') {
+            $meta = $selectedProfile?->metadata ?? [];
+            if (!empty($meta['viewCount'])) {
+                $talkingAboutThis = (int) $meta['viewCount'];
+            }
+        }
+
         // Top Posts Table
         $topVariants = PostVariant::query()
             ->where('status', PostStatus::PUBLISHED)
@@ -310,6 +400,7 @@ class AnalyticsDashboard extends Component
             ],
             'dateLabel' => $startDate->format('d/m/Y') . ' - ' . $endDate->format('d/m/Y'),
             'prevDateLabel' => $prevStartDate->format('d/m/Y') . ' - ' . $prevEndDate->format('d/m/Y'),
+            'platformLabels' => $platformLabels,
             'topVariants' => $topVariants,
         ]);
     }

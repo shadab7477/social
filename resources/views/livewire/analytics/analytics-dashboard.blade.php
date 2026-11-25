@@ -412,32 +412,32 @@
             <!-- SECTION 1: Profile Overview -->
             <div>
                 <div class="mb-3">
-                    <h6 class="fw-bold text-dark mb-0">Profile Overview</h6>
-                    <small class="text-muted">Live stats for your {{ $selectedProfile?->platform?->label() ?? 'social profiles' }}.</small>
+                    <h6 class="fw-bold text-dark mb-0">{{ $platformLabels['overviewHeading'] ?? 'Profile Overview' }}</h6>
+                    <small class="text-muted">{{ $platformLabels['overviewSubheading'] ?? 'Live stats for your social profiles.' }}</small>
                 </div>
 
                 <div class="row g-3">
-                    <!-- Total Fans -->
+                    <!-- Total Fans / Subscribers -->
                     <div class="col-md-6 col-lg-4">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #ec4899; width: 26px; height: 26px;">
-                                    <i class="bi bi-person"></i>
+                                    <i class="bi {{ $platformLabels['fansIcon'] ?? 'bi-person' }}"></i>
                                 </span>
-                                <span>Total Fans</span>
+                                <span>{{ $platformLabels['fansTitle'] ?? 'Total Fans' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['totalFans']) }}</div>
                         </div>
                     </div>
 
-                    <!-- Talking About This -->
+                    <!-- Talking About This / Channel Views -->
                     <div class="col-md-6 col-lg-4">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
-                                    <i class="bi bi-chat-left-text"></i>
+                                    <i class="bi {{ $platformLabels['talkingIcon'] ?? 'bi-chat-left-text' }}"></i>
                                 </span>
-                                <span>Talking About This</span>
+                                <span>{{ $platformLabels['talkingTitle'] ?? 'Talking About This' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['talkingAboutThis']) }}</div>
                         </div>
@@ -453,14 +453,14 @@
                 </div>
 
                 <div class="row g-3">
-                    <!-- 1. Total Follows -->
+                    <!-- 1. Total Follows / New Subs -->
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #f5f3ff; color: #8b5cf6; width: 26px; height: 26px;">
                                     <i class="bi bi-person-check"></i>
                                 </span>
-                                <span>Total Follows</span>
+                                <span>{{ $platformLabels['followsTitle'] ?? 'Total Follows' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['totalFollows']) }}</div>
                             <span class="delta-tag neutral">
@@ -469,14 +469,14 @@
                         </div>
                     </div>
 
-                    <!-- 2. Total Views -->
+                    <!-- 2. Total Views / Video Views / Impressions -->
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
                                     <i class="bi bi-eye"></i>
                                 </span>
-                                <span>Total Impressions</span>
+                                <span>{{ $platformLabels['viewsTitle'] ?? 'Total Impressions' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['totalViews']) }}</div>
                             <span class="delta-tag">
@@ -492,7 +492,7 @@
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfdf5; color: #10b981; width: 26px; height: 26px;">
                                     <i class="bi bi-heart"></i>
                                 </span>
-                                <span>Engagement</span>
+                                <span>{{ $platformLabels['engagementTitle'] ?? 'Engagement' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['engagement']) }}</div>
                             <span class="delta-tag neutral">
@@ -501,14 +501,14 @@
                         </div>
                     </div>
 
-                    <!-- 4. Content Interactions -->
+                    <!-- 4. Content Interactions / Comments -->
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fffbeb; color: #f59e0b; width: 26px; height: 26px;">
                                     <i class="bi bi-hand-thumbs-up"></i>
                                 </span>
-                                <span>Content Interactions</span>
+                                <span>{{ $platformLabels['interactionsTitle'] ?? 'Content Interactions' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['contentInteractions']) }}</div>
                             <span class="delta-tag neutral">
@@ -517,14 +517,14 @@
                         </div>
                     </div>
 
-                    <!-- 5. Published Posts -->
+                    <!-- 5. Published Posts / Videos & Shorts -->
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fef2f2; color: #ef4444; width: 26px; height: 26px;">
                                     <i class="bi bi-share"></i>
                                 </span>
-                                <span>Published Posts</span>
+                                <span>{{ $platformLabels['publishedTitle'] ?? 'Published Posts' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['publishedPosts']) }}</div>
                             <span class="delta-tag neutral">
@@ -533,14 +533,14 @@
                         </div>
                     </div>
 
-                    <!-- 6. Page Views -->
+                    <!-- 6. Page Views / Estimated Reach -->
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #0891b2; width: 26px; height: 26px;">
                                     <i class="bi bi-display"></i>
                                 </span>
-                                <span>Page Views / Reach</span>
+                                <span>{{ $platformLabels['reachTitle'] ?? 'Page Views / Reach' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['pageViews']) }}</div>
                             <span class="delta-tag">
@@ -549,14 +549,14 @@
                         </div>
                     </div>
 
-                    <!-- 7. Reactions -->
+                    <!-- 7. Reactions / Video Likes -->
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #db2777; width: 26px; height: 26px;">
                                     <i class="bi bi-emoji-smile"></i>
                                 </span>
-                                <span>Reactions</span>
+                                <span>{{ $platformLabels['reactionsTitle'] ?? 'Reactions' }}</span>
                             </div>
                             <div class="metric-big-num">{{ number_format($metrics['reactions']) }}</div>
                             <span class="delta-tag neutral">

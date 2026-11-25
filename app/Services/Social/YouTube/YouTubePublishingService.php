@@ -63,6 +63,7 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
         }
 
         $videoUrl = $payload->mediaUrls[0];
+        $isShorts = ($payload->platformSettings['post_type'] ?? '') === 'shorts';
 
         // Testing / Mock simulation
         if (app()->environment('testing') && !config('services.youtube.live_publishing', false)) {
@@ -73,7 +74,11 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                 success: true,
                 providerPostId: $mockVideoId,
                 postUrl: "https://www.youtube.com/watch?v={$mockVideoId}",
-                rawResponse: ['id' => $mockVideoId]
+                rawResponse: [
+                    'id' => $mockVideoId,
+                    'post_type' => $isShorts ? 'shorts' : 'video',
+                    'thumbnail_url' => $payload->platformSettings['thumbnail_url'] ?? null,
+                ]
             );
         }
 
@@ -87,7 +92,15 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                 $title = Str::limit($firstLine ?: 'New Video', 100, '');
             }
 
+            if ($isShorts && !str_contains(strtolower($title), '#shorts')) {
+                $title = Str::limit($title . ' #Shorts', 100, '');
+            }
+
             $description = $payload->platformSettings['description'] ?? $payload->caption;
+            if ($isShorts && !str_contains(strtolower($description), '#shorts')) {
+                $description .= "\n\n#Shorts";
+            }
+
             $privacy = $payload->platformSettings['privacy_status'] ?? 'public';
             $categoryId = (string) ($payload->platformSettings['category_id'] ?? '22');
             $madeForKids = !empty($payload->platformSettings['made_for_kids']);
@@ -99,6 +112,9 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                     ? $payload->platformSettings['tags'] 
                     : explode(',', $payload->platformSettings['tags']);
                 $tags = array_values(array_filter(array_map('trim', $rawTags)));
+            }
+            if ($isShorts && !in_array('Shorts', $tags, true)) {
+                $tags[] = 'Shorts';
             }
 
             // Step 1: Initialize Resumable Session
@@ -172,10 +188,14 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                     }
                 }
 
+                $postUrl = $isShorts 
+                    ? "https://www.youtube.com/shorts/{$videoId}" 
+                    : "https://www.youtube.com/watch?v={$videoId}";
+
                 return new PublishingResultDTO(
                     success: true,
                     providerPostId: $videoId,
-                    postUrl: "https://www.youtube.com/watch?v={$videoId}",
+                    postUrl: $postUrl,
                     rawResponse: $data
                 );
             }

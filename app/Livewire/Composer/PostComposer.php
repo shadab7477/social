@@ -10,12 +10,16 @@ use App\Models\SocialProfile;
 use App\Services\Publishing\PostCreationService;
 use App\Services\Social\Registry\PlatformCapabilityRegistry;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.app')]
 class PostComposer extends Component
 {
+    use WithFileUploads;
+
     // Left Panel Form State
     public ?int $selectedClientId = null;
     public array $selectedProfileIds = [];
@@ -33,6 +37,9 @@ class PostComposer extends Component
     public array $customCaptions = []; // [profileId => 'custom text']
     public array $customizedFlags = []; // [profileId => bool]
     public array $platformSettings = []; // [profileId => ['setting_key' => 'val']]
+
+    // Direct File Upload for Custom Thumbnail
+    public $directThumbnailUpload = null;
 
     // Media Library Selector Modal
     public bool $showMediaModal = false;
@@ -92,6 +99,14 @@ class PostComposer extends Component
         $this->activeTab = 'base';
     }
 
+    public function setTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+        if ($tab !== 'base' && is_numeric($tab)) {
+            $this->ensurePlatformSettingsInitialized((int)$tab);
+        }
+    }
+
     public function toggleCustomizeVariant(int $profileId): void
     {
         $isCustom = !empty($this->customizedFlags[$profileId]);
@@ -123,11 +138,62 @@ class PostComposer extends Component
         $this->showThumbnailModal = true;
     }
 
+    public function updatedDirectThumbnailUpload(): void
+    {
+        $this->validate([
+            'directThumbnailUpload' => 'image|max:5120',
+        ]);
+
+        if ($this->directThumbnailUpload && $this->selectingThumbnailForProfileId) {
+            $path = $this->directThumbnailUpload->store('thumbnails', 'public');
+            $url = Storage::disk('public')->url($path);
+            $this->selectThumbnailAsset($this->selectingThumbnailForProfileId, $url);
+            $this->directThumbnailUpload = null;
+        }
+    }
+
+    public function ensurePlatformSettingsInitialized(int $profileId): void
+    {
+        if (isset($this->platformSettings[$profileId]) && !empty($this->platformSettings[$profileId]['post_type'])) {
+            return;
+        }
+
+        $profile = SocialProfile::find($profileId);
+        if (!$profile) return;
+
+        $firstLine = strtok($this->baseCaption, "\r\n");
+        $plat = $profile->platform instanceof SocialPlatform ? $profile->platform->value : $profile->platform;
+
+        if ($plat === 'youtube') {
+            $this->platformSettings[$profileId] = array_merge([
+                'post_type' => 'video',
+                'title' => mb_substr($firstLine ?: 'New YouTube Video', 0, 100),
+                'privacy_status' => 'public',
+                'category_id' => '22',
+                'tags' => '',
+                'made_for_kids' => false,
+                'thumbnail_url' => '',
+            ], $this->platformSettings[$profileId] ?? []);
+        } elseif ($plat === 'instagram') {
+            $this->platformSettings[$profileId] = array_merge([
+                'post_type' => 'feed',
+                'share_to_feed' => true,
+                'cover_image_url' => '',
+            ], $this->platformSettings[$profileId] ?? []);
+        } elseif ($plat === 'facebook') {
+            $this->platformSettings[$profileId] = array_merge([
+                'post_type' => 'feed',
+            ], $this->platformSettings[$profileId] ?? []);
+        } elseif ($plat === 'linkedin') {
+            $this->platformSettings[$profileId] = array_merge([
+                'post_type' => 'post',
+            ], $this->platformSettings[$profileId] ?? []);
+        }
+    }
+
     public function selectThumbnailAsset(int $profileId, string $publicUrl): void
     {
-        if (!isset($this->platformSettings[$profileId])) {
-            $this->platformSettings[$profileId] = [];
-        }
+        $this->ensurePlatformSettingsInitialized($profileId);
         $this->platformSettings[$profileId]['thumbnail_url'] = $publicUrl;
         $this->showThumbnailModal = false;
         $this->selectingThumbnailForProfileId = null;
