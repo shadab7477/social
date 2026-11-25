@@ -1,26 +1,244 @@
-<div class="analytics-dashboard-wrapper">
-    <!-- Top Action & Filter Row -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-        <div>
-            <h4 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-graph-up-arrow text-primary me-2"></i> Analytics & Insights
-            </h4>
-            <p class="text-muted small mb-0">Multi-channel performance metrics, engagement rates, audience growth, and top content.</p>
-        </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-            <!-- Date Range Selector -->
-            <div class="btn-group btn-group-sm shadow-xs" role="group">
-                <button type="button" wire:click="$set('dateRange', '7d')" class="btn {{ $dateRange === '7d' ? 'btn-primary' : 'btn-outline-secondary' }}">7 Days</button>
-                <button type="button" wire:click="$set('dateRange', '30d')" class="btn {{ $dateRange === '30d' ? 'btn-primary' : 'btn-outline-secondary' }}">30 Days</button>
-                <button type="button" wire:click="$set('dateRange', '90d')" class="btn {{ $dateRange === '90d' ? 'btn-primary' : 'btn-outline-secondary' }}">90 Days</button>
-            </div>
+<div class="analytics-recur-layout">
+    <style>
+        .recur-wrapper {
+            display: flex;
+            gap: 1.5rem;
+            min-height: calc(100vh - 120px);
+        }
 
-            <!-- Sync Button -->
-            <button wire:click="syncNow" wire:loading.attr="disabled" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center">
-                <span wire:loading.remove wire:target="syncNow"><i class="bi bi-arrow-repeat me-1"></i> Sync Now</span>
-                <span wire:loading wire:target="syncNow"><span class="spinner-border spinner-border-sm me-1"></span> Syncing...</span>
-            </button>
-        </div>
+        /* Middle Sub-Sidebar (Social Profiles) */
+        .recur-profiles-col {
+            width: 310px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 1.25rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .recur-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.75rem 0.85rem;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #334155;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .recur-menu-item:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .recur-menu-item.active {
+            background: #f0f7ff;
+            border-color: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .recur-menu-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .recur-profile-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: 14px;
+            border: 1px solid #f1f5f9;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .recur-profile-card:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .recur-profile-card.selected {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 1px #2563eb, 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
+
+        .profile-avatar-box {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar-img {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .profile-platform-badge {
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+        }
+
+        /* Right Content Area */
+        .recur-content-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Profile Header Banner */
+        .recur-banner-card {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* Metric Cards */
+        .recur-metric-box {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            padding: 1.35rem 1.5rem;
+            height: 100%;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .recur-metric-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-icon-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .metric-big-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+            margin-top: 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .delta-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .delta-tag.neutral {
+            color: #64748b;
+        }
+
+        .btn-recur-pill {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 50rem;
+            padding: 0.5rem 1.15rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.15s ease;
+        }
+
+        .btn-recur-pill:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .btn-recur-primary {
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 50rem;
+            padding: 0.5rem 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: all 0.15s ease;
+        }
+
+        .btn-recur-primary:hover {
+            background: #1d4ed8;
+            color: #ffffff;
+        }
+
+        @media (max-width: 991.98px) {
+            .recur-wrapper {
+                flex-direction: column;
+            }
+            .recur-profiles-col {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <!-- Top Trial Notification Banner (Matching Reference) -->
+    <div class="text-center py-2 px-3 mb-3 small fw-medium" style="background: #f8fafc; border-bottom: 1px solid #eef2f6; color: #475569; border-radius: 12px;">
+        Your trial expires on <strong>24th November, 2026</strong>. 
+        <a href="{{ route('billing.index') }}" class="text-primary text-decoration-underline fw-semibold ms-1">Start your subscription</a>
     </div>
 
     <!-- Flash message -->
@@ -32,322 +250,477 @@
         </div>
     @endif
 
-    <!-- Filter Bar Card -->
-    <div class="card-frosted p-3 mb-4">
-        <div class="row g-2 align-items-center">
-            <div class="col-md-5">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="small text-muted fw-semibold text-nowrap"><i class="bi bi-building me-1"></i> Client:</span>
-                    <select wire:model.live="selectedClientId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
-                        <option value="">All Clients</option>
-                        @foreach($clients as $c)
-                            <option value="{{ $c->id }}">{{ $c->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+    <div class="recur-wrapper">
+        <!-- ============================================== -->
+        <!-- MIDDLE COLUMN: SOCIAL PROFILES SUB-SIDEBAR     -->
+        <!-- ============================================== -->
+        <aside class="recur-profiles-col">
+            <div class="d-flex align-items-center justify-content-between pb-1">
+                <h6 class="fw-bold mb-0 text-dark">Social Profiles</h6>
+                <button class="btn btn-sm btn-link text-muted p-0" title="Collapse Pane">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
             </div>
-            <div class="col-md-5">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="small text-muted fw-semibold text-nowrap"><i class="bi bi-person-badge me-1"></i> Profile:</span>
-                    <select wire:model.live="selectedProfileId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
-                        <option value="">All Connected Profiles</option>
-                        @foreach($profiles as $p)
-                            <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->platform->label() }})</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-2 text-end">
-                @if($selectedClientId || $selectedProfileId)
-                    <button wire:click="$set('selectedClientId', null); $set('selectedProfileId', null);" class="btn btn-sm btn-link text-muted p-0">
-                        Reset Filters
-                    </button>
-                @endif
-            </div>
-        </div>
-    </div>
 
-    <!-- KPI Metric Cards Grid (Pastel Palette) -->
-    <div class="row g-3 mb-4">
-        <!-- Impressions: Pastel Mint -->
-        <div class="col-md-3">
-            <div class="card-pastel-mint p-4 h-100 d-flex flex-column justify-content-between">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small fw-bold opacity-75 text-uppercase">Total Impressions</span>
-                    <span class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.8rem;">↗</span>
+            <!-- Top Filter Category Items -->
+            <div class="d-flex flex-column gap-1">
+                <div wire:click="setViewMode('overview')" class="recur-menu-item {{ $viewMode === 'overview' ? 'active' : '' }}">
+                    <div class="recur-menu-icon" style="background: #eef2ff; color: #4f46e5;">
+                        <i class="bi bi-grid-fill"></i>
+                    </div>
+                    <div>
+                        <div class="small fw-bold">Overview</div>
+                        <div class="text-muted" style="font-size: 0.74rem;">All social profiles</div>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="fw-bold mb-1 text-dark">{{ number_format($kpis['impressions']) }}</h2>
-                    <small class="opacity-75">Views across newsfeeds & reels</small>
-                </div>
-            </div>
-        </div>
 
-        <!-- Reach: Pastel Yellow -->
-        <div class="col-md-3">
-            <div class="card-pastel-yellow p-4 h-100 d-flex flex-column justify-content-between">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small fw-bold opacity-75 text-uppercase">Unique Reach</span>
-                    <span class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.8rem;">↗</span>
-                </div>
-                <div>
-                    <h2 class="fw-bold mb-1 text-dark">{{ number_format($kpis['reach']) }}</h2>
-                    <small class="opacity-75">Unique accounts exposed</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Engagements & Rate: Pastel Pink -->
-        <div class="col-md-3">
-            <div class="card-pastel-pink p-4 h-100 d-flex flex-column justify-content-between">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small fw-bold opacity-75 text-uppercase">Engagements</span>
-                    <span class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.8rem;">↗</span>
-                </div>
-                <div>
-                    <h2 class="fw-bold mb-1 text-dark">{{ number_format($kpis['engagement']) }}</h2>
-                    <div class="d-flex align-items-center gap-1">
-                        <span class="badge bg-white text-dark rounded-pill shadow-xs">{{ $kpis['engagementRate'] }}%</span>
-                        <small class="opacity-75">Engagement Rate</small>
+                <div wire:click="setViewMode('custom_reports')" class="recur-menu-item {{ $viewMode === 'custom_reports' ? 'active' : '' }}">
+                    <div class="recur-menu-icon" style="background: #eff6ff; color: #2563eb;">
+                        <i class="bi bi-sliders"></i>
+                    </div>
+                    <div>
+                        <div class="small fw-bold">Custom Reports</div>
+                        <div class="text-muted" style="font-size: 0.74rem;">Build your own report</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Followers / Community: Pastel Lavender -->
-        <div class="col-md-3">
-            <div class="card-pastel-lavender p-4 h-100 d-flex flex-column justify-content-between">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small fw-bold opacity-75 text-uppercase">Audience Base</span>
-                    <span class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.8rem;">↗</span>
-                </div>
-                <div>
-                    <h2 class="fw-bold mb-1 text-dark">{{ number_format($kpis['followers']) }}</h2>
-                    <small class="opacity-75">Tracked community followers</small>
-                </div>
+            <!-- Search Profile Input -->
+            <div class="position-relative">
+                <input type="text" wire:model.live.debounce.300ms="profileSearch" class="form-control form-control-sm rounded-pill px-3 py-2 border bg-light" placeholder="Search profiles...">
+                <i class="bi bi-search position-absolute text-muted" style="right: 14px; top: 9px; font-size: 0.8rem;"></i>
             </div>
-        </div>
-    </div>
 
-    <!-- Charts Row -->
-    <div class="row g-4 mb-4">
-        <!-- Daily Trends Line Chart -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-activity text-primary me-2"></i> Performance Trends
-                    </h6>
-                    <span class="text-muted small">Daily Impressions vs. Unique Reach</span>
-                </div>
-                <div class="card-body p-3 p-md-4">
-                    <div 
-                        x-data="analyticsTrendChart(@js($chartData))" 
-                        x-init="initChart()"
-                        wire:ignore
-                        style="height: 280px; position: relative;"
-                    >
-                        <canvas id="analyticsTrendCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Platform Distribution Doughnut Chart -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-pie-chart text-primary me-2"></i> Network Distribution
-                    </h6>
-                </div>
-                <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-center">
-                    <div 
-                        x-data="platformDoughnutChart(@js($platformData))" 
-                        x-init="initDoughnut()"
-                        wire:ignore
-                        style="height: 260px; width: 100%; position: relative;"
-                    >
-                        <canvas id="platformDoughnutCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Performing Posts Table -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-            <h6 class="fw-bold mb-0 text-dark">
-                <i class="bi bi-trophy text-warning me-2"></i> Top Performing Content
-            </h6>
-            <a href="{{ route('posts.index') }}" class="btn btn-sm btn-link text-decoration-none">View All Posts &rarr;</a>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light text-muted small text-uppercase">
-                    <tr>
-                        <th style="width: 320px;">Content</th>
-                        <th>Network</th>
-                        <th>Published Date</th>
-                        <th class="text-end">Impressions</th>
-                        <th class="text-end">Reach</th>
-                        <th class="text-end">Reactions</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($topVariants as $variant)
-                        @php
-                            $vPost = $variant->post;
-                            $firstMedia = $variant->mediaAssets->first();
-                            $vPlat = $variant->socialProfile?->platform;
-                            $impr = (int) $variant->analyticsSnapshots->where('metric_name', 'impressions')->first()?->metric_value;
-                            $rch = (int) $variant->analyticsSnapshots->where('metric_name', 'reach')->first()?->metric_value;
-                            $lks = (int) $variant->analyticsSnapshots->where('metric_name', 'likes')->first()?->metric_value;
-                        @endphp
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="rounded bg-light border d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 44px; height: 44px;">
-                                        @if($firstMedia)
-                                            <img src="{{ $firstMedia->public_url }}" alt="Media" class="w-100 h-100 object-fit-cover">
-                                        @else
-                                            <i class="bi bi-card-text text-muted"></i>
-                                        @endif
+            <!-- Profile List Items -->
+            <div class="overflow-y-auto pe-1" style="max-height: 520px;">
+                @forelse($allProfiles as $prof)
+                    @php
+                        $isSelected = ($selectedProfileId === $prof->id) && ($viewMode === 'profile');
+                        $badgeBg = match($prof->platform->value) {
+                            'facebook' => '#1877f2',
+                            'instagram' => '#e1306c',
+                            'youtube' => '#ff0000',
+                            'linkedin' => '#0a66c2',
+                            'google_business' => '#4285f4',
+                            default => '#6366f1',
+                        };
+                    @endphp
+                    <div wire:click="selectProfile({{ $prof->id }})" class="recur-profile-card {{ $isSelected ? 'selected' : '' }}">
+                        <div class="d-flex align-items-center gap-2 text-truncate">
+                            <div class="profile-avatar-box">
+                                @if($prof->avatar_url)
+                                    <img src="{{ $prof->avatar_url }}" class="profile-avatar-img" alt="">
+                                @else
+                                    <div class="profile-avatar-img">
+                                        {{ strtoupper(substr($prof->name, 0, 1)) }}
                                     </div>
-                                    <div class="text-truncate" style="max-width: 240px;">
-                                        <div class="fw-semibold text-dark text-truncate small mb-0">
-                                            {{ Str::limit($variant->getEffectiveCaption(), 45) }}
-                                        </div>
-                                        @if($vPost->client)
-                                            <span class="text-muted" style="font-size: 0.75rem;">
-                                                <i class="bi bi-building"></i> {{ $vPost->client->name }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge bg-light border text-dark p-1 px-2 d-inline-flex align-items-center gap-1">
-                                    <i class="bi {{ $vPlat?->icon() }} {{ $vPlat?->cssClass() }}"></i>
-                                    {{ $variant->socialProfile?->name }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="small text-muted">{{ $variant->published_at?->format('M d, Y') ?? 'N/A' }}</span>
-                            </td>
-                            <td class="text-end fw-semibold text-dark">{{ number_format($impr) }}</td>
-                            <td class="text-end fw-semibold text-dark">{{ number_format($rch) }}</td>
-                            <td class="text-end fw-semibold text-success">{{ number_format($lks) }}</td>
-                            <td class="text-end">
-                                @if($variant->external_post_url)
-                                    <a href="{{ $variant->external_post_url }}" target="_blank" class="btn btn-xs btn-outline-primary" title="View on Social Platform">
-                                        <i class="bi bi-box-arrow-up-right"></i>
-                                    </a>
                                 @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-muted small">
-                                No published posts found in the selected date range.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                                <span class="profile-platform-badge" style="background: {{ $badgeBg }};">
+                                    <i class="bi {{ $prof->platform->icon() }}"></i>
+                                </span>
+                            </div>
+                            <div class="text-truncate">
+                                <div class="text-dark small fw-bold text-truncate">{{ $prof->name }}</div>
+                                <div class="text-muted text-truncate" style="font-size: 0.74rem;">
+                                    {{ $prof->platform->label() }}
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($isSelected)
+                            <div class="text-primary fs-5 ms-2">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <div class="text-center py-4 text-muted small">
+                        No connected profiles found.
+                    </div>
+                @endforelse
+            </div>
+        </aside>
+
+        <!-- ============================================== -->
+        <!-- RIGHT COLUMN: MAIN REPORTS & ANALYTICS PANE    -->
+        <!-- ============================================== -->
+        <main class="recur-content-col">
+            <!-- Header bar with Title and Organic selector -->
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-4 text-primary"><i class="bi bi-file-earmark-bar-graph-fill"></i></span>
+                    <h4 class="fw-bold mb-0 text-dark">Analytics & Reports</h4>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-recur-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="pulse-live me-1"></span> Organic
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2 rounded-4">
+                        <li><a class="dropdown-item small py-2 rounded active" href="#">Organic Traffic</a></li>
+                        <li><a class="dropdown-item small py-2 rounded" href="#">Paid Advertising</a></li>
+                        <li><a class="dropdown-item small py-2 rounded" href="#">Combined Reach</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Profile Banner Card (Matching Screenshot exactly) -->
+            <div class="recur-banner-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="profile-avatar-box" style="width: 48px; height: 48px;">
+                        @if($selectedProfile && $selectedProfile->avatar_url)
+                            <img src="{{ $selectedProfile->avatar_url }}" class="profile-avatar-img" style="width: 48px; height: 48px; border-radius: 12px;" alt="">
+                        @else
+                            <div class="profile-avatar-img" style="width: 48px; height: 48px; border-radius: 12px; background: #fedde5; color: #be185d; font-size: 1.1rem;">
+                                {{ strtoupper(substr($selectedProfile->name ?? 'A', 0, 1)) }}
+                            </div>
+                        @endif
+                        <span class="profile-platform-badge" style="width: 20px; height: 20px; font-size: 0.75rem; background: #1877f2;">
+                            <i class="bi {{ $selectedProfile?->platform?->icon() ?? 'bi-share' }}"></i>
+                        </span>
+                    </div>
+
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">{{ $selectedProfile->name ?? 'All Social Profiles Combined' }}</h5>
+                        <div class="d-flex align-items-center gap-1 text-primary small fw-semibold">
+                            <i class="bi bi-check-circle-fill" style="font-size: 0.8rem;"></i>
+                            <span>{{ $selectedProfile?->platform?->label() ?? 'Multi-Channel' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Date Range Pill Button with comparison label -->
+                    <div class="btn-recur-pill" style="font-size: 0.78rem; padding: 0.45rem 1rem;">
+                        <i class="bi bi-calendar3 text-muted"></i>
+                        <span>{{ $dateLabel }}</span>
+                        <span class="text-muted ms-1" style="font-size: 0.72rem;">vs {{ $prevDateLabel }}</span>
+                    </div>
+
+                    <!-- Chat with AI Button -->
+                    <button wire:click="openAiInsights" class="btn btn-recur-pill">
+                        <i class="bi bi-chat-dots-fill text-primary"></i>
+                        <span>Chat with AI</span>
+                    </button>
+
+                    <!-- Share / Export Button -->
+                    <button wire:click="openShareModal" class="btn btn-recur-primary">
+                        <i class="bi bi-share-fill"></i>
+                        <span>Share</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 1: Profile Overview -->
+            <div>
+                <div class="mb-3">
+                    <h6 class="fw-bold text-dark mb-0">Profile Overview</h6>
+                    <small class="text-muted">Live stats for your {{ $selectedProfile?->platform?->label() ?? 'social profiles' }}.</small>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Total Fans -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #ec4899; width: 26px; height: 26px;">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <span>Total Fans</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['totalFans']) }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Talking About This -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
+                                    <i class="bi bi-chat-left-text"></i>
+                                </span>
+                                <span>Talking About This</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['talkingAboutThis']) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Performance Snapshot -->
+            <div>
+                <div class="mb-3">
+                    <h6 class="fw-bold text-dark mb-0">Performance Snapshot</h6>
+                    <small class="text-muted">A quick look at your key metrics compared to the previous period, showing what's improving and what's slipping.</small>
+                </div>
+
+                <div class="row g-3">
+                    <!-- 1. Total Follows -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #f5f3ff; color: #8b5cf6; width: 26px; height: 26px;">
+                                    <i class="bi bi-person-check"></i>
+                                </span>
+                                <span>Total Follows</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['totalFollows']) }}</div>
+                            <span class="delta-tag neutral">
+                                <i class="bi bi-arrow-up-short"></i> 0.00%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Total Views -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                                <span>Total Impressions</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['totalViews']) }}</div>
+                            <span class="delta-tag">
+                                <i class="bi bi-arrow-up-short"></i> {{ $metrics['viewsDelta'] }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Engagement -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfdf5; color: #10b981; width: 26px; height: 26px;">
+                                    <i class="bi bi-heart"></i>
+                                </span>
+                                <span>Engagement</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['engagement']) }}</div>
+                            <span class="delta-tag neutral">
+                                <i class="bi bi-arrow-up-short"></i> Rate: {{ $metrics['engagementRate'] }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 4. Content Interactions -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fffbeb; color: #f59e0b; width: 26px; height: 26px;">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                </span>
+                                <span>Content Interactions</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['contentInteractions']) }}</div>
+                            <span class="delta-tag neutral">
+                                <i class="bi bi-arrow-up-short"></i> 0.00%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 5. Published Posts -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fef2f2; color: #ef4444; width: 26px; height: 26px;">
+                                    <i class="bi bi-share"></i>
+                                </span>
+                                <span>Published Posts</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['publishedPosts']) }}</div>
+                            <span class="delta-tag neutral">
+                                <i class="bi bi-arrow-up-short"></i> 0.00%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 6. Page Views -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #0891b2; width: 26px; height: 26px;">
+                                    <i class="bi bi-display"></i>
+                                </span>
+                                <span>Page Views / Reach</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['pageViews']) }}</div>
+                            <span class="delta-tag">
+                                <i class="bi bi-arrow-up-short"></i> {{ $metrics['pageViewsDelta'] }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 7. Reactions -->
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="recur-metric-box">
+                            <div class="metric-icon-pill">
+                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #db2777; width: 26px; height: 26px;">
+                                    <i class="bi bi-emoji-smile"></i>
+                                </span>
+                                <span>Reactions</span>
+                            </div>
+                            <div class="metric-big-num">{{ number_format($metrics['reactions']) }}</div>
+                            <span class="delta-tag neutral">
+                                <i class="bi bi-arrow-up-short"></i> 0.00%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Recent Content Performance -->
+            <div class="recur-metric-box p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h6 class="fw-bold text-dark mb-0">Top Published Content</h6>
+                        <small class="text-muted">Posts published to this channel during the current date period.</small>
+                    </div>
+                    <a href="{{ route('posts.index') }}" class="btn btn-sm btn-link text-primary text-decoration-none">View All Posts ↗</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="small text-muted text-uppercase" style="border-bottom: 1px solid #f1f5f9;">
+                            <tr>
+                                <th style="width: 320px;">Content</th>
+                                <th>Published Date</th>
+                                <th>Impressions</th>
+                                <th>Reactions</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($topVariants as $post)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if($post->mediaAssets->isNotEmpty())
+                                                <img src="{{ $post->mediaAssets->first()->public_url }}" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" alt="">
+                                            @else
+                                                <div class="rounded d-flex align-items-center justify-content-center bg-light text-muted" style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-card-text"></i>
+                                                </div>
+                                            @endif
+                                            <div class="text-truncate" style="max-width: 250px;">
+                                                <div class="fw-semibold text-dark text-truncate small">{{ $post->getEffectiveCaption() ?: 'Social Media Post' }}</div>
+                                                <small class="text-muted">{{ $post->socialProfile?->platform?->label() ?? 'Social' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-dark">{{ $post->published_at?->format('M d, Y h:i A') ?? 'N/A' }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            {{ number_format($post->analyticsSnapshots->where('metric_name', 'impressions')->first()?->metric_value ?? 1) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            {{ number_format($post->analyticsSnapshots->where('metric_name', 'likes')->first()?->metric_value ?? 0) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        @if($post->external_post_url)
+                                            <a href="{{ $post->external_post_url }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-2">
+                                                <i class="bi bi-box-arrow-up-right"></i>
+                                            </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted small">
+                                        No published posts found in this period.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL 1: CHAT WITH AI INSIGHTS                 -->
+    <!-- ============================================== -->
+    @if($showAiChatModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-bottom py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="rounded-circle p-2 bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-robot fs-5"></i>
+                            </span>
+                            <div>
+                                <h6 class="modal-title fw-bold text-dark mb-0">AI Performance Intelligence</h6>
+                                <small class="text-muted">Instant analytical insights for {{ $selectedProfile->name ?? 'Social Profiles' }}</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" wire:click="closeAiInsights"></button>
+                    </div>
+
+                    <div class="modal-body p-4">
+                        <div class="p-3 rounded-4 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.92rem; line-height: 1.6;">
+                            {!! nl2br(e($aiAnalysisText)) !!}
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" class="form-control rounded-pill px-3" placeholder="Ask AI a question about your engagement or reach...">
+                            <button class="btn btn-primary rounded-pill px-4">Ask</button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-top py-2">
+                        <button type="button" class="btn btn-sm btn-light rounded-pill px-3" wire:click="closeAiInsights">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ============================================== -->
+    <!-- MODAL 2: SHARE / EXPORT REPORT                 -->
+    <!-- ============================================== -->
+    @if($showShareModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-bottom py-3">
+                        <h6 class="modal-title fw-bold text-dark mb-0">
+                            <i class="bi bi-share-fill text-primary me-2"></i> Share & Download Performance Report
+                        </h6>
+                        <button type="button" class="btn-close" wire:click="closeShareModal"></button>
+                    </div>
+
+                    <div class="modal-body p-4">
+                        <p class="small text-muted mb-4">Export or share client-ready social analytics reports with your agency branding.</p>
+
+                        <div class="d-grid gap-3">
+                            <button wire:click="exportReport('pdf')" class="btn btn-outline-primary text-start p-3 rounded-3 d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold text-dark">Executive PDF Summary</div>
+                                    <small class="text-muted">High-res, print-ready document with KPI breakdown and top posts.</small>
+                                </div>
+                                <i class="bi bi-file-earmark-pdf fs-3 text-danger"></i>
+                            </button>
+
+                            <button wire:click="exportReport('csv')" class="btn btn-outline-secondary text-start p-3 rounded-3 d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold text-dark">Raw CSV Dataset Export</div>
+                                    <small class="text-muted">Complete tabular numbers and daily metrics for spreadsheets.</small>
+                                </div>
+                                <i class="bi bi-file-earmark-spreadsheet fs-3 text-success"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-top py-2">
+                        <button type="button" class="btn btn-sm btn-light rounded-pill px-3" wire:click="closeShareModal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
-
-@push('scripts')
-<script>
-document.addEventListener('alpine:init', () => {
-    // 1. Line/Bar Trend Chart
-    Alpine.data('analyticsTrendChart', (initialData) => ({
-        chart: null,
-
-        initChart() {
-            const ctx = document.getElementById('analyticsTrendCanvas');
-            if (!ctx || !window.Chart) return;
-
-            this.chart = new window.Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: initialData.labels,
-                    datasets: [
-                        {
-                            label: 'Impressions',
-                            data: initialData.impressions,
-                            borderColor: '#4f46e5',
-                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            fill: true,
-                            tension: 0.3,
-                            borderWidth: 2,
-                        },
-                        {
-                            label: 'Unique Reach',
-                            data: initialData.reach,
-                            borderColor: '#059669',
-                            backgroundColor: 'rgba(5, 150, 105, 0.05)',
-                            fill: true,
-                            tension: 0.3,
-                            borderWidth: 2,
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-
-            window.addEventListener('analytics-updated', () => {
-                location.reload(); // Simple smooth reload on range change
-            });
-        }
-    }));
-
-    // 2. Platform Share Doughnut Chart
-    Alpine.data('platformDoughnutChart', (initialData) => ({
-        chart: null,
-
-        initDoughnut() {
-            const ctx = document.getElementById('platformDoughnutCanvas');
-            if (!ctx || !window.Chart) return;
-
-            const labels = initialData.labels.length > 0 ? initialData.labels : ['No Data'];
-            const totals = initialData.totals.length > 0 ? initialData.totals : [1];
-            const colors = ['#1877F2', '#E1306C', '#0A66C2', '#FF0000', '#0F1419', '#BD081C'];
-
-            this.chart = new window.Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: totals,
-                        backgroundColor: colors.slice(0, labels.length),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-        }
-    }));
-});
-</script>
-@endpush
-
