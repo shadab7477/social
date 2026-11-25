@@ -91,7 +91,53 @@ class WorkspaceDashboard extends Component
             ->get();
         $teamMembersCount = $workspace->members()->count();
 
-        // 7. Platform connectivity matrix
+        // 7. Mini Calendar Data for current month
+        $now = now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+        $startDayOfWeek = $startOfMonth->dayOfWeekIso; // 1 (Mon) to 7 (Sun)
+        
+        $scheduledDays = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
+            ->whereNotNull('scheduled_at')
+            ->whereBetween('scheduled_at', [$startOfMonth, $endOfMonth])
+            ->pluck('scheduled_at')
+            ->map(fn($d) => $d->day)
+            ->unique()
+            ->toArray();
+
+        $calendarDays = [];
+        // Previous month filler days
+        $prevMonthEnd = $startOfMonth->copy()->subDay();
+        for ($i = $startDayOfWeek - 1; $i > 0; $i--) {
+            $calendarDays[] = [
+                'day' => $prevMonthEnd->copy()->subDays($i - 1)->day,
+                'inMonth' => false,
+                'isToday' => false,
+                'hasPost' => false,
+            ];
+        }
+        // Current month days
+        for ($day = 1; $day <= $endOfMonth->day; $day++) {
+            $calendarDays[] = [
+                'day' => $day,
+                'inMonth' => true,
+                'isToday' => $day === $now->day,
+                'hasPost' => in_array($day, $scheduledDays, true),
+            ];
+        }
+        // Next month filler days to complete 35 or 42 slots
+        $totalSlots = count($calendarDays) <= 35 ? 35 : 42;
+        $nextDay = 1;
+        while (count($calendarDays) < $totalSlots) {
+            $calendarDays[] = [
+                'day' => $nextDay++,
+                'inMonth' => false,
+                'isToday' => false,
+                'hasPost' => false,
+            ];
+        }
+
+        // 8. Platform connectivity matrix
         $platformList = [
             'facebook' => ['name' => 'Facebook', 'icon' => 'bi-facebook', 'class' => 'facebook'],
             'instagram' => ['name' => 'Instagram', 'icon' => 'bi-instagram', 'class' => 'instagram'],
@@ -117,6 +163,8 @@ class WorkspaceDashboard extends Component
             'activeClients' => $activeClients,
             'teamMembersCount' => $teamMembersCount,
             'platformList' => $platformList,
+            'currentMonthYear' => $now->format('F Y'),
+            'calendarDays' => $calendarDays,
         ]);
     }
 }

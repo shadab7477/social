@@ -20,7 +20,7 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Floating Rounded Sidebar (Reference Design) -->
         <aside class="app-sidebar">
             <div class="sidebar-brand d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
@@ -29,30 +29,28 @@
                     </div>
                     <div>
                         <div class="brand-name lh-1">
-                            Post<span style="color: #818cf8;">Sync</span>
+                            Post<span>Sync</span>
                         </div>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1 py-0" style="font-size: 0.62rem; letter-spacing: 0.05em;">SAAS PRO</span>
                     </div>
                 </div>
-                <button class="btn-close btn-close-white d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Close"></button>
+                <button class="btn-close d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Close"></button>
             </div>
 
             <!-- Workspace Switcher Pill inside Sidebar -->
-            <div class="px-3 pt-3 pb-1">
+            <div class="px-3 pt-1 pb-2">
                 <div class="dropdown">
-                    <button class="btn btn-sm w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 text-white border" style="background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1) !important;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-sm w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
                         <div class="d-flex align-items-center gap-2 text-truncate">
                             <span class="pulse-online"></span>
                             <div class="text-truncate">
-                                <div class="text-white small fw-bold text-truncate" style="max-width: 140px;">
-                                    {{ session('active_workspace_name', 'Select Workspace') }}
+                                <div class="text-dark small fw-bold text-truncate" style="max-width: 135px;">
+                                    {{ session('active_workspace_name', 'Workspace') }}
                                 </div>
-                                <span class="text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">Active Workspace</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-expand text-muted small"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark shadow border-0 p-2" style="min-width: 230px; background: #0f172a;">
+                    <ul class="dropdown-menu shadow border-0 p-2" style="min-width: 220px; border-radius: 16px;">
                         <li class="dropdown-header text-uppercase small text-muted fw-bold">Switch Workspace</li>
                         @auth
                             @foreach(auth()->user()->workspaces as $ws)
@@ -69,7 +67,7 @@
                                 </li>
                             @endforeach
                         @endauth
-                        <li><hr class="dropdown-divider border-secondary my-1"></li>
+                        <li><hr class="dropdown-divider my-1"></li>
                         <li>
                             <button type="button" class="dropdown-item text-primary fw-semibold d-flex align-items-center py-2 rounded" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
                                 <i class="bi bi-plus-circle me-2"></i>+ New Client Workspace
@@ -80,91 +78,82 @@
             </div>
 
             <div class="sidebar-menu">
-                <div class="menu-header">Publishing & Content</div>
                 <nav class="nav flex-column">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-grid-1x2-fill"></i>
+                        <i class="bi bi-grid-fill"></i>
                         <span>Dashboard</span>
-                    </a>
-                    <a href="{{ route('composer') }}" class="nav-link {{ request()->routeIs('composer') ? 'active' : '' }}">
-                        <i class="bi bi-pencil-square"></i>
-                        <span>Create Post</span>
-                        <span class="badge bg-primary text-white ms-auto" style="font-size: 0.65rem;">New</span>
                     </a>
                     <a href="{{ route('calendar') }}" class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
                         <i class="bi bi-calendar3"></i>
                         <span>Calendar</span>
                     </a>
                     <a href="{{ route('posts.index') }}" class="nav-link {{ request()->routeIs('posts.*') ? 'active' : '' }}">
-                        <i class="bi bi-collection-fill"></i>
-                        <span>Posts Directory</span>
+                        <i class="bi bi-check2-square"></i>
+                        <span>My Posts</span>
+                    </a>
+                    <a href="{{ route('analytics.index') }}" class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Analytics</span>
                     </a>
                     <a href="{{ route('media.index') }}" class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}">
-                        <i class="bi bi-images"></i>
-                        <span>Media Library</span>
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Media & Docs</span>
                     </a>
                 </nav>
 
-                <div class="menu-header mt-3">Engagement & Audience</div>
+                <div class="menu-header">INTEGRATIONS</div>
                 <nav class="nav flex-column">
                     <a href="{{ route('social-accounts.index') }}" class="nav-link {{ request()->routeIs('social-accounts.*') ? 'active' : '' }}">
-                        <i class="bi bi-share-fill"></i>
+                        <i class="bi bi-share"></i>
                         <span>Social Accounts</span>
                     </a>
                     <a href="{{ route('inbox.index') }}" class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
-                        <i class="bi bi-chat-dots-fill"></i>
+                        <i class="bi bi-chat-dots"></i>
                         <span>Social Inbox</span>
                     </a>
-                    <a href="{{ route('analytics.index') }}" class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
-                        <i class="bi bi-graph-up-arrow"></i>
-                        <span>Analytics</span>
-                    </a>
                     <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                        <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                        <i class="bi bi-file-earmark-bar-graph"></i>
                         <span>Client Reports</span>
                     </a>
                 </nav>
 
-                <div class="menu-header mt-3">Agency & Collaboration</div>
+                <div class="menu-header">TEAMS & CLIENTS</div>
                 <nav class="nav flex-column">
                     <a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
-                        <i class="bi bi-buildings-fill"></i>
+                        <i class="bi bi-buildings"></i>
                         <span>Clients</span>
                     </a>
                     <a href="{{ route('approvals.index') }}" class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
-                        <i class="bi bi-check2-circle"></i>
+                        <i class="bi bi-check-circle"></i>
                         <span>Approvals</span>
                     </a>
                     <a href="{{ route('team.index') }}" class="nav-link {{ request()->routeIs('team.*') ? 'active' : '' }}">
-                        <i class="bi bi-people-fill"></i>
+                        <i class="bi bi-people"></i>
                         <span>Team & Roles</span>
                     </a>
                     <a href="{{ route('automations.index') }}" class="nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}">
-                        <i class="bi bi-cpu-fill"></i>
+                        <i class="bi bi-cpu"></i>
                         <span>Automations</span>
                     </a>
                 </nav>
 
-                <div class="menu-header mt-3">Administration</div>
+                <div class="menu-header">SETTINGS</div>
                 <nav class="nav flex-column">
                     <a href="{{ route('billing.index') }}" class="nav-link {{ request()->routeIs('billing.*') ? 'active' : '' }}">
-                        <i class="bi bi-credit-card-2-front-fill"></i>
+                        <i class="bi bi-credit-card"></i>
                         <span>Billing & Plans</span>
                     </a>
                     <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                        <i class="bi bi-gear-wide-connected"></i>
-                        <span>Settings & Audit</span>
+                        <i class="bi bi-gear"></i>
+                        <span>Settings</span>
                     </a>
                 </nav>
 
                 @auth
                     @if (auth()->user()->is_super_admin)
-                        <div class="menu-header mt-3 text-danger d-flex align-items-center justify-content-between">
-                            <span><i class="bi bi-shield-lock-fill me-1"></i> Governance</span>
-                            <span class="badge bg-danger" style="font-size: 0.6rem;">SUPER ADMIN</span>
-                        </div>
+                        <div class="menu-header text-danger">SUPER ADMIN</div>
                         <nav class="nav flex-column">
-                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }} text-danger fw-semibold">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }} text-danger">
                                 <i class="bi bi-speedometer2 text-danger"></i>
                                 <span>Admin Panel</span>
                             </a>
@@ -174,14 +163,14 @@
             </div>
 
             <div class="sidebar-footer">
-                <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.08) !important;">
+                <div class="d-flex align-items-center justify-content-between p-2 rounded-4 bg-light border">
                     <div class="d-flex align-items-center gap-2 text-truncate">
-                        <div class="avatar bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px; font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, #4f46e5, #9333ea);">
+                        <div class="avatar text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 34px; height: 34px; font-size: 0.82rem; background: #111827;">
                             {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
                         </div>
-                        <div class="text-truncate" style="max-width: 130px;">
-                            <div class="fw-semibold text-white text-truncate small">{{ auth()->user()->name ?? 'Agency User' }}</div>
-                            <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ auth()->user()->email ?? 'user@postsync.cloud' }}</div>
+                        <div class="text-truncate" style="max-width: 120px;">
+                            <div class="fw-bold text-dark text-truncate small">{{ auth()->user()->name ?? 'User' }}</div>
+                            <div class="text-muted text-truncate" style="font-size: 0.7rem;">{{ auth()->user()->email ?? 'user@postsync.cloud' }}</div>
                         </div>
                     </div>
                     <form method="POST" action="{{ route('logout') }}" class="m-0">
@@ -199,51 +188,51 @@
 
         <!-- Main Content Area -->
         <div class="app-content">
-            <!-- Top Navbar -->
+            <!-- Top Navbar (Reference Design) -->
             <header class="app-header">
-                <div class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1">
-                    <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-secondary d-lg-none rounded-circle header-circle-btn" type="button" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation">
                         <i class="bi bi-list fs-5"></i>
                     </button>
-
-                    <!-- Workspace Breadcrumb Pill -->
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-light text-dark border px-2 py-1 d-flex align-items-center gap-1">
-                            <i class="bi bi-briefcase-fill text-primary"></i>
-                            <span class="fw-semibold">{{ session('active_workspace_name', 'Workspace') }}</span>
-                        </span>
-                        @if(isset($headerTitle))
-                            <span class="text-muted small d-none d-md-inline">/</span>
-                            <span class="fs-6 fw-semibold text-secondary d-none d-md-inline">{{ $headerTitle }}</span>
-                        @endif
+                    <div>
+                        <h3 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size: 1.65rem; letter-spacing: -0.02em;">
+                            Welcome back <span class="fs-4">👋</span>
+                        </h3>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
-                    <!-- Client Direct Link Shortcut -->
+                <div class="d-flex align-items-center gap-2 gap-sm-3">
+                    <!-- Search Pill Input -->
+                    <div class="search-pill-box d-none d-md-flex">
+                        <i class="bi bi-search text-muted small"></i>
+                        <input type="text" placeholder="Search something...">
+                    </div>
+
+                    <!-- Client Link Pill -->
                     @php
                         $currWs = app('current_workspace');
                     @endphp
                     @if ($currWs)
-                        <a href="{{ route('social-accounts.index') }}" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1 shadow-sm">
+                        <a href="{{ route('social-accounts.index') }}" class="btn btn-sm btn-white bg-white border text-dark rounded-pill px-3 py-2 d-none d-sm-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.82rem; font-weight: 600;">
                             <i class="bi bi-link-45deg fs-6"></i>
                             <span>🔗 Share Client Link</span>
                         </a>
                     @endif
 
-                    <a href="{{ route('composer') }}" class="btn btn-sm btn-gradient-primary d-inline-flex align-items-center gap-2 shadow-sm">
+                    <!-- + Create Black Pill Button -->
+                    <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">
                         <i class="bi bi-plus-lg"></i>
-                        <span class="d-none d-sm-inline">New Post</span>
+                        <span>Create</span>
                     </a>
 
-                    <!-- User Profile Dropdown -->
-                    <div class="dropdown ms-1 ms-sm-2">
-                        <button class="btn btn-link p-0 text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px; font-weight: 700; background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+                    <!-- User Avatar Circle -->
+                    <div class="dropdown">
+                        <button class="btn btn-link p-0 text-decoration-none dropdown-toggle header-circle-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; background: #111827; font-size: 0.85rem;">
                                 {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
                             </div>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 220px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 220px; border-radius: 18px;">
                             <li class="px-2 py-2 border-bottom mb-1">
                                 <div class="fw-bold text-dark">{{ auth()->user()->name ?? 'User' }}</div>
                                 <div class="text-muted small">{{ auth()->user()->email ?? 'user@postsync.cloud' }}</div>
