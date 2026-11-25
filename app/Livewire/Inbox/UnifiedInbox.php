@@ -164,7 +164,7 @@ class UnifiedInbox extends Component
             $this->feedbackMessage = "Successfully synced {$count} live comment(s) from your connected social pages!";
             $this->feedbackType = 'success';
         } else {
-            $this->feedbackMessage = "Checked connected social accounts. No new comments were found on your pages. (Tip: Use '⚡ Add Test Interaction' to test replying in real-time).";
+            $this->feedbackMessage = "Checked connected social accounts. No new comments were found on your pages.";
             $this->feedbackType = 'info';
         }
 

@@ -10,23 +10,10 @@
                         </h5>
                         <small class="text-muted">Unified comments & direct messages</small>
                     </div>
-                    <div class="dropdown">
-                        <button class="btn btn-xs btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-lightning-charge"></i> Actions
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                            <li>
-                                <button class="dropdown-item small d-flex align-items-center gap-2" wire:click="syncLiveComments">
-                                    <i class="bi bi-arrow-repeat text-primary"></i> Sync Live Comments
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item small d-flex align-items-center gap-2" wire:click="generateTestInteraction">
-                                    <i class="bi bi-plus-circle text-success"></i> Add Test Interaction
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                    <button class="btn btn-xs btn-outline-primary flex-shrink-0 d-inline-flex align-items-center gap-1" type="button" wire:click="syncLiveComments" wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat"></i> Sync</span>
+                        <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm"></span></span>
+                    </button>
                 </div>
 
                 <!-- Folders Navigation -->
@@ -143,14 +130,11 @@
                         <div class="text-center py-5 px-3 text-muted small">
                             <i class="bi bi-chat-left-dots fs-1 text-secondary opacity-50 d-block mb-2"></i>
                             <h6 class="fw-bold text-dark mb-1">No Conversations in this View</h6>
-                            <p class="text-muted small mb-3">Sync live comments from your connected social pages or create a test interaction.</p>
+                            <p class="text-muted small mb-3">Sync live comments from your connected social pages.</p>
                             <div class="d-flex flex-column gap-2">
                                 <button wire:click="syncLiveComments" wire:loading.attr="disabled" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center gap-1">
                                     <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat"></i> Sync Live Comments</span>
                                     <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm"></span> Syncing...</span>
-                                </button>
-                                <button wire:click="generateTestInteraction" class="btn btn-sm btn-light border text-dark">
-                                    <i class="bi bi-plus-circle text-success me-1"></i> Add Test Interaction
                                 </button>
                             </div>
                         </div>
@@ -318,8 +302,8 @@
                             <a href="{{ route('social-accounts.index') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
                                 Enable Inbox Access
                             </a>
-                            <button wire:click="generateTestInteraction" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-medium">
-                                <i class="bi bi-plus-circle me-1"></i> Add Demo Thread
+                            <button wire:click="syncLiveComments" wire:loading.attr="disabled" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-medium">
+                                <i class="bi bi-arrow-repeat me-1"></i> Sync Live Comments
                             </button>
                         </div>
                     </div>
