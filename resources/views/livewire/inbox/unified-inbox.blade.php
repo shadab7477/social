@@ -178,17 +178,17 @@
                 @if($activeConversation)
                     @php $activePlat = $activeConversation->socialProfile?->platform; @endphp
                     <!-- Thread Header -->
-                    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <div>
-                                <h6 class="fw-bold mb-0 text-dark">{{ $activeConversation->sender_name }}</h6>
-                                <div class="d-flex align-items-center gap-1">
-                                    <span class="badge bg-light border text-dark p-1 d-inline-flex align-items-center gap-1" style="font-size: 0.7rem;">
-                                        <i class="bi {{ $activePlat?->icon() }} {{ $activePlat?->cssClass() }}"></i>
-                                        {{ $activeConversation->socialProfile?->name }}
+                    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2 min-w-0">
+                            <div class="min-w-0">
+                                <h6 class="fw-bold mb-1 text-dark text-truncate">{{ $activeConversation->sender_name }}</h6>
+                                <div class="d-flex flex-wrap align-items-center gap-1">
+                                    <span class="badge bg-light border text-dark px-2 py-1 d-inline-flex align-items-center gap-1" style="font-size: 0.7rem;">
+                                        <i class="bi {{ $activePlat?->icon() }} text-primary"></i>
+                                        <span>{{ $activeConversation->socialProfile?->name }}</span>
                                     </span>
                                     @if($activeConversation->socialProfile?->client)
-                                        <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">
+                                        <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 0.7rem;">
                                             {{ $activeConversation->socialProfile->client->name }}
                                         </span>
                                     @endif
@@ -271,8 +271,8 @@
                     </div>
 
                     <!-- Quick Canned Responses -->
-                    <div class="p-2 px-3 bg-white border-top border-bottom d-flex gap-1 overflow-x-auto">
-                        <span class="text-muted small me-1 align-self-center" style="font-size: 0.75rem;">Quick:</span>
+                    <div class="p-2 px-3 bg-white border-top border-bottom d-flex flex-wrap align-items-center gap-1">
+                        <span class="text-muted small me-1" style="font-size: 0.75rem;">Quick:</span>
                         <button type="button" wire:click="applyTemplate('Thanks for reaching out! We appreciate your support.')" class="btn btn-xs btn-outline-secondary rounded-pill text-nowrap">
                             Thanks for reaching out
                         </button>

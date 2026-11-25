@@ -58,9 +58,9 @@
         <!-- Filter Controls -->
         <div class="row g-2 align-items-center pt-2 border-top">
             <div class="col-md-5">
-                <div class="search-pill-box w-100">
+                <div class="search-pill-box w-100 bg-white">
                     <i class="bi bi-search text-muted small"></i>
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search caption, title, or client...">
+                    <input type="text" wire:model.live.debounce.300ms="search" class="w-100 border-0 bg-transparent" style="outline: none;" placeholder="Search caption, title, or client...">
                 </div>
             </div>
             <div class="col-md-3">
