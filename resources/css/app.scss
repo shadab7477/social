@@ -40,8 +40,8 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
 // Sidebar
 .app-sidebar {
     width: 260px;
-    background-color: #ffffff;
-    border-right: 1px solid #e2e8f0;
+    background-color: #0b1120;
+    border-right: 1px solid #1e293b;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -50,7 +50,7 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
 
     .sidebar-brand {
         padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid #1e293b;
         display: flex;
         align-items: center;
         gap: 0.75rem;
@@ -58,20 +58,21 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
         .brand-icon {
             width: 38px;
             height: 38px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, $primary, #818cf8);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
             font-size: 1.25rem;
             font-weight: bold;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
         }
 
         .brand-name {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #0f172a;
+            color: #ffffff;
             letter-spacing: -0.025em;
         }
     }
@@ -81,26 +82,34 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
         flex: 1;
         overflow-y: auto;
 
+        &::-webkit-scrollbar {
+            width: 5px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
         .menu-header {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            padding: 0.75rem 0.75rem 0.25rem;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            padding: 0.85rem 0.75rem 0.35rem;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.65rem 0.75rem;
-            color: #475569;
+            padding: 0.65rem 0.85rem;
+            color: #94a3b8;
             font-weight: 500;
-            font-size: 0.925rem;
-            border-radius: $border-radius-sm;
+            font-size: 0.9rem;
+            border-radius: 8px;
             transition: all 0.15s ease;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
 
             i {
                 font-size: 1.15rem;
@@ -109,30 +118,33 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
             }
 
             &:hover {
-                color: $primary;
-                background-color: #f1f5f9;
-                i { color: $primary; }
+                color: #f8fafc;
+                background-color: rgba(255, 255, 255, 0.06);
+                i { color: #818cf8; }
             }
 
             &.active {
-                color: $primary;
-                background-color: #eef2ff;
+                color: #ffffff;
+                background: linear-gradient(90deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.08));
+                border-left: 3px solid #6366f1;
                 font-weight: 600;
-                i { color: $primary; }
+                i { color: #818cf8; }
             }
         }
     }
 
     .sidebar-footer {
         padding: 1rem;
-        border-top: 1px solid #f1f5f9;
+        border-top: 1px solid #1e293b;
+        background-color: #080d19;
     }
 }
 
 // App Header / Navbar
 .app-header {
-    height: 64px;
-    background-color: #ffffff;
+    height: 68px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
@@ -141,6 +153,7 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
     position: sticky;
     top: 0;
     z-index: 990;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
 
     .workspace-switcher {
         display: flex;
@@ -167,8 +180,8 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
 // Clean Cards
 .card {
     border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
-    border-radius: $border-radius;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+    border-radius: 12px;
     background-color: #ffffff;
     margin-bottom: 1.25rem;
 
@@ -181,6 +194,83 @@ $card-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05
 
     .card-body {
         padding: 1.25rem;
+    }
+}
+
+// KPI & Metric Cards
+.kpi-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
+    }
+
+    .stat-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+    }
+}
+
+// Pro Dashboard Hero Banner
+.dashboard-hero-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    border-radius: 16px;
+    color: #ffffff;
+    padding: 1.75rem 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(30, 27, 75, 0.25);
+
+    .hero-glow {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(99, 102, 241, 0) 70%);
+        top: -100px;
+        right: -50px;
+        pointer-events: none;
+    }
+}
+
+// Live Status Pulse Dot
+.pulse-online {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+// Gradient Primary Button
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border: none;
+    color: #ffffff !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
     }
 }
 

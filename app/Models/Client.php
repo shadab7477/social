@@ -65,6 +65,11 @@ class Client extends Model
             ->withTimestamps();
     }
 
+    public function profiles(): HasMany
+    {
+        return $this->hasMany(SocialProfile::class);
+    }
+
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
