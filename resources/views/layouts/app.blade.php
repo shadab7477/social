@@ -239,6 +239,13 @@
                             </li>
                             <li><a class="dropdown-item small py-2 rounded" href="{{ route('settings.index') }}"><i class="bi bi-person me-2"></i>My Profile</a></li>
                             <li><a class="dropdown-item small py-2 rounded" href="{{ route('billing.index') }}"><i class="bi bi-credit-card me-2"></i>Subscription & Plans</a></li>
+                            @if (auth()->user()?->is_super_admin)
+                                <li>
+                                    <a class="dropdown-item small py-2 rounded text-danger fw-semibold" href="{{ route('admin.dashboard') }}">
+                                        <i class="bi bi-shield-lock-fill me-2 text-danger"></i>Admin Control Panel
+                                    </a>
+                                </li>
+                            @endif
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
