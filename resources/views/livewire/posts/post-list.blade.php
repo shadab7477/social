@@ -116,7 +116,16 @@
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="rounded bg-light border d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 48px; height: 48px;">
                                         @if($firstMedia)
-                                            <img src="{{ $firstMedia->public_url }}" alt="Thumb" class="w-100 h-100 object-fit-cover">
+                                            @if($firstMedia->isVideo())
+                                                <div class="w-100 h-100 bg-dark text-white d-flex align-items-center justify-content-center">
+                                                    <i class="bi bi-play-circle-fill fs-5"></i>
+                                                </div>
+                                            @else
+                                                <img src="{{ $firstMedia->public_url }}" alt="Thumb" class="w-100 h-100 object-fit-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="w-100 h-100 align-items-center justify-content-center text-muted" style="display: none;">
+                                                    <i class="bi bi-image fs-5"></i>
+                                                </div>
+                                            @endif
                                         @else
                                             <i class="bi bi-card-text text-muted fs-4"></i>
                                         @endif
