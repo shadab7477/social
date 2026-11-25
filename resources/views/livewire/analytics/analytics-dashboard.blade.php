@@ -236,10 +236,7 @@
     </style>
 
     <!-- Top Trial Notification Banner (Matching Reference) -->
-    <div class="text-center py-2 px-3 mb-3 small fw-medium" style="background: #f8fafc; border-bottom: 1px solid #eef2f6; color: #475569; border-radius: 12px;">
-        Your trial expires on <strong>24th November, 2026</strong>. 
-        <a href="{{ route('billing.index') }}" class="text-primary text-decoration-underline fw-semibold ms-1">Start your subscription</a>
-    </div>
+
 
     <!-- Flash message -->
     @if($feedbackMessage)
@@ -363,8 +360,10 @@
                 </div>
             </div>
 
-            <!-- Profile Banner Card (Matching Screenshot exactly) -->
-            <div class="recur-banner-card">
+            <!-- Dynamic Content (Hidden during loading) -->
+            <div wire:loading.remove wire:target="selectProfile, setViewMode, dateRange, trafficType, profileSearch" class="d-flex flex-column gap-4">
+                <!-- Profile Banner Card (Matching Screenshot exactly) -->
+                <div class="recur-banner-card">
                 <div class="d-flex align-items-center gap-3">
                     <div class="profile-avatar-box" style="width: 48px; height: 48px;">
                         @if($selectedProfile && $selectedProfile->avatar_url)
@@ -639,6 +638,82 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <!-- Skeleton Loading State (Shown during profile/filter updates) -->
+        <div wire:loading.block wire:target="selectProfile, setViewMode, dateRange, trafficType, profileSearch" class="w-100" style="display: none;">
+            <div class="d-flex flex-column gap-4">
+                <!-- Skeleton Banner -->
+                <div class="recur-banner-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="skeleton-box" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+                        <div>
+                            <div class="skeleton-box mb-2" style="width: 200px; height: 20px;"></div>
+                            <div class="skeleton-box" style="width: 110px; height: 14px;"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="skeleton-box skeleton-pill" style="width: 160px; height: 36px;"></div>
+                        <div class="skeleton-box skeleton-pill" style="width: 110px; height: 36px;"></div>
+                        <div class="skeleton-box skeleton-pill" style="width: 90px; height: 36px;"></div>
+                    </div>
+                </div>
+
+                <!-- Skeleton Profile Overview -->
+                <div>
+                    <div class="skeleton-box mb-3" style="width: 140px; height: 18px;"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="recur-metric-box">
+                                <div class="skeleton-box mb-3" style="width: 100px; height: 24px; border-radius: 9999px;"></div>
+                                <div class="skeleton-box" style="width: 120px; height: 32px;"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="recur-metric-box">
+                                <div class="skeleton-box mb-3" style="width: 130px; height: 24px; border-radius: 9999px;"></div>
+                                <div class="skeleton-box" style="width: 80px; height: 32px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skeleton Performance Snapshot -->
+                <div>
+                    <div class="skeleton-box mb-3" style="width: 180px; height: 18px;"></div>
+                    <div class="row g-3">
+                        @for($i = 0; $i < 7; $i++)
+                            <div class="col-xl-3 col-lg-4 col-md-6">
+                                <div class="recur-metric-box">
+                                    <div class="skeleton-box mb-3" style="width: 120px; height: 24px; border-radius: 9999px;"></div>
+                                    <div class="skeleton-box mb-2" style="width: 80px; height: 28px;"></div>
+                                    <div class="skeleton-box" style="width: 65px; height: 18px; border-radius: 6px;"></div>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+
+                <!-- Skeleton Content Table -->
+                <div class="recur-metric-box p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="skeleton-box" style="width: 180px; height: 20px;"></div>
+                        <div class="skeleton-box" style="width: 100px; height: 16px;"></div>
+                    </div>
+                    @for($i = 0; $i < 4; $i++)
+                        <div class="skeleton-table-row">
+                            <div class="skeleton-box" style="width: 40px; height: 40px; border-radius: 8px;"></div>
+                            <div class="flex-grow-1">
+                                <div class="skeleton-box mb-1" style="width: 55%; height: 14px;"></div>
+                                <div class="skeleton-box" style="width: 30%; height: 12px;"></div>
+                            </div>
+                            <div class="skeleton-box" style="width: 90px; height: 16px;"></div>
+                            <div class="skeleton-box" style="width: 60px; height: 16px;"></div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+        </div>
         </main>
     </div>
 

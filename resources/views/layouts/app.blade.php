@@ -79,23 +79,23 @@
 
             <div class="sidebar-menu">
                 <nav class="nav flex-column">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('dashboard') }}" wire:navigate class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="bi bi-grid-fill"></i>
                         <span>Dashboard</span>
                     </a>
-                    <a href="{{ route('calendar') }}" class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
+                    <a href="{{ route('calendar') }}" wire:navigate class="nav-link {{ request()->routeIs('calendar') ? 'active' : '' }}">
                         <i class="bi bi-calendar3"></i>
                         <span>Calendar</span>
                     </a>
-                    <a href="{{ route('posts.index') }}" class="nav-link {{ request()->routeIs('posts.*') ? 'active' : '' }}">
+                    <a href="{{ route('posts.index') }}" wire:navigate class="nav-link {{ request()->routeIs('posts.*') ? 'active' : '' }}">
                         <i class="bi bi-check2-square"></i>
                         <span>My Posts</span>
                     </a>
-                    <a href="{{ route('analytics.index') }}" class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
+                    <a href="{{ route('analytics.index') }}" wire:navigate class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
                         <i class="bi bi-graph-up"></i>
                         <span>Analytics</span>
                     </a>
-                    <a href="{{ route('media.index') }}" class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}">
+                    <a href="{{ route('media.index') }}" wire:navigate class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}">
                         <i class="bi bi-file-earmark-text"></i>
                         <span>Media & Docs</span>
                     </a>
@@ -103,15 +103,15 @@
 
                 <div class="menu-header">INTEGRATIONS</div>
                 <nav class="nav flex-column">
-                    <a href="{{ route('social-accounts.index') }}" class="nav-link {{ request()->routeIs('social-accounts.*') ? 'active' : '' }}">
+                    <a href="{{ route('social-accounts.index') }}" wire:navigate class="nav-link {{ request()->routeIs('social-accounts.*') ? 'active' : '' }}">
                         <i class="bi bi-share"></i>
                         <span>Social Accounts</span>
                     </a>
-                    <a href="{{ route('inbox.index') }}" class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
+                    <a href="{{ route('inbox.index') }}" wire:navigate class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
                         <i class="bi bi-chat-dots"></i>
                         <span>Social Inbox</span>
                     </a>
-                    <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <a href="{{ route('reports.index') }}" wire:navigate class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                         <i class="bi bi-file-earmark-bar-graph"></i>
                         <span>Client Reports</span>
                     </a>
@@ -119,19 +119,19 @@
 
                 <div class="menu-header">TEAMS & CLIENTS</div>
                 <nav class="nav flex-column">
-                    <a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                    <a href="{{ route('clients.index') }}" wire:navigate class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                         <i class="bi bi-buildings"></i>
                         <span>Clients</span>
                     </a>
-                    <a href="{{ route('approvals.index') }}" class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
+                    <a href="{{ route('approvals.index') }}" wire:navigate class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
                         <i class="bi bi-check-circle"></i>
                         <span>Approvals</span>
                     </a>
-                    <a href="{{ route('team.index') }}" class="nav-link {{ request()->routeIs('team.*') ? 'active' : '' }}">
+                    <a href="{{ route('team.index') }}" wire:navigate class="nav-link {{ request()->routeIs('team.*') ? 'active' : '' }}">
                         <i class="bi bi-people"></i>
                         <span>Team & Roles</span>
                     </a>
-                    <a href="{{ route('automations.index') }}" class="nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}">
+                    <a href="{{ route('automations.index') }}" wire:navigate class="nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}">
                         <i class="bi bi-cpu"></i>
                         <span>Automations</span>
                     </a>
@@ -139,11 +139,11 @@
 
                 <div class="menu-header">SETTINGS</div>
                 <nav class="nav flex-column">
-                    <a href="{{ route('billing.index') }}" class="nav-link {{ request()->routeIs('billing.*') ? 'active' : '' }}">
+                    <a href="{{ route('billing.index') }}" wire:navigate class="nav-link {{ request()->routeIs('billing.*') ? 'active' : '' }}">
                         <i class="bi bi-credit-card"></i>
                         <span>Billing & Plans</span>
                     </a>
-                    <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                    <a href="{{ route('settings.index') }}" wire:navigate class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                         <i class="bi bi-gear"></i>
                         <span>Settings</span>
                     </a>
@@ -188,6 +188,11 @@
 
         <!-- Main Content Area -->
         <div class="app-content">
+            <!-- Global Livewire Navigation Loading Shimmer Bar -->
+            <div wire:loading.delay class="position-fixed top-0 start-0 end-0" style="height: 3px; z-index: 9999;">
+                <div class="skeleton-box w-100 h-100" style="background: linear-gradient(90deg, #6366f1, #3b82f6, #ec4899); border-radius: 0;"></div>
+            </div>
+
             <!-- Top Navbar (Reference Design) -->
             <header class="app-header">
                 <div class="d-flex align-items-center gap-2">

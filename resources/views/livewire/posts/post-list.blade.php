@@ -103,7 +103,7 @@
                         <th class="text-end" style="width: 140px;">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody wire:loading.remove wire:target="setStatusFilter, search, clientId, platform">
                     @forelse($posts as $post)
                         @php
                             $firstVariant = $post->variants->first();
@@ -231,6 +231,43 @@
                             </td>
                         </tr>
                     @endforelse
+                </tbody>
+                <!-- Skeleton Shimmer Table Rows for Instant Visual Feedback -->
+                <tbody wire:loading.delay wire:target="setStatusFilter, search, clientId, platform">
+                    @for($i = 0; $i < 5; $i++)
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="skeleton-box" style="width: 48px; height: 48px; border-radius: 8px;"></div>
+                                    <div class="flex-grow-1">
+                                        <div class="skeleton-box mb-2" style="width: 70%; height: 16px;"></div>
+                                        <div class="skeleton-box" style="width: 45%; height: 12px;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box skeleton-pill" style="width: 90px; height: 22px;"></div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <div class="skeleton-box" style="width: 28px; height: 28px; border-radius: 6px;"></div>
+                                    <div class="skeleton-box" style="width: 28px; height: 28px; border-radius: 6px;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 120px; height: 16px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box skeleton-pill" style="width: 80px; height: 22px;"></div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 6px;"></div>
+                                    <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 6px;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endfor
                 </tbody>
             </table>
         </div>

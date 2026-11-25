@@ -91,7 +91,7 @@
                             <th class="text-end" style="width: 140px;">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody wire:loading.remove wire:target="selectedClientId, formatFilter, activeTab">
                         @forelse($reports as $report)
                             <tr>
                                 <td>
@@ -157,6 +157,22 @@
                             </tr>
                         @endforelse
                     </tbody>
+                    <tbody wire:loading.delay wire:target="selectedClientId, formatFilter, activeTab">
+                        @for($i = 0; $i < 4; $i++)
+                            <tr>
+                                <td>
+                                    <div class="skeleton-box mb-1" style="width: 70%; height: 16px;"></div>
+                                    <div class="skeleton-box" style="width: 40%; height: 12px;"></div>
+                                </td>
+                                <td><div class="skeleton-box skeleton-pill" style="width: 80px; height: 20px;"></div></td>
+                                <td><div class="skeleton-box skeleton-pill" style="width: 60px; height: 20px;"></div></td>
+                                <td><div class="skeleton-box" style="width: 110px; height: 14px;"></div></td>
+                                <td><div class="skeleton-box skeleton-pill" style="width: 70px; height: 20px;"></div></td>
+                                <td><div class="skeleton-box" style="width: 65px; height: 14px;"></div></td>
+                                <td class="text-end"><div class="skeleton-box" style="width: 80px; height: 28px; border-radius: 6px;"></div></td>
+                            </tr>
+                        @endfor
+                    </tbody>
                 </table>
             </div>
 
@@ -183,7 +199,7 @@
                             <th class="text-end">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody wire:loading.remove wire:target="selectedClientId, formatFilter, activeTab">
                         @forelse($schedules as $sched)
                             <tr>
                                 <td class="fw-semibold text-dark">{{ $sched->name }}</td>
@@ -232,6 +248,22 @@
                                 </td>
                             </tr>
                         @endforelse
+                    </tbody>
+                    <tbody wire:loading.delay wire:target="selectedClientId, formatFilter, activeTab">
+                        @for($i = 0; $i < 4; $i++)
+                            <tr>
+                                <td>
+                                    <div class="skeleton-box mb-1" style="width: 70%; height: 16px;"></div>
+                                    <div class="skeleton-box" style="width: 40%; height: 12px;"></div>
+                                </td>
+                                <td><div class="skeleton-box skeleton-pill" style="width: 80px; height: 20px;"></div></td>
+                                <td><div class="skeleton-box skeleton-pill" style="width: 60px; height: 20px;"></div></td>
+                                <td><div class="skeleton-box" style="width: 110px; height: 14px;"></div></td>
+                                <td><div class="skeleton-box skeleton-pill" style="width: 70px; height: 20px;"></div></td>
+                                <td><div class="skeleton-box" style="width: 65px; height: 14px;"></div></td>
+                                <td class="text-end"><div class="skeleton-box" style="width: 80px; height: 28px; border-radius: 6px;"></div></td>
+                            </tr>
+                        @endfor
                     </tbody>
                 </table>
             </div>

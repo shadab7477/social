@@ -94,6 +94,7 @@
 
                 <!-- Conversation list -->
                 <div class="flex-grow-1 overflow-y-auto">
+                    <div wire:loading.remove wire:target="setFolder, search, selectedClientId, selectedPlatform">
                     @forelse($conversations as $conv)
                         @php
                             $isSelected = $selectedConversationId === $conv->id;
@@ -154,6 +155,21 @@
                             </div>
                         </div>
                     @endforelse
+                    </div>
+
+                    <!-- Skeleton Loading Shimmer for Threads -->
+                    <div wire:loading.delay wire:target="setFolder, search, selectedClientId, selectedPlatform" class="p-3">
+                        @for($sk = 0; $sk < 5; $sk++)
+                            <div class="d-flex gap-3 mb-4">
+                                <div class="skeleton-box skeleton-circle" style="width: 36px; height: 36px;"></div>
+                                <div class="flex-grow-1">
+                                    <div class="skeleton-box mb-2" style="width: 50%; height: 14px;"></div>
+                                    <div class="skeleton-box mb-1" style="width: 80%; height: 12px;"></div>
+                                    <div class="skeleton-box" style="width: 30%; height: 10px;"></div>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
                 </div>
             </div>
 
@@ -284,16 +300,28 @@
                     </div>
 
                 @else
-                    <!-- Empty State -->
-                    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5 text-muted">
-                        <i class="bi bi-chat-square-text fs-1 text-secondary opacity-50 mb-3"></i>
-                        <h6 class="fw-bold text-dark mb-1">No Conversation Selected</h6>
-                        <p class="small text-muted mb-4" style="max-width: 320px;">
-                            Select a thread from the list on the left to read messages, send replies, or assign tickets.
+                    <!-- Empty State / Permission Prompt (Matching Reference Image 4) -->
+                    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5">
+                        <div class="position-relative mb-4">
+                            <div class="rounded-4 d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 80px; height: 80px; background: #3b82f6; border-radius: 20px !important;">
+                                <i class="bi bi-chat-dots-fill fs-1"></i>
+                            </div>
+                            <span class="position-absolute" style="top: -14px; right: -14px; font-size: 2.2rem;">
+                                😴
+                            </span>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">Permission Required to Access Inbox</h4>
+                        <p class="text-muted mb-4" style="max-width: 440px; font-size: 0.95rem;">
+                            To start managing messages in your PostSync Inbox, please enable access or connect your social account.
                         </p>
-                        <button wire:click="generateTestInteraction" class="btn btn-sm btn-primary">
-                            <i class="bi bi-plus-circle me-1"></i> Add Test Conversation
-                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{{ route('social-accounts.index') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+                                Enable Inbox Access
+                            </a>
+                            <button wire:click="generateTestInteraction" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-medium">
+                                <i class="bi bi-plus-circle me-1"></i> Add Demo Thread
+                            </button>
+                        </div>
                     </div>
                 @endif
             </div>
