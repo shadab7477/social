@@ -217,12 +217,7 @@
                     @php
                         $currWs = app('current_workspace');
                     @endphp
-                    @if ($currWs)
-                        <a href="{{ route('social-accounts.index') }}" class="btn btn-sm btn-white bg-white border text-dark rounded-pill px-3 py-2 d-none d-sm-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.82rem; font-weight: 600;">
-                            <i class="bi bi-link-45deg fs-6"></i>
-                            <span>🔗 Share Client Link</span>
-                        </a>
-                    @endif
+                 
 
                     <!-- + Create Black Pill Button -->
                     <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">

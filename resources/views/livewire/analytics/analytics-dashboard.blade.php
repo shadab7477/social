@@ -236,9 +236,7 @@
     </style>
 
     <!-- Top Trial Notification Banner (Matching Reference) -->
-    <div class="text-center py-2 mb-3 rounded-3 small" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
-        Your trial expires on <strong>{{ now()->addDays(14)->format('jS F, Y') }}</strong>. <a href="{{ route('billing.index') }}" class="text-primary text-decoration-underline fw-semibold">Start your subscription</a>
-    </div>
+ 
 
 
     <!-- Flash message -->
@@ -418,10 +416,7 @@
 
                     <!-- Sync Live Data Button -->
                     <button wire:click="syncNow" wire:loading.attr="disabled" class="btn btn-recur-pill d-flex align-items-center gap-1" title="Fetch live metrics from platform API">
-                        <span wire:loading.remove wire:target="syncNow" class="d-flex align-items-center gap-1">
-                            <i class="bi bi-arrow-repeat text-success"></i>
-                            <span>Sync Live Data</span>
-                        </span>
+                    
                         <span wire:loading wire:target="syncNow" class="d-flex align-items-center gap-1">
                             <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true" style="width: 14px; height: 14px;"></span>
                             <span>Syncing...</span>
@@ -429,15 +424,11 @@
                     </button>
 
                     <!-- Chat with AI Button -->
-                    <button wire:click="openAiInsights" class="btn btn-recur-pill d-flex align-items-center gap-1">
-                        <i class="bi bi-chat-dots-fill text-primary"></i>
-                        <span>Chat with AI</span>
-                    </button>
+                   
 
                     <!-- Share / Export Button -->
                     <button wire:click="openShareModal" class="btn btn-recur-primary d-flex align-items-center gap-1">
                         <i class="bi bi-share-fill"></i>
-                        <span>Share</span>
                     </button>
                 </div>
             </div>

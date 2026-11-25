@@ -25,7 +25,7 @@
 
     <!-- Status Tabs Nav & Filters -->
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-bottom-0 pb-0 pt-3">
+        <div class="card-header bg-white border-bottom-0 pb-0 ">
             <ul class="nav nav-tabs card-header-tabs border-bottom-0 gap-1">
                 <li class="nav-item">
                     <button wire:click="setStatusFilter('pending')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'pending' ? 'active text-primary fw-bold' : 'text-muted' }}">

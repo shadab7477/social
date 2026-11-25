@@ -9,16 +9,7 @@
                 Connect and manage authorized social media profiles across official platforms.
             </p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#clientConnectModal">
-                <i class="bi bi-link-45deg fs-6"></i>
-                <span class="fw-semibold">🔗 Share Client Connect Link</span>
-            </button>
-            <button type="button" wire:click="connectDemoProfiles" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 shadow-sm">
-                <i class="bi bi-lightning-charge-fill text-warning"></i>
-                <span class="fw-semibold">⚡ Demo Accounts</span>
-            </button>
-        </div>
+    
     </div>
 
     @if (!config('services.facebook.client_id'))
@@ -184,8 +175,6 @@
                             @case('pinterest') Pin images, videos & destination links to boards. @break
                             @case('x') OAuth 2.0 PKCE tweet posting & rate-limit safety. @break
                             @case('threads') Official Threads Graph API container publishing. @break
-                            @case('google_business') Multi-location local posts, offers and updates. @break
-                            @case('bluesky') AT Protocol decentralized federated posting. @break
                         @endswitch
                     </p>
 

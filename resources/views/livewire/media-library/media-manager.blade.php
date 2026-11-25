@@ -23,10 +23,7 @@
     </div>
 
     <!-- Upload Progress Indicator -->
-    <div wire:loading wire:target="uploads" class="alert alert-info d-flex align-items-center gap-2 mb-4">
-        <span class="spinner-border spinner-border-sm" role="status"></span>
-        <span>Uploading media files to storage. Please wait...</span>
-    </div>
+ 
 
     <!-- Breadcrumb & Navigation -->
     <div class="card border-0 shadow-sm mb-4">
