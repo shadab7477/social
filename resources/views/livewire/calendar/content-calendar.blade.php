@@ -260,10 +260,10 @@
                     dayMaxEvents: 3,
                     events: (info, successCallback, failureCallback) => {
                         wire.getEvents(info.startStr, info.endStr)
-                            .then(events => successCallback(events))
+                            .then(events => successCallback(events || []))
                             .catch(err => {
                                 console.error('Failed to load calendar events', err);
-                                failureCallback(err);
+                                successCallback([]);
                             });
                     },
                     eventClick: (info) => {

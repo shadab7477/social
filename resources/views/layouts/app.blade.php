@@ -217,6 +217,29 @@
                     @php
                         $currWs = app('current_workspace');
                     @endphp
+                    @if ($currWs)
+                        <div class="dropdown d-none d-sm-block">
+                            <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark d-flex align-items-center gap-1 shadow-xs" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.82rem; font-weight: 500;">
+                                <i class="bi bi-link-45deg text-primary"></i>
+                                <span>Share Client Link</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 270px; border-radius: 16px;">
+                                <li class="px-2 py-1">
+                                    <div class="small fw-bold text-dark">Client Direct Connect</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">Share this link with your client so they can connect their accounts directly:</div>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li class="px-2 py-1">
+                                    <input type="text" readonly class="form-control form-control-sm bg-light" value="{{ route('client-connect.show', $currWs->uuid) }}" id="headerClientLinkInput">
+                                </li>
+                                <li class="px-2 pt-1">
+                                    <button type="button" class="btn btn-sm btn-primary w-100 rounded-pill" onclick="navigator.clipboard.writeText(document.getElementById('headerClientLinkInput').value); this.innerText='Link Copied!'; setTimeout(() => this.innerText='Copy URL', 2000);">
+                                        Copy URL
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    @endif
                  
 
                     <!-- + Create Black Pill Button -->
