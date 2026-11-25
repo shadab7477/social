@@ -15,6 +15,7 @@ Route::get('/pricing', function () {
 })->name('pricing');
 
 // Legal & Meta Compliance Pages
+Route::redirect('/privacy', '/privacy-policy');
 Route::get('/privacy-policy', function () {
     return view('legal.privacy');
 })->name('legal.privacy');

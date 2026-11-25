@@ -38,6 +38,10 @@ class PostComposer extends Component
     public bool $showMediaModal = false;
     public string $mediaSearch = '';
 
+    // Custom Thumbnail Modal (YouTube & Video Posts)
+    public bool $showThumbnailModal = false;
+    public ?int $selectingThumbnailForProfileId = null;
+
     // AI Content Assistant State
     public bool $showAiModal = false;
     public string $aiAction = 'caption'; // 'caption', 'rewrite', 'hashtags'
@@ -97,6 +101,42 @@ class PostComposer extends Component
         } else {
             $this->customizedFlags[$profileId] = true;
             $this->customCaptions[$profileId] = $this->baseCaption;
+
+            $profile = SocialProfile::find($profileId);
+            if ($profile && $profile->platform === 'youtube' && !isset($this->platformSettings[$profileId])) {
+                $firstLine = strtok($this->baseCaption, "\r\n");
+                $this->platformSettings[$profileId] = [
+                    'title' => mb_substr($firstLine ?: '', 0, 100),
+                    'privacy_status' => 'public',
+                    'category_id' => '22',
+                    'tags' => '',
+                    'made_for_kids' => false,
+                    'thumbnail_url' => '',
+                ];
+            }
+        }
+    }
+
+    public function openThumbnailModal(int $profileId): void
+    {
+        $this->selectingThumbnailForProfileId = $profileId;
+        $this->showThumbnailModal = true;
+    }
+
+    public function selectThumbnailAsset(int $profileId, string $publicUrl): void
+    {
+        if (!isset($this->platformSettings[$profileId])) {
+            $this->platformSettings[$profileId] = [];
+        }
+        $this->platformSettings[$profileId]['thumbnail_url'] = $publicUrl;
+        $this->showThumbnailModal = false;
+        $this->selectingThumbnailForProfileId = null;
+    }
+
+    public function removeThumbnail(int $profileId): void
+    {
+        if (isset($this->platformSettings[$profileId])) {
+            $this->platformSettings[$profileId]['thumbnail_url'] = '';
         }
     }
 

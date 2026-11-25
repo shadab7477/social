@@ -1,4 +1,4 @@
-@extends('layouts.public', ['title' => 'PostSync — Enterprise Social Media Management SaaS'])
+@extends('layouts.public', ['title' => 'PostSync SaaS — Enterprise Social Media Management Platform'])
 
 @section('content')
 <!-- Hero Section -->
@@ -7,13 +7,13 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-7 text-center text-lg-start">
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
-                    <i class="bi bi-stars me-1"></i> Multi-Tenant SaaS Built for Digital Agencies
+                    <i class="bi bi-stars me-1"></i> PostSync SaaS — Built for Digital Agencies & Creators
                 </span>
                 <h1 class="display-4 fw-bold text-dark lh-sm mb-3">
-                    Manage, Schedule & Publish Across <span class="text-primary">10 Social Networks</span> in One Platform.
+                    Manage, Schedule & Publish with <span class="text-primary">PostSync SaaS</span> Across 10 Networks.
                 </h1>
                 <p class="lead text-secondary mb-4">
-                    The all-in-one platform for marketing agencies, enterprises, and local businesses. Connect Facebook, Instagram, LinkedIn, YouTube, TikTok, Pinterest, X, Threads, Google Business, and Bluesky without mixing client data.
+                    PostSync SaaS is an all-in-one social media scheduling and publishing platform for creators, marketing agencies, and enterprises. Seamlessly connect your authorized accounts including YouTube, Facebook Pages, Instagram, LinkedIn, and more.
                 </p>
                 <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
                     <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4 shadow-sm">
@@ -56,6 +56,47 @@
                             <span class="badge bg-indigo-subtle text-primary"><i class="bi bi-calendar-event me-1"></i> Auto-Queued in Redis</span>
                             <span class="btn btn-sm btn-primary disabled">1-Click Publish</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Application Purpose & Compliance Section -->
+<section id="about-purpose" class="py-5 bg-white border-bottom">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-secondary-subtle text-dark border px-3 py-1 rounded-pill small fw-semibold mb-2">
+                    <i class="bi bi-info-circle me-1"></i> About PostSync SaaS & Platform Purpose
+                </span>
+                <h2 class="fw-bold text-dark mb-3">Application Purpose & How It Works</h2>
+                <p class="text-secondary mb-3">
+                    <strong>PostSync SaaS</strong> (<a href="https://postsync.cloud" class="text-decoration-none">https://postsync.cloud</a>) is a multi-platform social media management, publishing, and scheduling application designed for marketing agencies, content creators, and businesses.
+                </p>
+                <p class="text-secondary mb-3">
+                    Our platform allows users to securely connect their authorized social accounts to plan, compose, and automate content delivery. You can inspect all product features, pricing, terms, and privacy policies publicly without needing to log in.
+                </p>
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-youtube text-danger me-2"></i>YouTube & Google API Integration Purpose</h6>
+                    <p class="text-muted small mb-0">
+                        When you connect your Google account, PostSync SaaS requests access to the official YouTube Data API (<code>youtube.upload</code>, <code>youtube.readonly</code>) solely to upload videos and custom thumbnails to your authorized YouTube channel, manage video metadata (titles, descriptions, tags, and privacy settings), and display aggregated view metrics inside your private workspace.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 bg-light">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check text-success me-2"></i>Google APIs Terms of Service & Policy Compliance</h5>
+                    <ul class="text-secondary small ps-3 mb-3">
+                        <li class="mb-2"><strong>Data Protection & Privacy:</strong> User tokens are encrypted at rest with AES-256-GCM. We never sell, rent, or transfer user data to third parties or advertising networks.</li>
+                        <li class="mb-2"><strong>Strict Purpose Limitation:</strong> Google user data and OAuth tokens are accessed strictly upon direct user instruction to schedule or publish authorized videos.</li>
+                        <li class="mb-2"><strong>AI NCII Prohibition:</strong> PostSync SaaS strictly complies with the <a href="https://developers.google.com/terms" target="_blank" class="text-decoration-underline text-secondary">Google APIs Terms of Service</a> and Google API Services User Data Policy. PostSync SaaS <strong>does not use, generate, host, or distribute AI-generated Non-Consensual Intimate Imagery (AI NCII)</strong> or any abusive synthetic content.</li>
+                        <li class="mb-0"><strong>User Revocation:</strong> Users retain full ownership of their data and can disconnect their accounts anytime from their dashboard or via <a href="https://myaccount.google.com/permissions" target="_blank" class="text-decoration-underline text-secondary">Google Security Settings</a>.</li>
+                    </ul>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('legal.privacy') }}" class="btn btn-sm btn-outline-dark">Privacy Policy</a>
+                        <a href="{{ route('legal.terms') }}" class="btn btn-sm btn-outline-dark">Terms of Service</a>
                     </div>
                 </div>
             </div>

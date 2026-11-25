@@ -78,25 +78,49 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
         }
 
         try {
-            $title = Str::limit($payload->caption, 100);
-            $description = $payload->caption;
+            // Title from platform settings, or fallback to first line of caption, max 100 chars
+            $customTitle = trim($payload->platformSettings['title'] ?? '');
+            if (!empty($customTitle)) {
+                $title = Str::limit($customTitle, 100, '');
+            } else {
+                $firstLine = strtok($payload->caption, "\r\n");
+                $title = Str::limit($firstLine ?: 'New Video', 100, '');
+            }
+
+            $description = $payload->platformSettings['description'] ?? $payload->caption;
             $privacy = $payload->platformSettings['privacy_status'] ?? 'public';
+            $categoryId = (string) ($payload->platformSettings['category_id'] ?? '22');
+            $madeForKids = !empty($payload->platformSettings['made_for_kids']);
+
+            // Parse tags
+            $tags = [];
+            if (!empty($payload->platformSettings['tags'])) {
+                $rawTags = is_array($payload->platformSettings['tags']) 
+                    ? $payload->platformSettings['tags'] 
+                    : explode(',', $payload->platformSettings['tags']);
+                $tags = array_values(array_filter(array_map('trim', $rawTags)));
+            }
 
             // Step 1: Initialize Resumable Session
+            $snippet = [
+                'title' => $title,
+                'description' => $description,
+                'categoryId' => $categoryId,
+            ];
+            if (!empty($tags)) {
+                $snippet['tags'] = $tags;
+            }
+
             $initResponse = Http::withToken($accessToken)
                 ->withHeaders([
                     'X-Upload-Content-Type' => 'video/*',
                     'Content-Type' => 'application/json; charset=UTF-8',
                 ])
                 ->post('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', [
-                    'snippet' => [
-                        'title' => $title,
-                        'description' => $description,
-                        'categoryId' => '22',
-                    ],
+                    'snippet' => $snippet,
                     'status' => [
                         'privacyStatus' => $privacy,
-                        'selfDeclaredMadeForKids' => false,
+                        'selfDeclaredMadeForKids' => $madeForKids,
                     ],
                 ]);
 
@@ -128,6 +152,25 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                 $videoId = $data['id'] ?? null;
 
                 $this->quotaTracker->recordUsage($profile->workspace_id);
+
+                // Step 3: Optional Custom Thumbnail Upload (if provided)
+                $thumbnailUrl = $payload->platformSettings['thumbnail_url'] ?? null;
+                if (!empty($thumbnailUrl) && !empty($videoId)) {
+                    try {
+                        $thumbBytes = Http::timeout(30)->get($thumbnailUrl)->body();
+                        if (!empty($thumbBytes)) {
+                            $thumbRes = Http::withToken($accessToken)
+                                ->withBody($thumbBytes, 'image/jpeg')
+                                ->post("https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={$videoId}");
+
+                            if (!$thumbRes->successful()) {
+                                Log::warning("YouTube custom thumbnail upload non-fatal warning: " . $thumbRes->body());
+                            }
+                        }
+                    } catch (\Exception $thumbEx) {
+                        Log::warning("YouTube thumbnail exception: " . $thumbEx->getMessage());
+                    }
+                }
 
                 return new PublishingResultDTO(
                     success: true,
