@@ -236,6 +236,9 @@
     </style>
 
     <!-- Top Trial Notification Banner (Matching Reference) -->
+    <div class="text-center py-2 mb-3 rounded-3 small" style="background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.82rem; color: #475569;">
+        Your trial expires on <strong>{{ now()->addDays(14)->format('jS F, Y') }}</strong>. <a href="{{ route('billing.index') }}" class="text-primary text-decoration-underline fw-semibold">Start your subscription</a>
+    </div>
 
 
     <!-- Flash message -->
@@ -268,6 +271,16 @@
                     <div>
                         <div class="small fw-bold">Overview</div>
                         <div class="text-muted" style="font-size: 0.74rem;">All social profiles</div>
+                    </div>
+                </div>
+
+                <div wire:click="setViewMode('by_label')" class="recur-menu-item {{ $viewMode === 'by_label' ? 'active' : '' }}">
+                    <div class="recur-menu-icon" style="background: #eff6ff; color: #2563eb;">
+                        <i class="bi bi-tag-fill"></i>
+                    </div>
+                    <div>
+                        <div class="small fw-bold">By Label</div>
+                        <div class="text-muted" style="font-size: 0.74rem;">Compare across campaigns</div>
                     </div>
                 </div>
 
@@ -388,96 +401,116 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <!-- Date Range Pill Button with comparison label -->
-                    <div class="btn-recur-pill" style="font-size: 0.78rem; padding: 0.45rem 1rem;">
-                        <i class="bi bi-calendar3 text-muted"></i>
-                        <span>{{ $dateLabel }}</span>
-                        <span class="text-muted ms-1" style="font-size: 0.72rem;">vs {{ $prevDateLabel }}</span>
+                    <!-- Date Range Dropdown with comparison label -->
+                    <div class="dropdown">
+                        <button class="btn btn-recur-pill dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem; padding: 0.45rem 1rem;">
+                            <i class="bi bi-calendar3 text-muted"></i>
+                            <span class="fw-semibold">{{ $dateLabel }}</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">vs {{ $prevDateLabel }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                            <li><button class="dropdown-item @if($dateRange === '7d') active fw-bold @endif" wire:click="setDateRange('7d')"><i class="bi bi-clock me-2"></i>Last 7 Days</button></li>
+                            <li><button class="dropdown-item @if($dateRange === '14d') active fw-bold @endif" wire:click="setDateRange('14d')"><i class="bi bi-clock me-2"></i>Last 14 Days</button></li>
+                            <li><button class="dropdown-item @if($dateRange === '30d') active fw-bold @endif" wire:click="setDateRange('30d')"><i class="bi bi-clock me-2"></i>Last 30 Days</button></li>
+                            <li><button class="dropdown-item @if($dateRange === '90d') active fw-bold @endif" wire:click="setDateRange('90d')"><i class="bi bi-clock me-2"></i>Last 90 Days</button></li>
+                        </ul>
                     </div>
 
+                    <!-- Sync Live Data Button -->
+                    <button wire:click="syncNow" wire:loading.attr="disabled" class="btn btn-recur-pill d-flex align-items-center gap-1" title="Fetch live metrics from platform API">
+                        <span wire:loading.remove wire:target="syncNow" class="d-flex align-items-center gap-1">
+                            <i class="bi bi-arrow-repeat text-success"></i>
+                            <span>Sync Live Data</span>
+                        </span>
+                        <span wire:loading wire:target="syncNow" class="d-flex align-items-center gap-1">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true" style="width: 14px; height: 14px;"></span>
+                            <span>Syncing...</span>
+                        </span>
+                    </button>
+
                     <!-- Chat with AI Button -->
-                    <button wire:click="openAiInsights" class="btn btn-recur-pill">
+                    <button wire:click="openAiInsights" class="btn btn-recur-pill d-flex align-items-center gap-1">
                         <i class="bi bi-chat-dots-fill text-primary"></i>
                         <span>Chat with AI</span>
                     </button>
 
                     <!-- Share / Export Button -->
-                    <button wire:click="openShareModal" class="btn btn-recur-primary">
+                    <button wire:click="openShareModal" class="btn btn-recur-primary d-flex align-items-center gap-1">
                         <i class="bi bi-share-fill"></i>
                         <span>Share</span>
                     </button>
                 </div>
             </div>
 
-            <!-- SECTION 1: Profile Overview -->
-            <div>
-                <div class="mb-3">
-                    <h6 class="fw-bold text-dark mb-0">{{ $platformLabels['overviewHeading'] ?? 'Profile Overview' }}</h6>
-                    <small class="text-muted">{{ $platformLabels['overviewSubheading'] ?? 'Live stats for your social profiles.' }}</small>
-                </div>
-
-                <div class="row g-3">
-                    <!-- Total Fans / Subscribers -->
-                    <div class="col-md-6 col-lg-4">
-                        <div class="recur-metric-box">
-                            <div class="metric-icon-pill">
-                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #ec4899; width: 26px; height: 26px;">
-                                    <i class="bi {{ $platformLabels['fansIcon'] ?? 'bi-person' }}"></i>
-                                </span>
-                                <span>{{ $platformLabels['fansTitle'] ?? 'Total Fans' }}</span>
+                        <!-- SECTION 1: Profile Overview -->
+                        <div>
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-dark mb-0">{{ $platformLabels['overviewHeading'] ?? 'Profile Overview' }}</h6>
+                                <small class="text-muted">{{ $platformLabels['overviewSubheading'] ?? 'Live stats for your social profiles.' }}</small>
                             </div>
-                            <div class="metric-big-num">{{ number_format($metrics['totalFans']) }}</div>
+
+                            <div class="row g-3">
+                                <!-- Total Fans / Subscribers -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="recur-metric-box">
+                                        <div class="metric-icon-pill">
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #ec4899; width: 26px; height: 26px;">
+                                                <i class="bi {{ $platformLabels['fansIcon'] ?? 'bi-person' }}"></i>
+                                            </span>
+                                            <span>{{ $platformLabels['fansTitle'] ?? 'Total Fans' }}</span>
+                                        </div>
+                                        <div class="metric-big-num">{{ number_format($metrics['totalFans']) }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Talking About This / Channel Views -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="recur-metric-box">
+                                        <div class="metric-icon-pill">
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
+                                                <i class="bi {{ $platformLabels['talkingIcon'] ?? 'bi-chat-left-text' }}"></i>
+                                            </span>
+                                            <span>{{ $platformLabels['talkingTitle'] ?? 'Talking About This' }}</span>
+                                        </div>
+                                        <div class="metric-big-num">{{ number_format($metrics['talkingAboutThis']) }}</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Talking About This / Channel Views -->
-                    <div class="col-md-6 col-lg-4">
-                        <div class="recur-metric-box">
-                            <div class="metric-icon-pill">
-                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
-                                    <i class="bi {{ $platformLabels['talkingIcon'] ?? 'bi-chat-left-text' }}"></i>
-                                </span>
-                                <span>{{ $platformLabels['talkingTitle'] ?? 'Talking About This' }}</span>
+                        <!-- SECTION 2: Performance Snapshot -->
+                        <div>
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-dark mb-0">Performance Snapshot</h6>
+                                <small class="text-muted">A quick look at your key metrics compared to the previous period, showing what's improving and what's slipping.</small>
                             </div>
-                            <div class="metric-big-num">{{ number_format($metrics['talkingAboutThis']) }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- SECTION 2: Performance Snapshot -->
-            <div>
-                <div class="mb-3">
-                    <h6 class="fw-bold text-dark mb-0">Performance Snapshot</h6>
-                    <small class="text-muted">A quick look at your key metrics compared to the previous period, showing what's improving and what's slipping.</small>
-                </div>
+                            <div class="row g-3">
+                                <!-- 1. Total Follows / New Subs -->
+                                <div class="col-xl-3 col-lg-4 col-md-6">
+                                    <div class="recur-metric-box">
+                                        <div class="metric-icon-pill">
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #f5f3ff; color: #8b5cf6; width: 26px; height: 26px;">
+                                                <i class="bi bi-person-check"></i>
+                                            </span>
+                                            <span>{{ $platformLabels['followsTitle'] ?? 'Total Follows' }}</span>
+                                        </div>
+                                        <div class="metric-big-num">{{ number_format($metrics['totalFollows']) }}</div>
+                                        <span class="delta-tag neutral">
+                                            <i class="bi bi-arrow-up-short"></i> 0.00%
+                                        </span>
+                                    </div>
+                                </div>
 
-                <div class="row g-3">
-                    <!-- 1. Total Follows / New Subs -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="recur-metric-box">
-                            <div class="metric-icon-pill">
-                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #f5f3ff; color: #8b5cf6; width: 26px; height: 26px;">
-                                    <i class="bi bi-person-check"></i>
-                                </span>
-                                <span>{{ $platformLabels['followsTitle'] ?? 'Total Follows' }}</span>
-                            </div>
-                            <div class="metric-big-num">{{ number_format($metrics['totalFollows']) }}</div>
-                            <span class="delta-tag neutral">
-                                <i class="bi bi-arrow-up-short"></i> 0.00%
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- 2. Total Views / Video Views / Impressions -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="recur-metric-box">
-                            <div class="metric-icon-pill">
-                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
-                                    <i class="bi bi-eye"></i>
-                                </span>
-                                <span>{{ $platformLabels['viewsTitle'] ?? 'Total Impressions' }}</span>
-                            </div>
+                                <!-- 2. Total Views / Video Views / Impressions -->
+                                <div class="col-xl-3 col-lg-4 col-md-6">
+                                    <div class="recur-metric-box">
+                                        <div class="metric-icon-pill">
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
+                                                <i class="bi bi-eye"></i>
+                                            </span>
+                                            <span>{{ $platformLabels['viewsTitle'] ?? 'Total Impressions' }}</span>
+                                        </div>
                             <div class="metric-big-num">{{ number_format($metrics['totalViews']) }}</div>
                             <span class="delta-tag">
                                 <i class="bi bi-arrow-up-short"></i> {{ $metrics['viewsDelta'] }}

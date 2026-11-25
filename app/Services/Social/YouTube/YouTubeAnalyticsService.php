@@ -19,9 +19,13 @@ class YouTubeAnalyticsService implements AnalyticsProviderInterface
      */
     public function fetchProfileMetrics(SocialProfile $profile, string $startDate, string $endDate): array
     {
-        $accessToken = $profile->access_token ?? $profile->connection?->access_token;
+        $accessToken = $profile->connection?->getValidAccessToken() ?? $profile->access_token;
         if (!$accessToken) {
             return [];
+        }
+
+        if ($profile->access_token !== $accessToken) {
+            $profile->update(['access_token' => $accessToken]);
         }
 
         $records = [];
@@ -43,6 +47,15 @@ class YouTubeAnalyticsService implements AnalyticsProviderInterface
                 $viewCount = (float) ($stats['viewCount'] ?? 0);
                 $subscriberCount = (float) ($stats['subscriberCount'] ?? 0);
                 $commentCount = (float) ($stats['commentCount'] ?? 0);
+
+                // Update profile metadata with live stats
+                $profile->update([
+                    'metadata' => array_merge($profile->metadata ?? [], [
+                        'subscriberCount' => (int) $subscriberCount,
+                        'viewCount' => (int) $viewCount,
+                        'videoCount' => (int) ($stats['videoCount'] ?? 0),
+                    ])
+                ]);
 
                 $records[] = [
                     'metric_name' => 'impressions',

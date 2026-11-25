@@ -111,19 +111,25 @@ class ReportBuilder extends Component
 
         $clientId = !empty($this->modalClientId) ? (int)$this->modalClientId : null;
 
-        $report = $reportService->createReport(
-            Auth::user(),
-            $this->reportTitle,
-            $format,
-            $dateFrom,
-            $dateTo,
-            $clientId,
-            $branding
-        );
+        try {
+            $report = $reportService->createReport(
+                Auth::user(),
+                $this->reportTitle,
+                $format,
+                $dateFrom,
+                $dateTo,
+                $clientId,
+                $branding
+            );
 
-        $this->feedbackMessage = "Report '{$report->title}' has been successfully compiled and is ready for download!";
-        $this->feedbackType = 'success';
-        $this->closeCreateModal();
+            $this->feedbackMessage = "Report '{$report->title}' has been successfully compiled and is ready for download!";
+            $this->feedbackType = 'success';
+            $this->closeCreateModal();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Report generation failed: " . $e->getMessage());
+            $this->feedbackMessage = "Failed to generate report: " . $e->getMessage();
+            $this->feedbackType = 'danger';
+        }
     }
 
     /**

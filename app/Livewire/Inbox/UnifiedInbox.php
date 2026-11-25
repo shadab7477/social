@@ -64,8 +64,9 @@ class UnifiedInbox extends Component
     /**
      * Send outbound reply to active thread.
      */
-    public function sendReply(SocialInboxService $inboxService): void
+    public function sendReply(?SocialInboxService $inboxService = null): void
     {
+        $inboxService = $inboxService ?? app(SocialInboxService::class);
         $this->validate([
             'replyText' => 'required|min:1|max:2000',
         ]);
@@ -89,8 +90,9 @@ class UnifiedInbox extends Component
     /**
      * Mark active thread as resolved.
      */
-    public function markResolved(SocialInboxService $inboxService): void
+    public function markResolved(?SocialInboxService $inboxService = null): void
     {
+        $inboxService = $inboxService ?? app(SocialInboxService::class);
         if (!$this->selectedConversationId) {
             return;
         }
@@ -106,8 +108,9 @@ class UnifiedInbox extends Component
     /**
      * Reopen a resolved conversation.
      */
-    public function reopen(SocialInboxService $inboxService): void
+    public function reopen(?SocialInboxService $inboxService = null): void
     {
+        $inboxService = $inboxService ?? app(SocialInboxService::class);
         if (!$this->selectedConversationId) {
             return;
         }
@@ -123,8 +126,9 @@ class UnifiedInbox extends Component
     /**
      * Assign active conversation to another team member.
      */
-    public function assignToMember(SocialInboxService $inboxService): void
+    public function assignToMember(?SocialInboxService $inboxService = null): void
     {
+        $inboxService = $inboxService ?? app(SocialInboxService::class);
         if (!$this->selectedConversationId || !$this->assignToUserId) {
             return;
         }
@@ -150,8 +154,9 @@ class UnifiedInbox extends Component
     /**
      * Synchronize live comments from connected social accounts.
      */
-    public function syncLiveComments(SocialInboxService $inboxService): void
+    public function syncLiveComments(?SocialInboxService $inboxService = null): void
     {
+        $inboxService = $inboxService ?? app(SocialInboxService::class);
         $workspace = app('current_workspace');
         $count = $inboxService->syncLiveInteractions($workspace);
 
@@ -174,8 +179,9 @@ class UnifiedInbox extends Component
     /**
      * Generate a realistic test conversation so user can immediately test replying.
      */
-    public function generateTestInteraction(SocialInboxService $inboxService): void
+    public function generateTestInteraction(?SocialInboxService $inboxService = null): void
     {
+        $inboxService = $inboxService ?? app(SocialInboxService::class);
         $workspace = app('current_workspace');
         $conv = $inboxService->generateSampleConversation($workspace);
         $this->selectedConversationId = $conv->id;
