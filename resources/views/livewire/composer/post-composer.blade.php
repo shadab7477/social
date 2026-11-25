@@ -273,7 +273,7 @@
                 @else
                     <!-- Individual Profile Variant Tab -->
                     @php
-                        $currentTabProfile = SocialProfile::find((int)$activeTab);
+                        $currentTabProfile = \App\Models\SocialProfile::find((int)$activeTab);
                     @endphp
 
                     @if ($currentTabProfile)
