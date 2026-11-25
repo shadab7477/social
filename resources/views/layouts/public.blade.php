@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="tuBIHo4VEXVajmCWU_MtsqRhAjhxd8HpTUrYDicrg80" />
     <title>{{ $title ?? 'PostSync SaaS' }} — All-in-One Social Media Management SaaS</title>
     @stack('meta')
 
