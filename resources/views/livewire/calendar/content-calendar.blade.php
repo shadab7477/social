@@ -62,7 +62,7 @@
     <!-- Calendar Card Canvas -->
     <div class="card-frosted p-3 p-md-4 mb-4 position-relative overflow-hidden">
         <!-- Livewire Filtering Loader -->
-        <div wire:loading.delay wire:target="selectedClientId, selectedPlatform, selectedStatus" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.65); backdrop-filter: blur(3px); z-index: 15; border-radius: 18px;">
+        <div wire:loading.delay.flex wire:target="selectedClientId, selectedPlatform, selectedStatus" class="position-absolute top-0 start-0 w-100 h-100 align-items-center justify-content-center" style="background: rgba(255,255,255,0.65); backdrop-filter: blur(3px); z-index: 15; border-radius: 18px; display: none;">
             <div class="d-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill shadow-sm border">
                 <span class="spinner-border spinner-border-sm text-primary"></span>
                 <span class="small fw-semibold text-dark">Updating schedule...</span>

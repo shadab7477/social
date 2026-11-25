@@ -37,6 +37,7 @@ class PostComposer extends Component
     public array $customCaptions = []; // [profileId => 'custom text']
     public array $customizedFlags = []; // [profileId => bool]
     public array $platformSettings = []; // [profileId => ['setting_key' => 'val']]
+    public bool $showValidationWarnings = false;
 
     // Direct File Upload for Post Media & Custom Thumbnail
     public $directMediaUpload = null;
@@ -109,6 +110,21 @@ class PostComposer extends Component
             $this->customizedFlags[$profileId] = true;
             if (!isset($this->customCaptions[$profileId]) || empty($this->customCaptions[$profileId])) {
                 $this->customCaptions[$profileId] = $this->baseCaption;
+            }
+        }
+    }
+
+    public function updatedBaseCaption($value): void
+    {
+        $firstLine = trim(strtok($value, "\r\n") ?: '');
+        if (!empty($firstLine)) {
+            foreach ($this->selectedProfileIds as $pid) {
+                if (isset($this->platformSettings[$pid])) {
+                    $currTitle = trim($this->platformSettings[$pid]['title'] ?? '');
+                    if (empty($currTitle) || $currTitle === 'New Video' || $currTitle === 'New YouTube Video') {
+                        $this->platformSettings[$pid]['title'] = mb_substr($firstLine, 0, 100);
+                    }
+                }
             }
         }
     }
@@ -301,7 +317,9 @@ class PostComposer extends Component
                     $errors[] = "YouTube profile '{$profile->name}' requires an uploaded video (MP4/MOV).";
                 }
                 $ytSettings = $this->platformSettings[$profile->id] ?? [];
-                if (empty(trim($ytSettings['title'] ?? '')) && empty(trim($this->baseCaption))) {
+                $ytTitle = trim($ytSettings['title'] ?? '');
+                $captionTitle = trim(strtok($this->baseCaption, "\r\n") ?: '');
+                if (empty($ytTitle) && empty($captionTitle)) {
                     $errors[] = "YouTube profile '{$profile->name}' requires a Video Title.";
                 }
             }
@@ -312,6 +330,21 @@ class PostComposer extends Component
 
     public function savePost(string $action, PostCreationService $postCreationService)
     {
+        $this->showValidationWarnings = true;
+
+        // Auto-fill YouTube title from caption if still empty
+        foreach ($this->selectedProfileIds as $pid) {
+            $p = SocialProfile::find($pid);
+            $plat = $p?->platform instanceof SocialPlatform ? $p->platform->value : (string)$p?->platform;
+            if ($plat === 'youtube') {
+                $currTitle = trim($this->platformSettings[$pid]['title'] ?? '');
+                if (empty($currTitle)) {
+                    $firstLine = trim(strtok($this->baseCaption, "\r\n") ?: '');
+                    $this->platformSettings[$pid]['title'] = !empty($firstLine) ? mb_substr($firstLine, 0, 100) : 'Social Video';
+                }
+            }
+        }
+
         $validationErrors = $this->getValidationErrorsProperty();
         if (!empty($validationErrors) && $action !== 'draft') {
             session()->flash('error', $validationErrors[0]);

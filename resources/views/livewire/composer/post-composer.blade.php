@@ -216,15 +216,24 @@
                                                 </div>
 
                                                 @if ($pVal === 'youtube')
-                                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                                    @php
+                                                        $ytAutoTitle = !empty($settings['title']) ? $settings['title'] : ($baseCaption ? \Illuminate\Support\Str::limit($baseCaption, 45) : 'Auto from caption');
+                                                        $hasVideo = $selectedMediaAssets->where('media_type', 'video')->count() > 0;
+                                                    @endphp
+                                                    <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
                                                         <span class="badge {{ ($settings['post_type'] ?? 'video') === 'shorts' ? 'bg-danger' : 'bg-secondary' }}" style="font-size: 0.68rem;">
                                                             {{ ($settings['post_type'] ?? 'video') === 'shorts' ? '⚡ YouTube Shorts (9:16)' : '🎬 Standard Video (16:9)' }}
                                                         </span>
                                                         <span class="text-muted small text-truncate" style="max-width: 200px; font-size: 0.72rem;">
-                                                            Title: {{ !empty($settings['title']) ? $settings['title'] : 'Click to set video title' }}
+                                                            Title: <strong>{{ $ytAutoTitle }}</strong>
                                                         </span>
                                                         @if(!empty($settings['thumbnail_url']))
-                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;">Thumbnail Attached</span>
+                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-image"></i> Custom Thumbnail</span>
+                                                        @endif
+                                                        @if($hasVideo)
+                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-check2"></i> Video Attached</span>
+                                                        @else
+                                                            <span class="badge bg-warning-subtle text-warning border border-warning" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Video Needed</span>
                                                         @endif
                                                     </div>
                                                 @elseif ($pVal === 'facebook')
@@ -233,13 +242,19 @@
                                                             {{ ucfirst($settings['post_type'] ?? 'feed') }} Post
                                                         </span>
                                                         <span class="text-muted small" style="font-size: 0.72rem;">Photos, Video, or Status</span>
+                                                        <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-check2"></i> Ready</span>
                                                     </div>
                                                 @elseif ($pVal === 'instagram')
+                                                    @php $hasMedia = $selectedMediaAssets->count() > 0; @endphp
                                                     <div class="d-flex align-items-center gap-2 mt-1">
                                                         <span class="badge bg-danger-subtle text-danger" style="font-size: 0.68rem;">
                                                             {{ ucfirst($settings['post_type'] ?? 'feed') }} Post
                                                         </span>
-                                                        <span class="text-muted small" style="font-size: 0.72rem;">Square/Portrait Image or 9:16 Reel</span>
+                                                        @if($hasMedia)
+                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-check2"></i> Media Attached</span>
+                                                        @else
+                                                            <span class="badge bg-warning-subtle text-warning border border-warning" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Photo/Reel Needed</span>
+                                                        @endif
                                                     </div>
                                                 @else
                                                     <div class="text-muted small mt-1" style="font-size: 0.72rem;">Standard Update</div>
@@ -678,9 +693,9 @@
 
             <!-- Validation Warnings Box -->
             @php $validationErrors = $this->getValidationErrorsProperty(); @endphp
-            @if (!empty($validationErrors))
+            @if ($showValidationWarnings && !empty($validationErrors))
                 <div class="alert alert-warning p-2 small mb-3">
-                    <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle me-1"></i> Validation Inspector:</div>
+                    <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle me-1"></i> Missing Requirements:</div>
                     <ul class="mb-0 ps-3">
                         @foreach ($validationErrors as $err)
                             <li>{{ $err }}</li>
