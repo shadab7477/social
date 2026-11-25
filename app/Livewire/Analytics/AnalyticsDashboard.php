@@ -91,8 +91,8 @@ class AnalyticsDashboard extends Component
             }
         }
 
-        $this->feedbackMessage = "Analytics successfully refreshed for {$profiles->count()} active profile(s)!";
-        $this->feedbackType = 'success';
+        $this->feedbackMessage = "Analytics synchronization queued for {$profiles->count()} active profile(s)!";
+        $this->feedbackType = 'info';
     }
 
     public function openAiInsights(): void
