@@ -33,9 +33,13 @@ class LinkedInOAuthService implements OAuthProviderInterface, ProfileDiscoveryIn
             'profile',
             'email',
             'w_member_social',
-            'w_organization_social',
-            'r_organization_social',
         ];
+
+        // Community Management API scopes require LinkedIn App Review; opt-in via .env
+        if (filter_var(env('LINKEDIN_ORG_SCOPES', false), FILTER_VALIDATE_BOOLEAN)) {
+            $scopes[] = 'w_organization_social';
+            $scopes[] = 'r_organization_social';
+        }
 
         $params = [
             'response_type' => 'code',
