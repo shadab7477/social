@@ -44,7 +44,7 @@ class PinterestIntegrationTest extends TestCase
 
         $authUrl = $oauth->getAuthorizationUrl($tx);
         $this->assertStringContainsString('https://www.pinterest.com/oauth/', $authUrl);
-        $this->assertStringContainsString('pins:write', urlencode('pins:write'));
+        $this->assertStringContainsString('pins%3Awrite', $authUrl);
 
         $tokenDto = $oauth->handleCallback('mock_pin_code', $tx);
         $this->assertNotEmpty($tokenDto->accessToken);
@@ -75,6 +75,7 @@ class PinterestIntegrationTest extends TestCase
             'platform' => SocialPlatform::PINTEREST,
             'profile_id' => 'pin_acc_1',
             'name' => 'Design Studio (Pinterest)',
+            'capabilities' => ['supports_images' => true, 'requires_board' => true],
             'metadata' => ['boards' => [['id' => 'board_1', 'name' => 'Ideas']]],
         ]);
 
