@@ -198,3 +198,4 @@ class PinterestOAuthService implements OAuthProviderInterface, ProfileDiscoveryI
         return $profiles;
     }
 }
+
