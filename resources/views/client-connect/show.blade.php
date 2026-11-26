@@ -146,6 +146,27 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Google Business Profile -->
+            <div class="col-12">
+                <div class="card border shadow-xs hover-shadow transition">
+                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center bg-success text-white rounded-3" style="width: 48px; height: 48px;">
+                                <i class="bi bi-google fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Google Business Profile</h6>
+                                <p class="text-muted small mb-0">Publish local updates, photos, offers, and CTA links to Google Search &amp; Maps.</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'google_business']) }}" class="btn btn-outline-success d-inline-flex align-items-center gap-2 px-3">
+                            <i class="bi bi-plug-fill"></i>
+                            <span>Connect Google Business</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Currently Active Profiles (if any) -->

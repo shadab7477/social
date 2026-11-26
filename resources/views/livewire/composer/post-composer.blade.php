@@ -415,6 +415,27 @@
                                             @endif
                                         </div>
                                     </div>
+                                @elseif ($pVal === 'google_business')
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-dark mb-1">Update Type</label>
+                                            <select class="form-select bg-white" wire:model="platformSettings.{{ $profile->id }}.topic_type">
+                                                <option value="STANDARD">What's New / Update</option>
+                                                <option value="OFFER">Special Offer</option>
+                                                <option value="EVENT">Event</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-dark mb-1">CTA Button (if Destination Link added)</label>
+                                            <select class="form-select bg-white" wire:model="platformSettings.{{ $profile->id }}.action_type">
+                                                <option value="LEARN_MORE">Learn More</option>
+                                                <option value="BOOK">Book</option>
+                                                <option value="ORDER">Order Online</option>
+                                                <option value="SHOP">Buy / Shop</option>
+                                                <option value="SIGN_UP">Sign Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 @else
                                     <div class="small text-muted">
                                         <i class="bi bi-check-circle-fill text-success me-1"></i> Configured and ready to publish to {{ $pEnum?->label() }}.

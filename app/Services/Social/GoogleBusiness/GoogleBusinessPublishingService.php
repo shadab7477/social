@@ -56,17 +56,37 @@ class GoogleBusinessPublishingService implements SocialProviderInterface, Publis
             );
         }
 
+        // Proactively refresh expired Google OAuth token if refresh_token is available
+        $connection = $profile->connection;
+        if ($connection && $connection->refresh_token && ($connection->token_expires_at === null || $connection->token_expires_at->isPast() || $connection->token_expires_at->diffInMinutes(now(), false) > -5)) {
+            try {
+                $refreshed = app(GoogleBusinessOAuthService::class)->refreshToken($connection->refresh_token);
+                $accessToken = $refreshed->accessToken;
+                $connection->update([
+                    'access_token' => $refreshed->accessToken,
+                    'refresh_token' => $refreshed->refreshToken ?? $connection->refresh_token,
+                    'token_expires_at' => $refreshed->expiresAt,
+                ]);
+                $profile->update(['access_token' => $refreshed->accessToken]);
+            } catch (\Throwable $refreshEx) {
+                Log::warning('Google Business token proactive refresh failed: ' . $refreshEx->getMessage());
+            }
+        }
+
         try {
+            $topicType = $payload->platformSettings['topic_type'] ?? 'STANDARD';
+            $actionType = $payload->platformSettings['action_type'] ?? 'LEARN_MORE';
+
             $localPost = [
                 'languageCode' => 'en-US',
                 'summary' => $payload->caption,
-                'topicType' => 'STANDARD',
+                'topicType' => $topicType,
             ];
 
             // Add Call-to-Action if link is provided
             if (!empty($payload->linkUrl)) {
                 $localPost['callToAction'] = [
-                    'actionType' => 'LEARN_MORE',
+                    'actionType' => $actionType,
                     'url' => $payload->linkUrl,
                 ];
             }

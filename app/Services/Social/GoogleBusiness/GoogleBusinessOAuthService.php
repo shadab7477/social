@@ -25,7 +25,7 @@ class GoogleBusinessOAuthService implements OAuthProviderInterface, ProfileDisco
     public function getAuthorizationUrl(OAuthTransaction $transaction): string
     {
         $clientId = config('services.google.client_id', env('GOOGLE_CLIENT_ID', 'mock_google_client_id'));
-        $redirectUri = route('oauth.callback', ['platform' => 'google_business']);
+        $redirectUri = $transaction->redirect_url ?? route('oauth.callback', ['platform' => 'google_business']);
 
         $scopes = [
             'openid',
@@ -51,7 +51,7 @@ class GoogleBusinessOAuthService implements OAuthProviderInterface, ProfileDisco
     {
         $clientId = config('services.google.client_id', env('GOOGLE_CLIENT_ID', 'mock_google_client_id'));
         $clientSecret = config('services.google.client_secret', env('GOOGLE_CLIENT_SECRET', 'mock_google_secret'));
-        $redirectUri = route('oauth.callback', ['platform' => 'google_business']);
+        $redirectUri = $transaction->redirect_url ?? route('oauth.callback', ['platform' => 'google_business']);
 
         // Mock token for testing
         if (app()->environment('testing') && !config('services.google_business.live_oauth', false)) {
@@ -191,14 +191,15 @@ class GoogleBusinessOAuthService implements OAuthProviderInterface, ProfileDisco
                         $address = $loc['storefrontAddress']['addressLines'][0] ?? null;
 
                         $profiles[] = new DiscoveredProfileDTO(
-                            platform: SocialPlatform::GOOGLE_BUSINESS,
+                            platform: SocialPlatform::GOOGLE_BUSINESS->value,
                             profileId: $fullId,
-                            name: $title,
+                            name: $title . ' (Google Business)',
                             username: $loc['websiteUri'] ?? $locName,
                             avatarUrl: null,
-                            accountType: 'location',
+                            accessToken: $accessToken,
                             capabilities: ['publish', 'insights', 'reviews', 'local_posts'],
                             metadata: [
+                                'account_type' => 'location',
                                 'account_name' => $accountName,
                                 'location_name' => $locName,
                                 'address' => $address,
