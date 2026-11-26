@@ -125,7 +125,7 @@ class PublishPostVariantJob implements ShouldQueue
                 $this->failVariant($variant, $publishingRecord, $result->errorMessage ?? 'Provider publishing rejected');
             }
 
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $durationMs = (int) round((microtime(true) - $startTime) * 1000);
 
             if ($publishingRecord) {
