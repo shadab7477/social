@@ -84,13 +84,21 @@ class GoogleBusinessOAuthService implements OAuthProviderInterface, ProfileDisco
             }
 
             $data = $response->json();
+            $accessToken = $data['access_token'];
             $scopes = isset($data['scope']) ? explode(' ', $data['scope']) : [];
 
+            $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v2/userinfo');
+            $userData = $userResponse->successful() ? ($userResponse->json() ?? []) : [];
+
             return new OAuthTokenDTO(
-                accessToken: $data['access_token'],
+                accessToken: $accessToken,
                 refreshToken: $data['refresh_token'] ?? null,
                 expiresAt: isset($data['expires_in']) ? now()->addSeconds((int)$data['expires_in']) : now()->addHours(1),
                 scopes: $scopes,
+                accountId: (string) ($userData['id'] ?? 'gbp_' . substr(md5($accessToken), 0, 12)),
+                accountName: $userData['name'] ?? ($userData['email'] ?? 'Google Business User'),
+                accountEmail: $userData['email'] ?? null,
+                avatarUrl: $userData['picture'] ?? null,
                 raw: $data
             );
         } catch (Exception $e) {
