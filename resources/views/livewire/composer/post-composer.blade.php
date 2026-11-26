@@ -389,8 +389,13 @@
                                                 <i class="bi bi-image"></i> Choose from Media Library
                                             </button>
                                             <label class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 rounded-pill px-3 mb-0 cursor-pointer">
-                                                <i class="bi bi-upload"></i> Upload Image
-                                                <input type="file" wire:model="directThumbnailUpload" wire:click="$set('selectingThumbnailForProfileId', {{ $currentTabProfile->id }})" class="d-none" accept="image/*">
+                                                <span wire:loading.remove wire:target="directThumbnailUpload">
+                                                    <i class="bi bi-upload"></i> Upload Image
+                                                </span>
+                                                <span wire:loading wire:target="directThumbnailUpload">
+                                                    <span class="spinner-border spinner-border-sm"></span> Uploading...
+                                                </span>
+                                                <input type="file" wire:model="directThumbnailUpload" class="d-none" accept="image/*">
                                             </label>
                                         </div>
                                         <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Recommended size: 1280x720 (16:9 aspect ratio, max 2MB).</small>

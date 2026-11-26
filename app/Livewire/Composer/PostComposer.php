@@ -166,10 +166,12 @@ class PostComposer extends Component
             'directThumbnailUpload' => 'image|max:5120',
         ]);
 
-        if ($this->directThumbnailUpload && $this->selectingThumbnailForProfileId) {
+        $targetProfileId = $this->selectingThumbnailForProfileId ?: (is_numeric($this->activeTab) ? (int) $this->activeTab : null);
+
+        if ($this->directThumbnailUpload && $targetProfileId) {
             $path = $this->directThumbnailUpload->store('thumbnails', 'public');
-            $url = Storage::disk('public')->url($path);
-            $this->selectThumbnailAsset($this->selectingThumbnailForProfileId, $url);
+            $url = asset('storage/' . ltrim($path, '/'));
+            $this->selectThumbnailAsset($targetProfileId, $url);
             $this->directThumbnailUpload = null;
         }
     }
@@ -186,15 +188,18 @@ class PostComposer extends Component
             $mime = $file->getMimeType() ?: 'application/octet-stream';
             $mediaType = str_starts_with($mime, 'video/') ? 'video' : 'image';
             $path = $file->store('media/' . $workspace->id, 'public');
+            $publicUrl = asset('storage/' . ltrim($path, '/'));
 
             $asset = MediaAsset::create([
                 'workspace_id' => $workspace->id,
-                'client_id' => $this->selectedClientId,
+                'uploader_id' => auth()->id(),
                 'file_name' => $file->getClientOriginalName(),
-                'file_path' => $path,
+                'storage_path' => $path,
+                'disk' => 'public',
                 'media_type' => $mediaType,
                 'mime_type' => $mime,
-                'file_size_bytes' => $file->getSize(),
+                'file_size' => $file->getSize(),
+                'public_url' => $publicUrl,
             ]);
 
             $this->selectedMediaAssetIds[] = $asset->id;
