@@ -263,6 +263,8 @@ class UnifiedInbox extends Component
             'resolved' => Conversation::where('status', ConversationStatus::RESOLVED)->where('external_conversation_id', 'not like', 'demo_%')->count(),
         ];
 
+        $hasConnectedProfiles = SocialProfile::where('is_active', true)->exists();
+
         return view('livewire.inbox.unified-inbox', [
             'conversations' => $conversations,
             'activeConversation' => $activeConversation,
@@ -270,6 +272,7 @@ class UnifiedInbox extends Component
             'platforms' => SocialPlatform::cases(),
             'teamMembers' => $teamMembers,
             'metrics' => $metrics,
+            'hasConnectedProfiles' => $hasConnectedProfiles,
         ]);
     }
 }

@@ -300,18 +300,31 @@
                                 😴
                             </span>
                         </div>
-                        <h4 class="fw-bold text-dark mb-2">Permission Required to Access Inbox</h4>
-                        <p class="text-muted mb-4" style="max-width: 440px; font-size: 0.95rem;">
-                            To start managing messages in your PostSync Inbox, please enable access or connect your social account.
-                        </p>
-                        <div class="d-flex align-items-center gap-2">
-                            <a href="{{ route('social-accounts.index') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
-                                Enable Inbox Access
-                            </a>
-                            <button wire:click="syncLiveComments" wire:loading.attr="disabled" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-medium">
-                                <i class="bi bi-arrow-repeat me-1"></i> Sync Live Comments
-                            </button>
-                        </div>
+                        @if($hasConnectedProfiles)
+                            <h4 class="fw-bold text-dark mb-2">No Messages or Comments Yet</h4>
+                            <p class="text-muted mb-4" style="max-width: 460px; font-size: 0.92rem;">
+                                Your social accounts are connected. Click <strong>Sync Live Comments</strong> to pull recent comments &amp; DMs from Facebook, Instagram, and YouTube.
+                            </p>
+                            <div class="d-flex align-items-center gap-2">
+                                <button wire:click="syncLiveComments" wire:loading.attr="disabled" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold shadow-sm">
+                                    <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat me-1"></i> Sync Live Comments</span>
+                                    <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm me-1"></span> Syncing...</span>
+                                </button>
+                                <a href="{{ route('social-accounts.index') }}" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-medium">
+                                    Manage Accounts
+                                </a>
+                            </div>
+                        @else
+                            <h4 class="fw-bold text-dark mb-2">Connect a Social Account for Inbox</h4>
+                            <p class="text-muted mb-4" style="max-width: 440px; font-size: 0.95rem;">
+                                To start managing comments and direct messages in your PostSync Inbox, connect your Facebook, Instagram, or YouTube account first.
+                            </p>
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="{{ route('social-accounts.index') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+                                    Connect Social Account
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

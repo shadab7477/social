@@ -27,6 +27,16 @@ class ReportDownloadController extends Controller
 
         $fullPath = Storage::disk('public')->path($report->file_path);
         $cleanTitle = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $report->title);
+
+        if ($report->format === ReportFormat::PDF && class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            $html = Storage::disk('public')->get($report->file_path);
+            $downloadFilename = "{$cleanTitle}-{$report->date_from->format('Ymd')}-{$report->date_to->format('Ymd')}.pdf";
+
+            return \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+                ->setPaper('a4', 'portrait')
+                ->download($downloadFilename);
+        }
+
         $extension = $report->format === ReportFormat::CSV ? 'csv' : 'html';
         $downloadFilename = "{$cleanTitle}-{$report->date_from->format('Ymd')}-{$report->date_to->format('Ymd')}.{$extension}";
 

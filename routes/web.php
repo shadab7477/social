@@ -97,14 +97,10 @@ Route::middleware(['auth', 'workspace'])->group(function () {
 
     Route::get('/team', \App\Livewire\Team\MemberManager::class)->name('team.index');
 
-    Route::get('/automations', function () {
-        return view('dashboard', ['headerTitle' => 'Automations & RSS']);
-    })->name('automations.index');
+    Route::get('/automations', \App\Livewire\Automations\AutomationManager::class)->name('automations.index');
 
     // Billing & Workspace Settings
-    Route::get('/billing', function () {
-        return view('dashboard', ['headerTitle' => 'Billing & Subscriptions']);
-    })->name('billing.index');
+    Route::get('/billing', \App\Livewire\Billing\BillingManager::class)->name('billing.index');
 
     Route::get('/settings', function () {
         return view('dashboard', ['headerTitle' => 'Workspace Settings']);
