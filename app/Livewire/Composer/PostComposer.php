@@ -395,6 +395,10 @@ class PostComposer extends Component
                         \App\Jobs\Publishing\PublishPostVariantJob::dispatchSync($variant->id, (string) \Illuminate\Support\Str::uuid());
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error("Immediate publish error: " . $e->getMessage());
+                        $variant->update([
+                            'status' => \App\Enums\PostStatus::FAILED,
+                            'error_message' => $e->getMessage(),
+                        ]);
                     }
                 }
             }
