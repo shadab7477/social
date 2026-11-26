@@ -105,7 +105,19 @@ class PinterestPublishingService implements SocialProviderInterface, PublishingP
                 $pinBody['link'] = $payload->linkUrl;
             }
 
-            if ($mediaPath && is_file($mediaPath) && !preg_match('/\.(mp4|mov|webm|avi|m4v|mkv)$/i', $mediaPath)) {
+            $isVideo = (bool) preg_match('/\.(mp4|mov|webm|avi|m4v|mkv)$/i', $mediaPath ?: (parse_url($mediaUrl, PHP_URL_PATH) ?: $mediaUrl));
+
+            if ($isVideo) {
+                $mediaId = $this->uploadVideoToPinterest($accessToken, $mediaUrl, $mediaPath);
+                if (!$mediaId) {
+                    return PublishingResultDTO::failed("Pinterest video upload failed during /v5/media registration.", 'VIDEO_UPLOAD_FAILED', false);
+                }
+                $pinBody['media_source'] = [
+                    'source_type' => 'video_id',
+                    'media_id' => $mediaId,
+                    'cover_image_key_frame_time_ms' => 1000,
+                ];
+            } elseif ($mediaPath && is_file($mediaPath)) {
                 $mime = mime_content_type($mediaPath) ?: 'image/jpeg';
                 $pinBody['media_source'] = [
                     'source_type' => 'image_base64',
@@ -138,4 +150,48 @@ class PinterestPublishingService implements SocialProviderInterface, PublishingP
     {
         return PublishingResultDTO::successful($providerPostId, "https://www.pinterest.com/pin/{$providerPostId}/");
     }
+
+    protected function uploadVideoToPinterest(string $accessToken, string $videoUrl, ?string $localPath = null): ?string
+    {
+        $regRes = Http::withToken($accessToken)->post($this->apiBase() . '/media', [
+            'media_type' => 'video',
+        ]);
+
+        if (!$regRes->successful()) {
+            Log::warning("Pinterest /v5/media init failed: " . $regRes->body());
+            return null;
+        }
+
+        $data = $regRes->json();
+        $mediaId = $data['media_id'] ?? null;
+        $uploadUrl = $data['upload_url'] ?? null;
+        $params = $data['upload_parameters'] ?? [];
+
+        if (!$mediaId || !$uploadUrl) {
+            return null;
+        }
+
+        $videoBytes = ($localPath && is_file($localPath))
+            ? @file_get_contents($localPath)
+            : Http::timeout(120)->get($videoUrl)->body();
+
+        if (empty($videoBytes)) {
+            return null;
+        }
+
+        $multipart = [];
+        foreach ($params as $k => $v) {
+            $multipart[] = ['name' => $k, 'contents' => (string) $v];
+        }
+        $multipart[] = ['name' => 'file', 'contents' => $videoBytes, 'filename' => basename($localPath ?: 'video.mp4')];
+
+        $uploadRes = Http::timeout(180)->asMultipart()->post($uploadUrl, $multipart);
+        if (!$uploadRes->successful()) {
+            Log::warning("Pinterest video S3 upload failed: " . $uploadRes->status());
+            return null;
+        }
+
+        return $mediaId;
+    }
 }
+
