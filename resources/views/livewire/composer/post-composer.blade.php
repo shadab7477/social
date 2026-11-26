@@ -1,821 +1,600 @@
-<div>
-    <!-- Page Title -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
+<div class="mx-auto" style="max-width: 1080px;">
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
         <div>
             <h4 class="fw-bold text-dark mb-0">
-                <i class="bi bi-pencil-square text-primary me-2"></i>Content Composer
+                <i class="bi bi-pencil-square text-primary me-2"></i>Create Post
             </h4>
-            <p class="text-muted small mb-0">Create, customize for each network, preview in real time, and schedule content.</p>
+            <p class="text-muted small mb-0">Simple 4-step workflow to upload, configure, preview, and publish.</p>
+        </div>
+        <a href="{{ route('posts.index') }}" class="btn btn-sm btn-white bg-white border rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Posts
+        </a>
+    </div>
+
+    <!-- Step Progress Bar -->
+    <div class="card border-0 shadow-sm mb-4 rounded-4">
+        <div class="card-body p-2 p-md-3">
+            <div class="row g-2 text-center">
+                @php
+                    $steps = [
+                        1 => ['label' => '1. Accounts', 'icon' => 'bi-people'],
+                        2 => ['label' => '2. Media & Caption', 'icon' => 'bi-images'],
+                        3 => ['label' => '3. Platform Settings', 'icon' => 'bi-sliders'],
+                        4 => ['label' => '4. Preview & Publish', 'icon' => 'bi-send-check'],
+                    ];
+                @endphp
+                @foreach ($steps as $sNum => $sInfo)
+                    @php
+                        $isActive = $currentStep === $sNum;
+                        $isDone = $currentStep > $sNum;
+                    @endphp
+                    <div class="col-6 col-md-3">
+                        <button type="button" wire:click="goToStep({{ $sNum }})"
+                            class="btn w-100 rounded-pill py-2 px-3 d-flex align-items-center justify-content-center gap-2 fw-semibold transition {{ $isActive ? 'btn-dark shadow-xs' : ($isDone ? 'btn-light border text-success' : 'btn-light border text-muted') }}"
+                            style="font-size: 0.82rem;">
+                            <i class="bi {{ $isDone ? 'bi-check-circle-fill text-success' : $sInfo['icon'] }}"></i>
+                            <span>{{ $sInfo['label'] }}</span>
+                            @if ($sNum === 1 && count($selectedProfileIds) > 0)
+                                <span class="badge {{ $isActive ? 'bg-white text-dark' : 'bg-dark text-white' }} rounded-pill">{{ count($selectedProfileIds) }}</span>
+                            @endif
+                        </button>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
-    <!-- 3-Column Composer Grid -->
-    <div class="composer-grid">
-        <!-- ========================================== -->
-        <!-- 1. LEFT PANEL: TARGETS & BASE CONTENT       -->
-        <!-- ========================================== -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h6 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-bullseye text-primary me-2"></i>1. Publishing Targets
-                </h6>
-            </div>
-            <div class="card-body p-3">
-                <!-- Client Filter Dropdown -->
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold text-muted text-uppercase" style="font-size: 0.75rem;">Agency Client</label>
-                    <select class="form-select form-select-sm bg-light" wire:model.live="selectedClientId">
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-3 rounded-3 d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <div>{{ session('error') }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- ========================================================== -->
+    <!-- STEP 1: SELECT PUBLISHING ACCOUNTS                         -->
+    <!-- ========================================================== -->
+    @if ($currentStep === 1)
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Step 1: Where do you want to publish?</h6>
+                    <small class="text-muted">Select one or more social accounts below.</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select class="form-select form-select-sm bg-light rounded-pill px-3" wire:model.live="selectedClientId" style="min-width: 180px;">
                         <option value="">All Clients / Agency</option>
                         @foreach ($clients as $client)
-                            <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->client_code }})</option>
+                            <option value="{{ $client->id }}">{{ $client->name }}</option>
                         @endforeach
                     </select>
+                    <button type="button" wire:click="selectAllProfiles" class="btn btn-xs btn-outline-primary rounded-pill px-2">All</button>
+                    <button type="button" wire:click="deselectAllProfiles" class="btn btn-xs btn-outline-secondary rounded-pill px-2">Clear</button>
                 </div>
+            </div>
 
-                <!-- Profile Target Checkboxes -->
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label small fw-semibold text-muted text-uppercase mb-0" style="font-size: 0.75rem;">Select Profiles ({{ count($selectedProfileIds) }})</label>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" wire:click="selectAllProfiles" class="btn btn-link p-0 text-decoration-none small" style="font-size: 0.75rem;">All</button>
-                            <span class="text-muted mx-1">|</span>
-                            <button type="button" wire:click="deselectAllProfiles" class="btn btn-link p-0 text-decoration-none small text-secondary" style="font-size: 0.75rem;">None</button>
-                        </div>
-                    </div>
-
-                    <div class="list-group list-group-flush border rounded-3 p-1" style="max-height: 240px; overflow-y: auto;">
-                        @forelse ($availableProfiles as $profile)
-                            @php
-                                $isSelected = in_array($profile->id, $selectedProfileIds, true);
-                                $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
-                            @endphp
-                            <label class="list-group-item list-group-item-action d-flex align-items-center gap-2 border-0 rounded-2 py-2 px-2 cursor-pointer {{ $isSelected ? 'bg-primary-subtle' : '' }}" style="cursor: pointer;">
-                                <input class="form-check-input flex-shrink-0 m-0" type="checkbox" value="{{ $profile->id }}" wire:click="toggleProfile({{ $profile->id }})" {{ $isSelected ? 'checked' : '' }}>
-                                <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }}" style="width: 26px; height: 26px; font-size: 0.8rem;">
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    @forelse ($availableProfiles as $profile)
+                        @php
+                            $isSelected = in_array($profile->id, $selectedProfileIds, true);
+                            $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
+                        @endphp
+                        <div class="col-md-6 col-lg-4">
+                            <div wire:click="toggleProfile({{ $profile->id }})"
+                                class="p-3 border rounded-4 cursor-pointer d-flex align-items-center gap-3 transition h-100 {{ $isSelected ? 'border-dark bg-light shadow-xs' : 'bg-white' }}"
+                                style="cursor: pointer;">
+                                <input class="form-check-input flex-shrink-0 m-0" type="checkbox" {{ $isSelected ? 'checked' : '' }} style="width: 1.15rem; height: 1.15rem;">
+                                <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }} flex-shrink-0" style="width: 38px; height: 38px; font-size: 1.05rem;">
                                     <i class="bi {{ $pEnum?->icon() }}"></i>
                                 </span>
-                                <div class="text-truncate flex-grow-1" style="max-width: 170px;">
-                                    <div class="fw-semibold text-dark small text-truncate">{{ $profile->name }}</div>
-                                    @if ($profile->client)
-                                        <div class="text-muted text-truncate" style="font-size: 0.7rem;">{{ $profile->client->name }}</div>
-                                    @endif
+                                <div class="min-w-0 flex-grow-1">
+                                    <div class="fw-bold text-dark small text-truncate">{{ $profile->name }}</div>
+                                    <div class="text-muted text-truncate" style="font-size: 0.72rem;">
+                                        {{ $pEnum?->label() }}
+                                        @if ($profile->client) &bull; {{ $profile->client->name }} @endif
+                                    </div>
                                 </div>
-                            </label>
-                        @empty
-                            <div class="p-3 text-center text-muted small">
-                                No profiles connected yet. <br>
-                                <a href="{{ route('social-accounts.index') }}" class="small">Connect Account</a>
                             </div>
-                        @endforelse
-                    </div>
-                </div>
-
-                <hr class="my-3">
-
-                <!-- 2. Attached Media & Video Upload -->
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label small fw-semibold text-muted text-uppercase mb-0" style="font-size: 0.75rem;">
-                            <i class="bi bi-paperclip me-1"></i>Media Attachments ({{ count($selectedMediaAssetIds) }})
-                        </label>
-                    </div>
-
-                    <div class="d-flex gap-2 mb-2">
-                        <button type="button" wire:click="openMediaModal" class="btn btn-sm btn-outline-primary flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1 rounded-pill">
-                            <i class="bi bi-images"></i> Library
-                        </button>
-                        <label class="btn btn-sm btn-dark flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1 mb-0 rounded-pill cursor-pointer">
-                            <span wire:loading.remove wire:target="directMediaUpload"><i class="bi bi-cloud-arrow-up"></i> Upload File</span>
-                            <span wire:loading wire:target="directMediaUpload"><span class="spinner-border spinner-border-sm"></span> Uploading...</span>
-                            <input type="file" wire:model="directMediaUpload" class="d-none" accept="image/*,video/mp4,video/quicktime">
-                        </label>
-                    </div>
-
-                    @if ($selectedMediaAssets->count() > 0)
-                        <div class="d-flex gap-2 flex-wrap p-2 border rounded-3 bg-light">
-                            @foreach ($selectedMediaAssets as $media)
-                                <div class="position-relative border rounded overflow-hidden shadow-xs" style="width: 60px; height: 60px;">
-                                    @if ($media->isImage() || $media->media_type === 'gif')
-                                        <img src="{{ $media->public_url }}" class="w-100 h-100" style="object-fit: cover;">
-                                    @else
-                                        <div class="w-100 h-100 bg-dark text-white d-flex flex-column align-items-center justify-content-center">
-                                            <i class="bi bi-film fs-5 text-danger"></i>
-                                            <span style="font-size: 0.55rem;">VIDEO</span>
-                                        </div>
-                                    @endif
-                                    <button type="button" wire:click="removeMediaAsset({{ $media->id }})" class="btn btn-danger position-absolute top-0 end-0 p-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 18px; height: 18px; font-size: 0.65rem;">
-                                        &times;
-                                    </button>
-                                </div>
-                            @endforeach
                         </div>
-                    @else
-                        <div wire:click="openMediaModal" class="border border-dashed rounded-3 p-3 text-center bg-light cursor-pointer text-muted small" style="cursor: pointer;">
-                            <i class="bi bi-cloud-arrow-up fs-4 d-block text-secondary mb-1"></i>
-                            Attach images or videos from Library or upload directly
+                    @empty
+                        <div class="col-12 py-5 text-center text-muted">
+                            <i class="bi bi-link-45deg fs-1 d-block mb-2 opacity-50"></i>
+                            <h6 class="fw-bold text-dark">No Social Accounts Connected</h6>
+                            <p class="small mb-3">Connect your Facebook, Instagram, YouTube, or LinkedIn account first.</p>
+                            <a href="{{ route('social-accounts.index') }}" class="btn btn-sm btn-primary rounded-pill px-4">Connect Account</a>
                         </div>
-                    @endif
+                    @endforelse
                 </div>
+            </div>
 
-                <!-- Destination Link -->
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold text-muted text-uppercase" style="font-size: 0.75rem;">Destination Link (Optional)</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light text-muted"><i class="bi bi-link-45deg"></i></span>
-                        <input type="url" class="form-control" wire:model.live="destinationLink" placeholder="https://yourwebsite.com/promo">
-                    </div>
-                </div>
+            <div class="card-footer bg-white py-3 px-4 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted fw-medium">{{ count($selectedProfileIds) }} account(s) selected</span>
+                <button type="button" wire:click="nextStep" class="btn btn-dark rounded-pill px-4 fw-semibold">
+                    Next: Media &amp; Caption <i class="bi bi-arrow-right ms-1"></i>
+                </button>
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- 2. CENTER PANEL: PLATFORM VARIANT CUSTOMIZER -->
-        <!-- ========================================== -->
-        <div class="card border-0 shadow-sm">
-            <!-- Variant Tabs Header -->
-            <div class="card-header bg-white p-2">
-                <ul class="nav nav-pills small gap-1">
-                    <li class="nav-item">
-                        <button type="button" wire:click="setTab('base')" class="nav-link py-1 px-3 {{ $activeTab === 'base' ? 'active' : '' }}">
-                            <i class="bi bi-globe me-1"></i> Base / All
-                        </button>
-                    </li>
-                    @foreach ($availableProfiles as $profile)
-                        @if (in_array($profile->id, $selectedProfileIds, true))
-                            @php
-                                $tabPEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
-                            @endphp
-                            <li class="nav-item">
-                                <button type="button" wire:click="setTab('{{ $profile->id }}')" class="nav-link py-1 px-2 d-flex align-items-center gap-1 {{ $activeTab == (string)$profile->id ? 'active' : '' }}">
-                                    <span class="platform-icon {{ $tabPEnum?->value ?? 'facebook' }}" style="width: 18px; height: 18px; font-size: 0.65rem;">
-                                        <i class="bi {{ $tabPEnum?->icon() }}"></i>
-                                    </span>
-                                    <span class="small text-truncate" style="max-width: 90px;">{{ $profile->name }}</span>
-                                    @if (!empty($customizedFlags[$profile->id]))
-                                        <span class="badge bg-warning rounded-circle p-1" title="Tailored Variant"></span>
-                                    @endif
-                                </button>
-                            </li>
-                        @endif
-                    @endforeach
-                </ul>
+    <!-- ========================================================== -->
+    <!-- STEP 2: UPLOAD MEDIA & WRITE CAPTION                       -->
+    <!-- ========================================================== -->
+    @elseif ($currentStep === 2)
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 px-4 border-bottom">
+                <h6 class="fw-bold mb-0 text-dark">Step 2: Add Media &amp; Write Caption</h6>
+                <small class="text-muted">Upload your photo/video and write your caption or video description.</small>
             </div>
 
-            <div class="card-body p-3">
-                @if ($activeTab === 'base')
-                    <div class="mb-3">
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <!-- Left: Media Upload -->
+                    <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-dark mb-2">Photos or Videos</label>
+                        <div class="border border-dashed rounded-4 p-4 text-center bg-light mb-3">
+                            <i class="bi bi-cloud-arrow-up fs-2 text-primary d-block mb-2"></i>
+                            <div class="fw-semibold small text-dark mb-1">Upload from device or pick from library</div>
+                            <div class="text-muted mb-3" style="font-size: 0.72rem;">Supports JPG, PNG, MP4, MOV (max 100MB)</div>
+
+                            <div class="d-flex justify-content-center gap-2">
+                                <label class="btn btn-sm btn-dark rounded-pill px-3 mb-0 cursor-pointer">
+                                    <span wire:loading.remove wire:target="directMediaUpload"><i class="bi bi-upload me-1"></i> Upload File</span>
+                                    <span wire:loading wire:target="directMediaUpload"><span class="spinner-border spinner-border-sm me-1"></span> Uploading...</span>
+                                    <input type="file" wire:model="directMediaUpload" class="d-none" accept="image/*,video/mp4,video/quicktime">
+                                </label>
+                                <button type="button" wire:click="openMediaModal" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-images me-1"></i> Library
+                                </button>
+                            </div>
+                        </div>
+
+                        @if ($selectedMediaAssets->count() > 0)
+                            <div class="small fw-semibold text-dark mb-2">Attached Media ({{ $selectedMediaAssets->count() }})</div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                @foreach ($selectedMediaAssets as $media)
+                                    <div class="position-relative border rounded-3 overflow-hidden shadow-xs" style="width: 78px; height: 78px;">
+                                        @if ($media->isImage() || $media->media_type === 'gif')
+                                            <img src="{{ $media->public_url }}" class="w-100 h-100" style="object-fit: cover;">
+                                        @else
+                                            <div class="w-100 h-100 bg-dark text-white d-flex flex-column align-items-center justify-content-center">
+                                                <i class="bi bi-play-circle-fill fs-4 text-danger"></i>
+                                                <span style="font-size: 0.6rem;">VIDEO</span>
+                                            </div>
+                                        @endif
+                                        <button type="button" wire:click="removeMediaAsset({{ $media->id }})" class="btn btn-danger position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center rounded-circle" style="width: 20px; height: 20px; font-size: 0.7rem;">
+                                            &times;
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Right: Caption & Link -->
+                    <div class="col-lg-7">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label small fw-bold text-dark mb-0">Post Caption / Video Description</label>
-                            <button type="button" wire:click="openAiModal('base')" class="btn btn-xs btn-outline-primary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                            <label class="form-label small fw-bold text-dark mb-0">Caption / Description</label>
+                            <button type="button" wire:click="openAiModal('base')" class="btn btn-xs btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                 <i class="bi bi-stars text-warning"></i> Write with AI
                             </button>
                         </div>
-                        <textarea class="form-control bg-light border-0 rounded-3 p-3" wire:model.live.debounce.250ms="baseCaption" rows="5" placeholder="Write your post caption or video description here..."></textarea>
+
+                        <textarea class="form-control rounded-3 p-3 mb-3" wire:model.live.debounce.250ms="baseCaption" rows="6" placeholder="What would you like to share? For YouTube, this becomes your video description..."></textarea>
+
+                        <div>
+                            <label class="form-label small fw-semibold text-muted mb-1">Destination Link (Optional)</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-link-45deg"></i></span>
+                                <input type="url" class="form-control" wire:model.live="destinationLink" placeholder="https://yourwebsite.com/promo">
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Inline Simple Network Configuration Cards -->
-                    @if (count($selectedProfileIds) > 0)
-                        <div class="mt-3">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <h6 class="small fw-bold text-dark mb-0 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.74rem;">
-                                    <i class="bi bi-sliders2 text-primary me-1"></i>Platform Settings ({{ count($selectedProfileIds) }})
-                                </h6>
-                                <span class="text-muted" style="font-size: 0.72rem;">Simple quick setup — no tab switching needed</span>
-                            </div>
+            <div class="card-footer bg-white py-3 px-4 border-top d-flex justify-content-between align-items-center">
+                <button type="button" wire:click="prevStep" class="btn btn-light border rounded-pill px-4 fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </button>
+                <button type="button" wire:click="nextStep" class="btn btn-dark rounded-pill px-4 fw-semibold">
+                    Next: Platform Settings <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
 
-                            <div class="d-flex flex-column gap-3">
-                                @foreach ($availableProfiles as $profile)
-                                    @if (in_array($profile->id, $selectedProfileIds, true))
-                                        @php
-                                            $pVal = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform->value : (string)$profile->platform;
-                                            $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
-                                            $settings = $platformSettings[$profile->id] ?? [];
-                                            $hasVideo = $selectedMediaAssets->where('media_type', 'video')->count() > 0;
-                                            $hasMedia = $selectedMediaAssets->count() > 0;
-                                        @endphp
-                                        <div class="p-3 border rounded-3 bg-white shadow-xs">
-                                            <!-- Card Top Row -->
-                                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2 pb-2 border-bottom">
-                                                <div class="d-flex align-items-center gap-2 min-w-0">
-                                                    <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }} flex-shrink-0" style="width: 30px; height: 30px; font-size: 0.9rem;">
-                                                        <i class="bi {{ $pEnum?->icon() }}"></i>
-                                                    </span>
-                                                    <div class="min-w-0">
-                                                        <div class="fw-bold text-dark small text-truncate">{{ $profile->name }}</div>
-                                                    </div>
-                                                </div>
-                                                <button type="button" wire:click="setTab('{{ $profile->id }}')" class="btn btn-xs btn-light border rounded-pill px-2 py-1 text-muted flex-shrink-0" style="font-size: 0.7rem;">
-                                                    <i class="bi bi-pencil me-1"></i>Custom Caption
-                                                </button>
-                                            </div>
+    <!-- ========================================================== -->
+    <!-- STEP 3: PLATFORM-SPECIFIC SETTINGS                         -->
+    <!-- ========================================================== -->
+    @elseif ($currentStep === 3)
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 px-4 border-bottom">
+                <h6 class="fw-bold mb-0 text-dark">Step 3: Configure Each Platform</h6>
+                <small class="text-muted">Choose video format, thumbnail, Reel/Story mode, or customize caption per network.</small>
+            </div>
 
-                                            @if ($pVal === 'youtube')
-                                                <div x-data="{ showAdvYt: false }">
-                                                    <!-- Video vs Shorts Pill -->
-                                                    <div class="d-flex gap-2 mb-2">
-                                                        <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'video')"
-                                                            class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? 'video') === 'video' ? 'btn-danger' : 'btn-outline-secondary' }}">
-                                                            <i class="bi bi-film me-1"></i> Standard Video (16:9)
-                                                        </button>
-                                                        <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'shorts')"
-                                                            class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'shorts' ? 'btn-danger' : 'btn-outline-secondary' }}">
-                                                            <i class="bi bi-lightning-charge-fill me-1"></i> Shorts (9:16)
-                                                        </button>
-                                                    </div>
-
-                                                    <!-- Title & Privacy Row -->
-                                                    <div class="row g-2 mb-2">
-                                                        <div class="col-md-8">
-                                                            <input type="text" class="form-control form-control-sm" wire:model="platformSettings.{{ $profile->id }}.title" maxlength="100" placeholder="Video Title * (auto-fills from caption)">
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <select class="form-select form-select-sm" wire:model="platformSettings.{{ $profile->id }}.privacy_status">
-                                                                <option value="public">Public</option>
-                                                                <option value="unlisted">Unlisted</option>
-                                                                <option value="private">Private</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Thumbnail Quick Row -->
-                                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                                        @if (!empty($settings['thumbnail_url']))
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <img src="{{ $settings['thumbnail_url'] }}" class="rounded border" style="width: 48px; height: 28px; object-fit: cover;">
-                                                                <span class="badge bg-success-subtle text-success small">Thumbnail Attached</span>
-                                                                <button type="button" wire:click="removeThumbnail({{ $profile->id }})" class="btn btn-xs btn-link text-danger p-0">Remove</button>
-                                                            </div>
-                                                        @else
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <label class="btn btn-xs btn-outline-secondary rounded-pill px-2 py-1 mb-0 cursor-pointer" style="font-size: 0.72rem;">
-                                                                    <span wire:loading.remove wire:target="directThumbnailUploads.{{ $profile->id }}"><i class="bi bi-image me-1"></i>Upload Thumbnail</span>
-                                                                    <span wire:loading wire:target="directThumbnailUploads.{{ $profile->id }}"><span class="spinner-border spinner-border-sm"></span> Uploading...</span>
-                                                                    <input type="file" wire:model="directThumbnailUploads.{{ $profile->id }}" class="d-none" accept="image/*">
-                                                                </label>
-                                                                <button type="button" wire:click="openThumbnailModal({{ $profile->id }})" class="btn btn-xs btn-link text-decoration-none p-0" style="font-size: 0.72rem;">
-                                                                    or Library
-                                                                </button>
-                                                            </div>
-                                                        @endif
-
-                                                        <div class="d-flex align-items-center gap-2">
-                                                            @if(!$hasVideo)
-                                                                <span class="badge bg-warning-subtle text-warning border border-warning" style="font-size: 0.68rem;">Attach Video (MP4/MOV)</span>
-                                                            @endif
-                                                            <button type="button" @click="showAdvYt = !showAdvYt" class="btn btn-xs btn-link text-muted text-decoration-none p-0" style="font-size: 0.72rem;">
-                                                                <span x-text="showAdvYt ? 'Hide Advanced' : '+ Tags & Category'"></span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Collapsible Advanced -->
-                                                    <div x-show="showAdvYt" x-cloak class="mt-2 pt-2 border-top row g-2">
-                                                        <div class="col-md-5">
-                                                            <select class="form-select form-select-sm" wire:model="platformSettings.{{ $profile->id }}.category_id">
-                                                                <option value="22">People & Blogs</option>
-                                                                <option value="28">Science & Tech</option>
-                                                                <option value="27">Education</option>
-                                                                <option value="24">Entertainment</option>
-                                                                <option value="17">Sports</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-7">
-                                                            <input type="text" class="form-control form-control-sm" wire:model="platformSettings.{{ $profile->id }}.tags" placeholder="Tags (comma-separated)">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @elseif ($pVal === 'facebook')
-                                                <div class="d-flex gap-2">
-                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
-                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-primary' : 'btn-outline-secondary' }}">
-                                                        <i class="bi bi-card-text me-1"></i> Page Post
-                                                    </button>
-                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
-                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-primary' : 'btn-outline-secondary' }}">
-                                                        <i class="bi bi-play-btn me-1"></i> Reel
-                                                    </button>
-                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
-                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-primary' : 'btn-outline-secondary' }}">
-                                                        <i class="bi bi-circle me-1"></i> Story
-                                                    </button>
-                                                </div>
-                                            @elseif ($pVal === 'instagram')
-                                                <div class="d-flex gap-2">
-                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
-                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-dark' : 'btn-outline-secondary' }}">
-                                                        Feed Post
-                                                    </button>
-                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
-                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-dark' : 'btn-outline-secondary' }}">
-                                                        Reel
-                                                    </button>
-                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
-                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-dark' : 'btn-outline-secondary' }}">
-                                                        Story
-                                                    </button>
-                                                </div>
-                                            @else
-                                                <div class="small text-muted">Ready to publish standard update to {{ $pEnum?->label() }}.</div>
-                                            @endif
+            <div class="card-body p-4">
+                <div class="d-flex flex-column gap-4">
+                    @foreach ($availableProfiles as $profile)
+                        @if (in_array($profile->id, $selectedProfileIds, true))
+                            @php
+                                $pVal = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform->value : (string)$profile->platform;
+                                $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
+                                $settings = $platformSettings[$profile->id] ?? [];
+                            @endphp
+                            <div class="p-4 border rounded-4 bg-light" x-data="{ customCap: {{ !empty($customizedFlags[$profile->id]) ? 'true' : 'false' }}, showMoreYt: false }">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }}" style="width: 34px; height: 34px;">
+                                            <i class="bi {{ $pEnum?->icon() }}"></i>
+                                        </span>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ $profile->name }}</div>
+                                            <div class="small text-muted" style="font-size: 0.72rem;">{{ $pEnum?->label() }}</div>
                                         </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                @else
-                    <!-- Individual Profile Variant Tab -->
-                    @php
-                        $currentTabProfile = \App\Models\SocialProfile::find((int)$activeTab);
-                    @endphp
-
-                    @if ($currentTabProfile)
-                        @php
-                            $currEnum = $currentTabProfile->platform instanceof \App\Enums\SocialPlatform ? $currentTabProfile->platform : \App\Enums\SocialPlatform::tryFrom($currentTabProfile->platform);
-                            $platKey = $currentTabProfile->platform instanceof \App\Enums\SocialPlatform ? $currentTabProfile->platform->value : (string)$currentTabProfile->platform;
-                        @endphp
-                        <div class="d-flex align-items-center justify-content-between p-2 mb-3 bg-light rounded-3 border">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="platform-icon {{ $currEnum?->value ?? 'facebook' }}" style="width: 30px; height: 30px;">
-                                    <i class="bi {{ $currEnum?->icon() }}"></i>
-                                </span>
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark small">{{ $currentTabProfile->name }}</h6>
-                                    <span class="text-muted" style="font-size: 0.75rem;">{{ $currEnum?->label() }}</span>
-                                </div>
-                            </div>
-                            <button type="button" wire:click="setTab('base')" class="btn btn-xs btn-outline-secondary rounded-pill px-2">
-                                <i class="bi bi-arrow-left me-1"></i> Back to Base
-                            </button>
-                        </div>
-
-                        <!-- Caption Area -->
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <div class="d-flex align-items-center gap-2">
-                                    <label class="form-label small fw-semibold mb-0">
-                                        {{ $currEnum?->label() }} Caption / Description
-                                    </label>
-                                    <button type="button" wire:click="openAiModal('{{ $currentTabProfile->id }}')" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size: 0.7rem;">
-                                        <i class="bi bi-stars text-warning"></i> Tailor with AI
+                                    </div>
+                                    <button type="button" @click="customCap = !customCap" wire:click="setTab('{{ $profile->id }}')" class="btn btn-xs btn-white bg-white border rounded-pill px-3 py-1 text-dark" style="font-size: 0.74rem;">
+                                        <i class="bi bi-pencil me-1"></i> Custom Caption
                                     </button>
                                 </div>
-                                @php
-                                    $effectiveCap = $this->getEffectiveCaption($currentTabProfile);
-                                    $charCount = mb_strlen($effectiveCap);
-                                    $limit = $this->getCharacterLimit($currentTabProfile);
-                                    $isOver = $charCount > $limit;
-                                @endphp
-                                <span class="badge {{ $isOver ? 'bg-danger' : 'bg-light text-dark border' }} small">
-                                    {{ $charCount }} / {{ $limit }} chars
-                                </span>
-                            </div>
 
-                            <textarea class="form-control @if($isOver) is-invalid @endif" wire:model.live.debounce.250ms="customCaptions.{{ $currentTabProfile->id }}" rows="6" placeholder="Type custom caption or description for {{ $currentTabProfile->name }}..."></textarea>
-                        </div>
-
-                        <!-- Platform-Specific Settings Accordion -->
-                        @php
-                            $platKey = $currentTabProfile->platform instanceof \App\Enums\SocialPlatform ? $currentTabProfile->platform->value : $currentTabProfile->platform;
-                        @endphp
-
-                        @if ($platKey === 'youtube')
-                            <!-- YouTube Publishing & Content Hub Settings -->
-                            <div class="card border p-3 bg-light rounded-3 mb-3">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 class="fw-bold small mb-0 text-dark d-flex align-items-center gap-2">
-                                        <i class="bi bi-youtube text-danger fs-5"></i> YouTube Video & Shorts Settings
-                                    </h6>
-                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1 small">Official YouTube API</span>
+                                <!-- Optional Custom Caption Override -->
+                                <div x-show="customCap" x-cloak class="mb-3">
+                                    <label class="form-label small fw-semibold text-dark">Custom Caption for {{ $profile->name }}</label>
+                                    <textarea class="form-control bg-white" wire:model.live.debounce.250ms="customCaptions.{{ $profile->id }}" rows="3" placeholder="Leave blank to use your main caption from Step 2..."></textarea>
                                 </div>
 
-                                <!-- Format Choice: Standard Video vs YouTube Shorts -->
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark mb-1">Select Upload Type</label>
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'video')" 
-                                                 class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? 'video') === 'video' ? 'border-danger bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                                <div class="fs-5 text-danger mb-1"><i class="bi bi-film"></i></div>
-                                                <div class="small fw-bold text-dark">Standard Video</div>
-                                                <small class="text-muted" style="font-size: 0.72rem;">16:9 Landscape / Custom Thumbnail</small>
+                                @if ($pVal === 'youtube')
+                                    <div class="row g-3">
+                                        <!-- Format -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark mb-1">Upload Type</label>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'video')"
+                                                    class="btn btn-sm flex-grow-1 rounded-pill py-2 {{ ($settings['post_type'] ?? 'video') === 'video' ? 'btn-danger' : 'btn-white bg-white border text-dark' }}">
+                                                    <i class="bi bi-film me-1"></i> Standard Video (16:9)
+                                                </button>
+                                                <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'shorts')"
+                                                    class="btn btn-sm flex-grow-1 rounded-pill py-2 {{ ($settings['post_type'] ?? '') === 'shorts' ? 'btn-danger' : 'btn-white bg-white border text-dark' }}">
+                                                    <i class="bi bi-lightning-charge-fill me-1"></i> YouTube Shorts (9:16)
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="col-6">
-                                            <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'shorts')" 
-                                                 class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? '') === 'shorts' ? 'border-danger bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                                <div class="fs-5 text-danger mb-1"><i class="bi bi-lightning-charge-fill"></i></div>
-                                                <div class="small fw-bold text-dark">YouTube Shorts ⚡</div>
-                                                <small class="text-muted" style="font-size: 0.72rem;">9:16 Vertical &lt;60s / Auto #Shorts</small>
+
+                                        <!-- Video Title -->
+                                        <div class="col-md-8">
+                                            <label class="form-label small fw-bold text-dark mb-1">Video Title <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control bg-white" wire:model="platformSettings.{{ $profile->id }}.title" maxlength="100" placeholder="Enter compelling video title...">
+                                        </div>
+
+                                        <!-- Privacy -->
+                                        <div class="col-md-4">
+                                            <label class="form-label small fw-bold text-dark mb-1">Visibility</label>
+                                            <select class="form-select bg-white" wire:model="platformSettings.{{ $profile->id }}.privacy_status">
+                                                <option value="public">Public</option>
+                                                <option value="unlisted">Unlisted</option>
+                                                <option value="private">Private</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Custom Thumbnail -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark mb-1">Custom Video Thumbnail (Optional)</label>
+                                            @if (!empty($settings['thumbnail_url']))
+                                                <div class="d-flex align-items-center gap-3 p-2 bg-white border rounded-3">
+                                                    <img src="{{ $settings['thumbnail_url'] }}" class="rounded" style="width: 96px; height: 54px; object-fit: cover;">
+                                                    <div class="flex-grow-1 small text-success fw-semibold">Thumbnail Attached</div>
+                                                    <button type="button" wire:click="removeThumbnail({{ $profile->id }})" class="btn btn-sm btn-outline-danger rounded-pill px-3">Remove</button>
+                                                </div>
+                                            @else
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <label class="btn btn-sm btn-dark rounded-pill px-3 mb-0 cursor-pointer">
+                                                        <span wire:loading.remove wire:target="directThumbnailUploads.{{ $profile->id }}"><i class="bi bi-upload me-1"></i> Upload Thumbnail</span>
+                                                        <span wire:loading wire:target="directThumbnailUploads.{{ $profile->id }}"><span class="spinner-border spinner-border-sm me-1"></span> Uploading...</span>
+                                                        <input type="file" wire:model="directThumbnailUploads.{{ $profile->id }}" class="d-none" accept="image/*">
+                                                    </label>
+                                                    <button type="button" wire:click="openThumbnailModal({{ $profile->id }})" class="btn btn-sm btn-white bg-white border rounded-pill px-3">
+                                                        <i class="bi bi-images me-1"></i> Choose from Library
+                                                    </button>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <!-- Advanced Toggle -->
+                                        <div class="col-12">
+                                            <button type="button" @click="showMoreYt = !showMoreYt" class="btn btn-xs btn-link text-decoration-none p-0 text-muted">
+                                                <span x-text="showMoreYt ? '- Hide Tags & Category' : '+ Add Tags, Category & Kids Setting'"></span>
+                                            </button>
+                                            <div x-show="showMoreYt" x-cloak class="row g-2 mt-2">
+                                                <div class="col-md-5">
+                                                    <label class="form-label small fw-semibold mb-1">Category</label>
+                                                    <select class="form-select form-select-sm bg-white" wire:model="platformSettings.{{ $profile->id }}.category_id">
+                                                        <option value="22">People &amp; Blogs</option>
+                                                        <option value="28">Science &amp; Technology</option>
+                                                        <option value="27">Education</option>
+                                                        <option value="24">Entertainment</option>
+                                                        <option value="17">Sports</option>
+                                                        <option value="26">Howto &amp; Style</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <label class="form-label small fw-semibold mb-1">Video Tags</label>
+                                                    <input type="text" class="form-control form-control-sm bg-white" wire:model="platformSettings.{{ $profile->id }}.tags" placeholder="tutorial, tech, reviews">
+                                                </div>
+                                                <div class="col-12 mt-2">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="ytKids{{ $profile->id }}" wire:model="platformSettings.{{ $profile->id }}.made_for_kids">
+                                                        <label class="form-check-label small" for="ytKids{{ $profile->id }}">Made for kids (COPPA)</label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Video Title Input -->
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark mb-1">Video Title <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control form-control-sm rounded-2" 
-                                           wire:model="platformSettings.{{ $currentTabProfile->id }}.title" 
-                                           maxlength="100" 
-                                           placeholder="Enter a compelling title for your YouTube video...">
-                                    <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">Max 100 characters.</small>
-                                </div>
-
-                                <!-- Custom Thumbnail (Standard Video) -->
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark mb-1">Custom Video Thumbnail</label>
-                                    @if (!empty($platformSettings[$currentTabProfile->id]['thumbnail_url']))
-                                        <div class="d-flex align-items-center gap-3 p-2 bg-white border rounded-3">
-                                            <img src="{{ $platformSettings[$currentTabProfile->id]['thumbnail_url'] }}" class="rounded shadow-xs" style="width: 100px; height: 56px; object-fit: cover;" alt="Thumbnail">
-                                            <div class="flex-grow-1">
-                                                <span class="badge bg-success-subtle text-success small mb-1">Custom Thumbnail Attached</span>
-                                                <div class="small text-muted text-truncate" style="max-width: 200px;">{{ basename($platformSettings[$currentTabProfile->id]['thumbnail_url']) }}</div>
-                                            </div>
-                                            <button type="button" wire:click="removeThumbnail({{ $currentTabProfile->id }})" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i>
+                                @elseif ($pVal === 'facebook')
+                                    <label class="form-label small fw-bold text-dark mb-2">Choose Facebook Format</label>
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
+                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-card-text d-block fs-5 mb-1"></i>
+                                                <span class="small fw-semibold">Page Post</span>
                                             </button>
                                         </div>
-                                    @else
-                                        <div class="d-flex gap-2">
-                                            <button type="button" wire:click="openThumbnailModal({{ $currentTabProfile->id }})" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 rounded-pill px-3">
-                                                <i class="bi bi-image"></i> Choose from Media Library
+                                        <div class="col-4">
+                                            <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
+                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-play-btn d-block fs-5 mb-1"></i>
+                                                <span class="small fw-semibold">Facebook Reel</span>
                                             </button>
-                                            <label class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 rounded-pill px-3 mb-0 cursor-pointer">
-                                                <span wire:loading.remove wire:target="directThumbnailUpload">
-                                                    <i class="bi bi-upload"></i> Upload Image
-                                                </span>
-                                                <span wire:loading wire:target="directThumbnailUpload">
-                                                    <span class="spinner-border spinner-border-sm"></span> Uploading...
-                                                </span>
-                                                <input type="file" wire:model="directThumbnailUpload" class="d-none" accept="image/*">
-                                            </label>
                                         </div>
-                                        <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Recommended size: 1280x720 (16:9 aspect ratio, max 2MB).</small>
+                                        <div class="col-4">
+                                            <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
+                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-circle d-block fs-5 mb-1"></i>
+                                                <span class="small fw-semibold">Story</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @elseif ($pVal === 'instagram')
+                                    <label class="form-label small fw-bold text-dark mb-2">Choose Instagram Format</label>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4">
+                                            <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
+                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-grid-3x3 d-block fs-5 mb-1"></i>
+                                                <span class="small fw-semibold">Feed Post</span>
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
+                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-play-btn-fill d-block fs-5 mb-1"></i>
+                                                <span class="small fw-semibold">Reel</span>
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
+                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-circle d-block fs-5 mb-1"></i>
+                                                <span class="small fw-semibold">Story</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @if(($settings['post_type'] ?? 'feed') === 'reel')
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="igShareFeed{{ $profile->id }}" wire:model="platformSettings.{{ $profile->id }}.share_to_feed" checked>
+                                            <label class="form-check-label small" for="igShareFeed{{ $profile->id }}">Also share Reel to main Feed</label>
+                                        </div>
                                     @endif
-                                </div>
-
-                                <!-- Privacy & Category Row -->
-                                <div class="row g-2 mb-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-semibold text-dark mb-1">Privacy Status</label>
-                                        <select class="form-select form-select-sm" wire:model="platformSettings.{{ $currentTabProfile->id }}.privacy_status">
-                                            <option value="public">Public (Everyone can see)</option>
-                                            <option value="unlisted">Unlisted (Anyone with link)</option>
-                                            <option value="private">Private (Only you)</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-semibold text-dark mb-1">Category</label>
-                                        <select class="form-select form-select-sm" wire:model="platformSettings.{{ $currentTabProfile->id }}.category_id">
-                                            <option value="22">People & Blogs</option>
-                                            <option value="28">Science & Technology</option>
-                                            <option value="27">Education</option>
-                                            <option value="24">Entertainment</option>
-                                            <option value="17">Sports</option>
-                                            <option value="26">Howto & Style</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Tags -->
-                                <div class="mb-2">
-                                    <label class="form-label small fw-semibold text-dark mb-1">Video Tags</label>
-                                    <input type="text" class="form-control form-control-sm rounded-2" wire:model="platformSettings.{{ $currentTabProfile->id }}.tags" placeholder="tutorial, tech, reviews (comma-separated)">
-                                </div>
-
-                                <!-- Made for kids -->
-                                <div class="form-check mt-2">
-                                    <input class="form-check-input" type="checkbox" id="ytKids{{ $currentTabProfile->id }}" wire:model="platformSettings.{{ $currentTabProfile->id }}.made_for_kids">
-                                    <label class="form-check-label small" for="ytKids{{ $currentTabProfile->id }}">
-                                        Yes, this video is made for kids (COPPA compliance)
-                                    </label>
-                                </div>
-                            </div>
-                        @elseif ($platKey === 'instagram')
-                            <!-- Instagram Specific Settings -->
-                            <div class="card border p-3 bg-light rounded-3 mb-3">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <h6 class="fw-bold small mb-0 text-dark d-flex align-items-center gap-1">
-                                        <i class="bi bi-instagram text-danger fs-5"></i> Instagram Post Format & Settings
-                                    </h6>
-                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1 small">Professional API</span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark mb-1">Select Upload Type</label>
-                                    <div class="row g-2">
-                                        <div class="col-4">
-                                            <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'feed')" 
-                                                 class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? 'feed') === 'feed' ? 'border-primary bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                                <div class="fs-5 text-primary mb-1"><i class="bi bi-grid-3x3"></i></div>
-                                                <div class="small fw-bold text-dark">Feed Post</div>
-                                                <small class="text-muted" style="font-size: 0.7rem;">Image or Video</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'reel')" 
-                                                 class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? '') === 'reel' ? 'border-primary bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                                <div class="fs-5 text-danger mb-1"><i class="bi bi-play-btn-fill"></i></div>
-                                                <div class="small fw-bold text-dark">Instagram Reel</div>
-                                                <small class="text-muted" style="font-size: 0.7rem;">9:16 Vertical Video</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'story')" 
-                                                 class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? '') === 'story' ? 'border-primary bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                                <div class="fs-5 text-warning mb-1"><i class="bi bi-circle"></i></div>
-                                                <div class="small fw-bold text-dark">Story</div>
-                                                <small class="text-muted" style="font-size: 0.7rem;">24 Hours</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @if(($platformSettings[$currentTabProfile->id]['post_type'] ?? 'feed') === 'reel')
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="igShareFeed{{ $currentTabProfile->id }}" wire:model="platformSettings.{{ $currentTabProfile->id }}.share_to_feed" checked>
-                                        <label class="form-check-label small" for="igShareFeed{{ $currentTabProfile->id }}">
-                                            Also share this Reel to your main Instagram Feed grid
-                                        </label>
+                                @else
+                                    <div class="small text-muted">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i> Configured and ready to publish to {{ $pEnum?->label() }}.
                                     </div>
                                 @endif
                             </div>
-                        @elseif ($platKey === 'facebook')
-                            <!-- Facebook Specific Settings -->
-                            <div class="card border p-3 bg-light rounded-3 mb-3">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <h6 class="fw-bold small mb-0 text-dark d-flex align-items-center gap-1">
-                                        <i class="bi bi-facebook text-primary fs-5"></i> Facebook Format
-                                    </h6>
-                                </div>
-                                <div class="row g-2">
-                                    <div class="col-4">
-                                        <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'feed')" 
-                                             class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? 'feed') === 'feed' ? 'border-primary bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                            <div class="small fw-bold text-dark">Page Post</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'reel')" 
-                                             class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? '') === 'reel' ? 'border-primary bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                            <div class="small fw-bold text-dark">Facebook Reel</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div wire:click="$set('platformSettings.{{ $currentTabProfile->id }}.post_type', 'story')" 
-                                             class="p-2 border rounded-3 text-center cursor-pointer transition {{ ($platformSettings[$currentTabProfile->id]['post_type'] ?? '') === 'story' ? 'border-primary bg-white shadow-xs' : 'bg-white opacity-75' }}" style="cursor: pointer;">
-                                            <div class="small fw-bold text-dark">Story</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @elseif ($platKey === 'pinterest')
-                            <div class="card border p-3 bg-light rounded-3 mb-3">
-                                <h6 class="fw-semibold small mb-2 text-dark"><i class="bi bi-gear me-1"></i> Pinterest Settings</h6>
-                                <div class="mb-2">
-                                    <label class="form-label small">Target Board</label>
-                                    <input type="text" class="form-control form-control-sm" placeholder="Select or type Board Name">
-                                </div>
-                            </div>
                         @endif
-                    @endif
-                @endif
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="card-footer bg-white py-3 px-4 border-top d-flex justify-content-between align-items-center">
+                <button type="button" wire:click="prevStep" class="btn btn-light border rounded-pill px-4 fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </button>
+                <button type="button" wire:click="nextStep" class="btn btn-dark rounded-pill px-4 fw-semibold">
+                    Next: Preview &amp; Publish <i class="bi bi-arrow-right ms-1"></i>
+                </button>
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- 3. RIGHT PANEL: LIVE PREVIEW & ACTIONS     -->
-        <!-- ========================================== -->
-        <div>
-            <!-- Live Mock Preview Card -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white py-2 d-flex align-items-center justify-content-between">
-                    <span class="small fw-bold text-dark"><i class="bi bi-eye text-primary me-1"></i> Live Network Preview</span>
-                    @if ($previewProfile)
-                        <span class="badge bg-light text-dark border small">{{ $previewProfile->platform instanceof \App\Enums\SocialPlatform ? $previewProfile->platform->label() : ucfirst($previewProfile->platform) }}</span>
-                    @endif
-                </div>
-                <div class="card-body p-3">
-                    @if ($previewProfile)
-                        @php
-                            $previewCaption = $this->getEffectiveCaption($previewProfile);
-                            $firstMedia = $selectedMediaAssets->first();
-                        @endphp
+    <!-- ========================================================== -->
+    <!-- STEP 4: LIVE PREVIEW & PUBLISH                             -->
+    <!-- ========================================================== -->
+    @else
+        <div class="row g-4">
+            <!-- Left: Live Network Preview -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <span class="fw-bold text-dark small"><i class="bi bi-eye text-primary me-1"></i> Live Preview</span>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach ($availableProfiles as $profile)
+                                @if (in_array($profile->id, $selectedProfileIds, true))
+                                    <button type="button" wire:click="setTab('{{ $profile->id }}')"
+                                        class="btn btn-xs rounded-pill px-2 py-1 {{ ($previewProfile?->id === $profile->id) ? 'btn-dark' : 'btn-light border text-muted' }}" style="font-size: 0.72rem;">
+                                        {{ \Illuminate\Support\Str::limit($profile->name, 16) }}
+                                    </button>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        @if ($previewProfile)
+                            @php
+                                $previewCaption = $this->getEffectiveCaption($previewProfile);
+                                $firstMedia = $selectedMediaAssets->first();
+                                $previewPlatformValue = $previewProfile->platform instanceof \App\Enums\SocialPlatform ? $previewProfile->platform->value : (string)$previewProfile->platform;
+                            @endphp
 
-                        @php
-                            $previewPlatformValue = $previewProfile->platform instanceof \App\Enums\SocialPlatform ? $previewProfile->platform->value : (string)$previewProfile->platform;
-                        @endphp
-
-                        @switch($previewPlatformValue)
-                            @case('youtube')
-                                <!-- YouTube Mock Video / Shorts Card -->
-                                @php
-                                    $ytSettings = $platformSettings[$previewProfile->id] ?? [];
-                                    $isShorts = ($ytSettings['post_type'] ?? 'video') === 'shorts';
-                                    $ytTitle = !empty($ytSettings['title']) ? $ytSettings['title'] : ($previewCaption ? \Illuminate\Support\Str::limit($previewCaption, 60) : 'Video Title');
-                                    $customThumb = $ytSettings['thumbnail_url'] ?? null;
-                                @endphp
-                                <div class="post-preview-card shadow-xs">
-                                    <div class="position-relative bg-dark text-white rounded-top overflow-hidden" style="aspect-ratio: {{ $isShorts ? '9/16' : '16/9' }}; max-height: 280px; display: flex; align-items: center; justify-content: center;">
-                                        @if ($customThumb)
-                                            <img src="{{ $customThumb }}" class="w-100 h-100" style="object-fit: cover;">
-                                        @elseif ($firstMedia && ($firstMedia->isImage() || $firstMedia->media_type === 'gif'))
-                                            <img src="{{ $firstMedia->public_url }}" class="w-100 h-100" style="object-fit: cover;">
-                                        @elseif ($firstMedia)
-                                            <video src="{{ $firstMedia->public_url }}" class="w-100 h-100" style="object-fit: cover;" muted></video>
-                                        @else
-                                            <div class="text-center p-3 text-muted">
-                                                <i class="bi bi-youtube fs-1 text-danger d-block mb-1"></i>
-                                                <small class="text-white-50">Attach a Video (MP4/MOV)</small>
-                                            </div>
-                                        @endif
-                                        @if ($isShorts)
-                                            <span class="position-absolute top-0 end-0 m-2 badge bg-danger d-flex align-items-center gap-1 shadow-sm" style="font-size: 0.7rem;">
-                                                <i class="bi bi-lightning-charge-fill"></i> SHORTS
-                                            </span>
-                                        @endif
-                                        <div class="position-absolute bottom-0 end-0 m-2 px-2 py-0.5 rounded bg-black bg-opacity-75 text-white" style="font-size: 0.65rem;">
-                                            0:45
+                            @switch($previewPlatformValue)
+                                @case('youtube')
+                                    @php
+                                        $ytSettings = $platformSettings[$previewProfile->id] ?? [];
+                                        $isShorts = ($ytSettings['post_type'] ?? 'video') === 'shorts';
+                                        $ytTitle = !empty($ytSettings['title']) ? $ytSettings['title'] : ($previewCaption ? \Illuminate\Support\Str::limit($previewCaption, 60) : 'Video Title');
+                                        $customThumb = $ytSettings['thumbnail_url'] ?? null;
+                                    @endphp
+                                    <div class="post-preview-card shadow-xs mx-auto" style="max-width: 440px;">
+                                        <div class="position-relative bg-dark text-white rounded-top overflow-hidden d-flex align-items-center justify-content-center" style="aspect-ratio: {{ $isShorts ? '9/16' : '16/9' }}; max-height: 300px;">
+                                            @if ($customThumb)
+                                                <img src="{{ $customThumb }}" class="w-100 h-100" style="object-fit: cover;">
+                                            @elseif ($firstMedia && ($firstMedia->isImage() || $firstMedia->media_type === 'gif'))
+                                                <img src="{{ $firstMedia->public_url }}" class="w-100 h-100" style="object-fit: cover;">
+                                            @elseif ($firstMedia)
+                                                <video src="{{ $firstMedia->public_url }}" class="w-100 h-100" style="object-fit: cover;" muted></video>
+                                            @else
+                                                <div class="text-center p-3">
+                                                    <i class="bi bi-youtube fs-1 text-danger d-block mb-1"></i>
+                                                    <small class="text-white-50">Attach a Video (MP4/MOV)</small>
+                                                </div>
+                                            @endif
+                                            @if ($isShorts)
+                                                <span class="position-absolute top-0 end-0 m-2 badge bg-danger">SHORTS</span>
+                                            @endif
+                                        </div>
+                                        <div class="p-3 bg-white">
+                                            <h6 class="fw-bold text-dark small mb-1">{{ $ytTitle }}</h6>
+                                            <div class="text-muted" style="font-size: 0.72rem;">{{ $previewProfile->name }} &bull; {{ ucfirst($ytSettings['privacy_status'] ?? 'public') }}</div>
+                                            @if ($previewCaption)
+                                                <div class="mt-2 text-muted small" style="font-size: 0.78rem;">{{ \Illuminate\Support\Str::limit($previewCaption, 120) }}</div>
+                                            @endif
                                         </div>
                                     </div>
-                                    <div class="p-3">
-                                        <div class="d-flex gap-2">
-                                            <div class="avatar bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.8rem;">
+                                    @break
+
+                                @case('facebook')
+                                    <div class="post-preview-card shadow-xs mx-auto" style="max-width: 440px;">
+                                        <div class="preview-header">
+                                            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
                                                 {{ strtoupper(substr($previewProfile->name, 0, 1)) }}
                                             </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="fw-bold text-dark small mb-1 lh-sm">{{ $ytTitle }}</h6>
-                                                <div class="text-muted" style="font-size: 0.72rem;">{{ $previewProfile->name }} &bull; 0 views &bull; Just now</div>
+                                            <div>
+                                                <div class="fw-semibold text-dark small">{{ $previewProfile->name }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">{{ ucfirst($platformSettings[$previewProfile->id]['post_type'] ?? 'feed') }} &bull; Just now</div>
                                             </div>
                                         </div>
-                                        @if ($previewCaption)
-                                            <div class="mt-2 text-muted small text-truncate" style="font-size: 0.75rem;">
-                                                {{ $previewCaption }}
-                                            </div>
+                                        <div class="preview-body">{{ $previewCaption ?: 'Preview text...' }}</div>
+                                        @if ($firstMedia)
+                                            @if ($firstMedia->isImage() || $firstMedia->media_type === 'gif')
+                                                <img src="{{ $firstMedia->public_url }}" class="preview-media">
+                                            @else
+                                                <video src="{{ $firstMedia->public_url }}" class="preview-media" controls muted></video>
+                                            @endif
                                         @endif
                                     </div>
-                                </div>
-                                @break
+                                    @break
 
-                            @case('facebook')
-                                <!-- Facebook Mock Card -->
-                                <div class="post-preview-card shadow-xs">
-                                    <div class="preview-header">
-                                        <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 0.85rem;">
-                                            {{ strtoupper(substr($previewProfile->name, 0, 1)) }}
+                                @default
+                                    @php $prevEnum = $previewProfile->platform instanceof \App\Enums\SocialPlatform ? $previewProfile->platform : \App\Enums\SocialPlatform::tryFrom($previewProfile->platform); @endphp
+                                    <div class="post-preview-card shadow-xs mx-auto" style="max-width: 440px;">
+                                        <div class="preview-header">
+                                            <span class="platform-icon {{ $prevEnum?->value ?? 'linkedin' }}" style="width: 32px; height: 32px;">
+                                                <i class="bi {{ $prevEnum?->icon() }}"></i>
+                                            </span>
+                                            <div>
+                                                <div class="fw-semibold text-dark small">{{ $previewProfile->name }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">{{ $prevEnum?->label() }}</div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark small">{{ $previewProfile->name }}</div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">Just now &bull; <i class="bi bi-globe"></i></div>
-                                        </div>
-                                    </div>
-                                    <div class="preview-body">
-                                        {{ $previewCaption ?: 'Preview text will appear here...' }}
-                                    </div>
-                                    @if ($firstMedia)
-                                        @if ($firstMedia->isImage() || $firstMedia->media_type === 'gif')
+                                        <div class="preview-body">{{ $previewCaption ?: 'Preview text...' }}</div>
+                                        @if ($firstMedia && $firstMedia->isImage())
                                             <img src="{{ $firstMedia->public_url }}" class="preview-media">
-                                        @else
-                                            <div class="bg-dark text-white p-5 text-center">
-                                                <i class="bi bi-play-circle fs-1"></i>
-                                            </div>
+                                        @elseif ($firstMedia)
+                                            <video src="{{ $firstMedia->public_url }}" class="preview-media" controls muted></video>
                                         @endif
-                                    @endif
-                                    <div class="preview-footer">
-                                        <span><i class="bi bi-hand-thumbs-up me-1"></i> Like</span>
-                                        <span><i class="bi bi-chat me-1"></i> Comment</span>
-                                        <span><i class="bi bi-share me-1"></i> Share</span>
                                     </div>
-                                </div>
-                                @break
-
-                            @case('instagram')
-                                <!-- Instagram Mock Card -->
-                                <div class="post-preview-card shadow-xs">
-                                    <div class="preview-header">
-                                        <div class="avatar bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                            {{ strtoupper(substr($previewProfile->username ?: $previewProfile->name, 0, 1)) }}
-                                        </div>
-                                        <div class="fw-semibold text-dark small">&#64;{{ $previewProfile->username ?: strtolower(str_replace(' ', '', $previewProfile->name)) }}</div>
-                                    </div>
-                                    @if ($firstMedia)
-                                        <img src="{{ $firstMedia->public_url }}" class="preview-media" style="aspect-ratio: 1/1; object-fit: cover;">
-                                    @else
-                                        <div class="bg-light text-muted p-5 text-center border-top border-bottom small fst-italic">
-                                            <i class="bi bi-image fs-2 d-block text-secondary mb-1"></i>
-                                            Instagram requires an image or video
-                                        </div>
-                                    @endif
-                                    <div class="preview-footer justify-content-start gap-3">
-                                        <i class="bi bi-heart fs-6"></i>
-                                        <i class="bi bi-chat fs-6"></i>
-                                        <i class="bi bi-send fs-6"></i>
-                                    </div>
-                                    <div class="px-3 pb-3 small text-dark">
-                                        <strong>&#64;{{ $previewProfile->username ?: 'account' }}</strong> {{ \Illuminate\Support\Str::limit($previewCaption, 120, '...') }}
-                                    </div>
-                                </div>
-                                @break
-
-                            @default
-                                @php
-                                    $prevEnum = $previewProfile->platform instanceof \App\Enums\SocialPlatform ? $previewProfile->platform : \App\Enums\SocialPlatform::tryFrom($previewProfile->platform);
-                                @endphp
-                                <!-- Generic / LinkedIn / X Card -->
-                                <div class="post-preview-card shadow-xs">
-                                    <div class="preview-header">
-                                        <span class="platform-icon {{ $prevEnum?->value ?? 'facebook' }}" style="width: 32px; height: 32px;">
-                                            <i class="bi {{ $prevEnum?->icon() }}"></i>
-                                        </span>
-                                        <div>
-                                            <div class="fw-semibold text-dark small">{{ $previewProfile->name }}</div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">Preview Mode</div>
-                                        </div>
-                                    </div>
-                                    <div class="preview-body">
-                                        {{ $previewCaption ?: 'Preview text...' }}
-                                    </div>
-                                    @if ($firstMedia)
-                                        <img src="{{ $firstMedia->public_url }}" class="preview-media">
-                                    @endif
-                                </div>
-                        @endswitch
-                    @else
-                        <div class="p-4 text-center text-muted small">
-                            Select at least one social profile to view live preview.
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Validation Warnings Box -->
-            @php $validationErrors = $this->getValidationErrorsProperty(); @endphp
-            @if ($showValidationWarnings && !empty($validationErrors))
-                <div class="alert alert-warning p-2 small mb-3">
-                    <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle me-1"></i> Missing Requirements:</div>
-                    <ul class="mb-0 ps-3">
-                        @foreach ($validationErrors as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <!-- Scheduling & Publishing Box -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-3">
-                    <h6 class="fw-bold small mb-3 text-dark">Publishing Options</h6>
-
-                    <!-- Mode Select -->
-                    <div class="btn-group w-100 mb-3 btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" wire:model.live="publishMode" value="now" id="modeNow" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="modeNow">Publish Now</label>
-
-                        <input type="radio" class="btn-check" wire:model.live="publishMode" value="schedule" id="modeSchedule" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="modeSchedule">Schedule</label>
-
-                        <input type="radio" class="btn-check" wire:model.live="publishMode" value="draft" id="modeDraft" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="modeDraft">Draft</label>
-                    </div>
-
-                    @if ($publishMode === 'schedule')
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold text-muted text-uppercase" style="font-size: 0.75rem;">Date & Time</label>
-                            <div class="row g-2">
-                                <div class="col-7">
-                                    <input type="date" class="form-control form-control-sm" wire:model="scheduledDate">
-                                </div>
-                                <div class="col-5">
-                                    <input type="time" class="form-control form-control-sm" wire:model="scheduledTime">
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Action Trigger Buttons -->
-                    <div class="d-grid gap-2">
-                        @if ($publishMode === 'now')
-                            <button type="button" wire:click="savePost('now')" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
-                                <span wire:loading.remove wire:target="savePost"><i class="bi bi-send-fill me-1"></i> Publish to {{ count($selectedProfileIds) }} Profile(s)</span>
-                                <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Publishing Now...</span>
-                            </button>
-                        @elseif ($publishMode === 'schedule')
-                            <button type="button" wire:click="savePost('schedule')" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
-                                <span wire:loading.remove wire:target="savePost"><i class="bi bi-calendar-check-fill me-1"></i> Schedule Post</span>
-                                <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Scheduling...</span>
-                            </button>
-                        @else
-                            <button type="button" wire:click="savePost('draft')" class="btn btn-secondary d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
-                                <span wire:loading.remove wire:target="savePost"><i class="bi bi-file-earmark-text me-1"></i> Save as Draft</span>
-                                <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Saving...</span>
-                            </button>
+                            @endswitch
                         @endif
                     </div>
                 </div>
             </div>
+
+            <!-- Right: Final Checklist & Publish -->
+            <div class="col-lg-5">
+                @php $validationErrors = $this->getValidationErrorsProperty(); @endphp
+                @if (!empty($validationErrors))
+                    <div class="alert alert-warning rounded-4 p-3 small mb-3">
+                        <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Before you publish:</div>
+                        <ul class="mb-0 ps-3">
+                            @foreach ($validationErrors as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @else
+                    <div class="alert alert-success rounded-4 p-3 small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill fs-5"></i>
+                        <div>Everything looks good and ready to publish to <strong>{{ count($selectedProfileIds) }} account(s)</strong>!</div>
+                    </div>
+                @endif
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 text-dark">Publishing Options</h6>
+
+                        <div class="btn-group w-100 mb-3" role="group">
+                            <input type="radio" class="btn-check" wire:model.live="publishMode" value="now" id="modeNow" autocomplete="off">
+                            <label class="btn btn-outline-dark" for="modeNow">Publish Now</label>
+
+                            <input type="radio" class="btn-check" wire:model.live="publishMode" value="schedule" id="modeSchedule" autocomplete="off">
+                            <label class="btn btn-outline-dark" for="modeSchedule">Schedule</label>
+
+                            <input type="radio" class="btn-check" wire:model.live="publishMode" value="draft" id="modeDraft" autocomplete="off">
+                            <label class="btn btn-outline-dark" for="modeDraft">Draft</label>
+                        </div>
+
+                        @if ($publishMode === 'schedule')
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Date &amp; Time</label>
+                                <div class="row g-2">
+                                    <div class="col-7">
+                                        <input type="date" class="form-control" wire:model="scheduledDate">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="time" class="form-control" wire:model="scheduledTime">
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="d-grid gap-2 mt-4">
+                            @if ($publishMode === 'now')
+                                <button type="button" wire:click="savePost('now')" class="btn btn-primary rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
+                                    <span wire:loading.remove wire:target="savePost"><i class="bi bi-send-fill me-1"></i> Publish Now to {{ count($selectedProfileIds) }} Account(s)</span>
+                                    <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Publishing Now... Please wait</span>
+                                </button>
+                            @elseif ($publishMode === 'schedule')
+                                <button type="button" wire:click="savePost('schedule')" class="btn btn-primary rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
+                                    <span wire:loading.remove wire:target="savePost"><i class="bi bi-calendar-check-fill me-1"></i> Schedule Post</span>
+                                    <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Scheduling...</span>
+                                </button>
+                            @else
+                                <button type="button" wire:click="savePost('draft')" class="btn btn-secondary rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
+                                    <span wire:loading.remove wire:target="savePost"><i class="bi bi-file-earmark-text me-1"></i> Save as Draft</span>
+                                    <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Saving...</span>
+                                </button>
+                            @endif
+
+                            <button type="button" wire:click="prevStep" class="btn btn-light border rounded-pill py-2 fw-semibold mt-1">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    @endif
 
     <!-- Media Library Asset Selector Modal -->
     @if ($showMediaModal)
@@ -892,7 +671,7 @@
                                 <label class="form-label small fw-semibold">Action Mode</label>
                                 <select wire:model.live="aiAction" class="form-select form-select-sm">
                                     <option value="caption">Generate New Caption from Topic</option>
-                                    <option value="rewrite">Rewrite & Polish Content</option>
+                                    <option value="rewrite">Rewrite &amp; Polish Content</option>
                                     <option value="hashtags">Suggest High-Engagement Hashtags</option>
                                 </select>
                             </div>
@@ -900,11 +679,11 @@
                             <div class="col-md-6">
                                 <label class="form-label small fw-semibold">Tone of Voice</label>
                                 <select wire:model="aiTone" class="form-select form-select-sm">
-                                    <option value="engaging">Engaging & Conversational</option>
-                                    <option value="professional">Professional & Authoritative</option>
-                                    <option value="humorous">Humorous & Playful</option>
-                                    <option value="urgent">Urgent & Promotional</option>
-                                    <option value="educational">Educational & Informative</option>
+                                    <option value="engaging">Engaging &amp; Conversational</option>
+                                    <option value="professional">Professional &amp; Authoritative</option>
+                                    <option value="humorous">Humorous &amp; Playful</option>
+                                    <option value="urgent">Urgent &amp; Promotional</option>
+                                    <option value="educational">Educational &amp; Informative</option>
                                 </select>
                             </div>
 
@@ -992,7 +771,7 @@
                             <div class="text-center py-5 text-muted">
                                 <i class="bi bi-images fs-1 text-secondary opacity-50 mb-2"></i>
                                 <h6 class="fw-bold text-dark">No Images Found</h6>
-                                <p class="small text-muted mb-3">Upload images in Media & Docs first or use direct image upload.</p>
+                                <p class="small text-muted mb-3">Upload images in Media &amp; Docs first or use direct image upload.</p>
                                 <label class="btn btn-sm btn-primary cursor-pointer">
                                     <i class="bi bi-upload me-1"></i> Upload Image Now
                                     <input type="file" wire:model="directThumbnailUpload" class="d-none" accept="image/*">
@@ -1008,4 +787,3 @@
         </div>
     @endif
 </div>
-

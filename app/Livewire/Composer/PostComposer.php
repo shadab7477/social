@@ -33,6 +33,7 @@ class PostComposer extends Component
     public string $scheduledTime = '12:00';
 
     // Center Panel Variant Tabs & Overrides
+    public int $currentStep = 1; // 1: Accounts, 2: Media & Caption, 3: Platform Settings, 4: Preview & Publish
     public string $activeTab = 'base'; // 'base' or numeric profileId
     public array $customCaptions = []; // [profileId => 'custom text']
     public array $customizedFlags = []; // [profileId => bool]
@@ -100,6 +101,27 @@ class PostComposer extends Component
     {
         $this->selectedProfileIds = [];
         $this->activeTab = 'base';
+    }
+
+    public function goToStep(int $step): void
+    {
+        if ($step >= 1 && $step <= 4) {
+            if ($step > 1 && empty($this->selectedProfileIds)) {
+                session()->flash('error', 'Please select at least one social account first.');
+                return;
+            }
+            $this->currentStep = $step;
+        }
+    }
+
+    public function nextStep(): void
+    {
+        $this->goToStep(min(4, $this->currentStep + 1));
+    }
+
+    public function prevStep(): void
+    {
+        $this->goToStep(max(1, $this->currentStep - 1));
     }
 
     public function setTab(string $tab): void
