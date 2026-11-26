@@ -22,7 +22,7 @@ class AIAssistantService
 
         if (!empty($groqKey) || str_starts_with((string) $openaiKey, 'gsk_')) {
             $this->apiKey = $groqKey ?: $openaiKey;
-            $this->model = config('services.groq.model', 'llama-3.3-70b-versatile');
+            $this->model = config('services.groq.model', 'openai/gpt-oss-120b');
             $this->endpoint = 'https://api.groq.com/openai/v1/chat/completions';
         } else {
             $this->apiKey = $openaiKey;
