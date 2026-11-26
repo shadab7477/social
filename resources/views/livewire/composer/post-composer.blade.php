@@ -395,6 +395,26 @@
                                             <label class="form-check-label small" for="igShareFeed{{ $profile->id }}">Also share Reel to main Feed</label>
                                         </div>
                                     @endif
+                                @elseif ($pVal === 'pinterest')
+                                    @php $pinBoards = $profile->metadata['boards'] ?? []; @endphp
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-dark mb-1">Pin Title</label>
+                                            <input type="text" class="form-control bg-white" wire:model="platformSettings.{{ $profile->id }}.title" maxlength="100" placeholder="Enter Pin title...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-dark mb-1">Target Board</label>
+                                            @if (!empty($pinBoards))
+                                                <select class="form-select bg-white" wire:model="platformSettings.{{ $profile->id }}.board_id">
+                                                    @foreach ($pinBoards as $b)
+                                                        <option value="{{ $b['id'] }}">{{ $b['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @else
+                                                <input type="text" class="form-control bg-white" wire:model="platformSettings.{{ $profile->id }}.board_name" placeholder="Board name (auto-creates if empty)">
+                                            @endif
+                                        </div>
+                                    </div>
                                 @else
                                     <div class="small text-muted">
                                         <i class="bi bi-check-circle-fill text-success me-1"></i> Configured and ready to publish to {{ $pEnum?->label() }}.

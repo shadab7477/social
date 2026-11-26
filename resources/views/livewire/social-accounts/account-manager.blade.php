@@ -154,7 +154,7 @@
                             </div>
                         </div>
 
-                        @if (in_array($platform->value, ['facebook', 'instagram', 'linkedin', 'youtube', 'google_business']))
+                        @if (in_array($platform->value, ['facebook', 'instagram', 'linkedin', 'youtube', 'google_business', 'pinterest']))
                             @php
                                 $currWs = app('current_workspace');
                                 $cardDirectUrl = $currWs ? route('client-connect.oauth', ['uuid' => $currWs->uuid, 'platform' => $platform->value]) : '';
@@ -179,7 +179,7 @@
                     </p>
 
                     <div class="mt-auto">
-                        @if (in_array($platform->value, ['facebook', 'instagram', 'linkedin', 'youtube', 'google_business']))
+                        @if (in_array($platform->value, ['facebook', 'instagram', 'linkedin', 'youtube', 'google_business', 'pinterest']))
                             @php
                                 $currWs = app('current_workspace');
                                 $cardDirectUrl = $currWs ? route('client-connect.oauth', ['uuid' => $currWs->uuid, 'platform' => $platform->value]) : '';

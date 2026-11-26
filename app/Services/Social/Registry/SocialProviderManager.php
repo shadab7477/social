@@ -14,6 +14,8 @@ use App\Services\Social\GoogleBusiness\GoogleBusinessPublishingService;
 use App\Services\Social\Instagram\InstagramPublishingService;
 use App\Services\Social\LinkedIn\LinkedInOAuthService;
 use App\Services\Social\LinkedIn\LinkedInPublishingService;
+use App\Services\Social\Pinterest\PinterestOAuthService;
+use App\Services\Social\Pinterest\PinterestPublishingService;
 use App\Services\Social\YouTube\YouTubeOAuthService;
 use App\Services\Social\YouTube\YouTubePublishingService;
 use InvalidArgumentException;
@@ -33,6 +35,7 @@ class SocialProviderManager
             SocialPlatform::LINKEDIN => app(LinkedInOAuthService::class),
             SocialPlatform::YOUTUBE => app(YouTubeOAuthService::class),
             SocialPlatform::GOOGLE_BUSINESS => app(GoogleBusinessOAuthService::class),
+            SocialPlatform::PINTEREST => app(PinterestOAuthService::class),
             default => throw new InvalidArgumentException("OAuth integration for platform '{$platformEnum->value}' will be registered in subsequent phases."),
         };
     }
@@ -50,6 +53,7 @@ class SocialProviderManager
             SocialPlatform::LINKEDIN => app(LinkedInPublishingService::class),
             SocialPlatform::YOUTUBE => app(YouTubePublishingService::class),
             SocialPlatform::GOOGLE_BUSINESS => app(GoogleBusinessPublishingService::class),
+            SocialPlatform::PINTEREST => app(PinterestPublishingService::class),
             default => throw new InvalidArgumentException("Publishing adapter for '{$platformEnum->value}' not registered."),
         };
     }
@@ -82,6 +86,7 @@ class SocialProviderManager
             SocialPlatform::LINKEDIN => app(LinkedInPublishingService::class),
             SocialPlatform::YOUTUBE => app(YouTubePublishingService::class),
             SocialPlatform::GOOGLE_BUSINESS => app(GoogleBusinessPublishingService::class),
+            SocialPlatform::PINTEREST => app(PinterestPublishingService::class),
             default => throw new InvalidArgumentException("Provider service for '{$platformEnum->value}' not registered."),
         };
     }

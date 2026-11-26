@@ -270,6 +270,13 @@ class PostComposer extends Component
             $this->platformSettings[$profileId] = array_merge([
                 'post_type' => 'post',
             ], $this->platformSettings[$profileId] ?? []);
+        } elseif ($plat === 'pinterest') {
+            $boards = $profile->metadata['boards'] ?? [];
+            $this->platformSettings[$profileId] = array_merge([
+                'post_type' => 'pin',
+                'title' => mb_substr($firstLine ?: '', 0, 100),
+                'board_id' => $boards[0]['id'] ?? '',
+            ], $this->platformSettings[$profileId] ?? []);
         }
     }
 
@@ -342,6 +349,10 @@ class PostComposer extends Component
 
             if ($plat === 'instagram' && empty($this->selectedMediaAssetIds)) {
                 $errors[] = "Instagram profile '{$profile->name}' requires at least one image or video.";
+            }
+
+            if ($plat === 'pinterest' && empty($this->selectedMediaAssetIds)) {
+                $errors[] = "Pinterest profile '{$profile->name}' requires an attached image for the Pin.";
             }
 
             if ($plat === 'youtube') {

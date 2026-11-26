@@ -61,4 +61,11 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
     ],
 
+    'pinterest' => [
+        'client_id' => env('PINTEREST_CLIENT_ID'),
+        'client_secret' => env('PINTEREST_CLIENT_SECRET'),
+        'redirect' => env('PINTEREST_REDIRECT_URI', env('APP_URL', 'http://localhost:8000') . '/oauth/callback/pinterest'),
+        'api_base' => env('PINTEREST_API_BASE', 'https://api.pinterest.com/v5'),
+    ],
+
 ];
