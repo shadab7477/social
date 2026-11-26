@@ -27,6 +27,11 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
         return PlatformCapabilityRegistry::getCapabilities(SocialPlatform::LINKEDIN);
     }
 
+    protected function getApiVersion(): string
+    {
+        return env('LINKEDIN_API_VERSION') ?: now()->subMonths(2)->format('Ym');
+    }
+
     public function publish(SocialProfile $profile, PublishingPayloadDTO $payload): PublishingResultDTO
     {
         $accessToken = $profile->access_token ?? $profile->connection?->access_token;
@@ -69,8 +74,9 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
             // Handle Link or Images
             if (!empty($payload->mediaUrls)) {
                 $imageUrns = [];
-                foreach (array_slice($payload->mediaUrls, 0, 9) as $imageUrl) {
-                    $imageUrn = $this->registerAndUploadImage($authorUrn, $imageUrl, $accessToken);
+                foreach (array_slice($payload->mediaUrls, 0, 9) as $idx => $imageUrl) {
+                    $localPath = $payload->mediaPaths[$idx] ?? null;
+                    $imageUrn = $this->registerAndUploadImage($authorUrn, $imageUrl, $accessToken, $localPath);
                     if ($imageUrn) {
                         $imageUrns[] = ['id' => $imageUrn];
                     }
@@ -103,11 +109,52 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
 
             $response = Http::withToken($accessToken)
                 ->withHeaders([
-                    'LinkedIn-Version' => '202401',
+                    'LinkedIn-Version' => $this->getApiVersion(),
                     'X-Restli-Protocol-Version' => '2.0.0',
                     'Content-Type' => 'application/json',
                 ])
                 ->post("{$this->restApiBase}/posts", $postData);
+
+            // Fallback to unversioned v2/ugcPosts if LinkedIn rejects version with 426
+            if ($response->status() === 426) {
+                $ugcPayload = [
+                    'author' => $authorUrn,
+                    'lifecycleState' => 'PUBLISHED',
+                    'specificContent' => [
+                        'com.linkedin.ugc.ShareContent' => [
+                            'shareCommentary' => ['text' => $payload->caption],
+                            'shareMediaCategory' => !empty($payload->linkUrl) ? 'ARTICLE' : 'NONE',
+                        ],
+                    ],
+                    'visibility' => [
+                        'com.linkedin.ugc.MemberNetworkVisibility' => 'PUBLIC',
+                    ],
+                ];
+
+                if (!empty($payload->linkUrl)) {
+                    $ugcPayload['specificContent']['com.linkedin.ugc.ShareContent']['media'] = [[
+                        'status' => 'READY',
+                        'originalUrl' => $payload->linkUrl,
+                    ]];
+                }
+
+                $ugcRes = Http::withToken($accessToken)
+                    ->withHeaders([
+                        'X-Restli-Protocol-Version' => '2.0.0',
+                        'Content-Type' => 'application/json',
+                    ])
+                    ->post('https://api.linkedin.com/v2/ugcPosts', $ugcPayload);
+
+                if ($ugcRes->successful()) {
+                    $postUrn = $ugcRes->json('id') ?? $ugcRes->header('x-restli-id') ?? 'urn:li:share:' . time();
+                    return new PublishingResultDTO(
+                        success: true,
+                        providerPostId: $postUrn,
+                        postUrl: "https://www.linkedin.com/feed/update/{$postUrn}",
+                        rawResponse: $ugcRes->json() ?? []
+                    );
+                }
+            }
 
             if ($response->status() === 201) {
                 $postUrn = $response->header('x-restli-id') ?? $response->header('x-linkedin-id') ?? 'urn:li:share:' . time();
@@ -155,12 +202,12 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
     /**
      * Upload an image to LinkedIn and retrieve its permanent asset URN.
      */
-    protected function registerAndUploadImage(string $ownerUrn, string $imageUrl, string $accessToken): ?string
+    protected function registerAndUploadImage(string $ownerUrn, string $imageUrl, string $accessToken, ?string $localPath = null): ?string
     {
         try {
             $initResponse = Http::withToken($accessToken)
                 ->withHeaders([
-                    'LinkedIn-Version' => '202401',
+                    'LinkedIn-Version' => $this->getApiVersion(),
                     'X-Restli-Protocol-Version' => '2.0.0',
                     'Content-Type' => 'application/json',
                 ])
@@ -182,9 +229,11 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
                 return null;
             }
 
-            // Download file and PUT to uploadUrl
-            $fileContents = file_get_contents($imageUrl);
-            if ($fileContents === false) {
+            // Read local file directly when available, fallback to URL
+            $fileContents = ($localPath && is_file($localPath))
+                ? @file_get_contents($localPath)
+                : @file_get_contents($imageUrl);
+            if ($fileContents === false || empty($fileContents)) {
                 return null;
             }
 
