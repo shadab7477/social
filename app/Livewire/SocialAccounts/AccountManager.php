@@ -95,6 +95,58 @@ class AccountManager extends Component
         session()->flash('success', "Disconnected {$name}. Publishing has been disabled for its profiles.");
     }
 
+    public function deleteConnection(int $connectionId)
+    {
+        $connection = SocialConnection::findOrFail($connectionId);
+        $name = $connection->account_name;
+        $connection->profiles()->delete();
+        $connection->delete();
+
+        session()->flash('success', "Removed connection '{$name}'.");
+    }
+
+    public function discoverForConnection(int $connectionId)
+    {
+        $connection = SocialConnection::findOrFail($connectionId);
+        $platEnum = $connection->platform instanceof SocialPlatform
+            ? $connection->platform
+            : SocialPlatform::from((string) $connection->platform);
+
+        try {
+            $provider = app(\App\Services\Social\Registry\SocialProviderManager::class)->getOAuthProvider($platEnum);
+            $tokenDto = new \App\Services\Social\DTOs\OAuthTokenDTO(
+                accessToken: $connection->access_token,
+                refreshToken: $connection->refresh_token,
+                expiresAt: $connection->token_expires_at,
+                scopes: $connection->scopes ?? [],
+                accountId: $connection->account_id,
+                accountName: $connection->account_name,
+                accountEmail: $connection->account_email,
+            );
+
+            $dtos = $provider->discoverProfiles($tokenDto);
+
+            if (empty($dtos)) {
+                session()->flash('error', "No {$platEnum->label()} pages, channels, or locations were found for '{$connection->account_name}'.");
+                return;
+            }
+
+            $this->pendingConnectionId = $connection->id;
+            $this->discoveredProfiles = [];
+            $this->selectedProfileIds = [];
+
+            foreach ($dtos as $dto) {
+                $arr = $dto instanceof DiscoveredProfileDTO ? $dto->toArray() : (array) $dto;
+                $this->discoveredProfiles[] = $arr;
+                $this->selectedProfileIds[] = $arr['profileId'];
+            }
+
+            $this->showProfileModal = true;
+        } catch (\Throwable $e) {
+            session()->flash('error', "Could not fetch profiles for '{$connection->account_name}': " . $e->getMessage());
+        }
+    }
+
     public function toggleProfilePublishing(int $profileId)
     {
         $profile = SocialProfile::findOrFail($profileId);

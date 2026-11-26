@@ -108,9 +108,24 @@
                                         </td>
                                     </tr>
                                 @empty
+                                    @php
+                                        $connPlat = $conn->platform instanceof \App\Enums\SocialPlatform ? $conn->platform : \App\Enums\SocialPlatform::tryFrom($conn->platform);
+                                    @endphp
                                     <tr>
-                                        <td colspan="7" class="ps-3 py-3 text-muted small">
-                                            <i class="bi bi-info-circle me-1"></i> Account '{{ $conn->account_name }}' is authorized, but no pages or channels have been selected yet.
+                                        <td colspan="5" class="ps-3 py-3 text-muted small">
+                                            <span class="badge bg-light text-dark border me-2">{{ $connPlat?->label() }}</span>
+                                            Account <strong>'{{ $conn->account_name }}'</strong> is authorized, but no pages or channels have been selected yet.
+                                        </td>
+                                        <td colspan="2" class="pe-3 text-end">
+                                            <div class="d-inline-flex gap-1">
+                                                <button type="button" wire:click="discoverForConnection({{ $conn->id }})" wire:loading.attr="disabled" class="btn btn-xs btn-outline-primary rounded-pill px-2 py-1">
+                                                    <span wire:loading.remove wire:target="discoverForConnection({{ $conn->id }})"><i class="bi bi-arrow-repeat me-1"></i>Select Pages</span>
+                                                    <span wire:loading wire:target="discoverForConnection({{ $conn->id }})"><span class="spinner-border spinner-border-sm"></span></span>
+                                                </button>
+                                                <button type="button" wire:click="deleteConnection({{ $conn->id }})" wire:confirm="Remove this unused account connection?" class="btn btn-xs btn-light border text-danger rounded-pill px-2 py-1" title="Remove Connection">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforelse
