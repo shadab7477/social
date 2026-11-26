@@ -71,18 +71,46 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
                 'isReshareDisabledByAuthor' => false,
             ];
 
-            // Handle Link or Images
+            // Handle Videos, Images, or Link
             if (!empty($payload->mediaUrls)) {
-                $imageUrns = [];
-                foreach (array_slice($payload->mediaUrls, 0, 9) as $idx => $imageUrl) {
-                    $localPath = $payload->mediaPaths[$idx] ?? null;
-                    $imageUrn = $this->registerAndUploadImage($authorUrn, $imageUrl, $accessToken, $localPath);
-                    if ($imageUrn) {
-                        $imageUrns[] = ['id' => $imageUrn];
-                    }
-                }
+                $firstUrl = $payload->mediaUrls[0];
+                $firstPath = $payload->mediaPaths[0] ?? null;
 
-                if (!empty($imageUrns)) {
+                if ($this->isVideoMedia($firstUrl, $firstPath)) {
+                    $videoUrn = $this->registerAndUploadVideo($authorUrn, $firstUrl, $accessToken, $firstPath);
+                    if (!$videoUrn) {
+                        return new PublishingResultDTO(
+                            success: false,
+                            errorMessage: "LinkedIn video upload failed during initialize/upload/finalize step.",
+                            errorCode: 'VIDEO_UPLOAD_FAILED',
+                            retriable: false
+                        );
+                    }
+                    $postData['content'] = [
+                        'media' => [
+                            'title' => \Illuminate\Support\Str::limit($payload->caption ?: 'Video', 80),
+                            'id' => $videoUrn,
+                        ],
+                    ];
+                } else {
+                    $imageUrns = [];
+                    foreach (array_slice($payload->mediaUrls, 0, 9) as $idx => $imageUrl) {
+                        $localPath = $payload->mediaPaths[$idx] ?? null;
+                        $imageUrn = $this->registerAndUploadImage($authorUrn, $imageUrl, $accessToken, $localPath);
+                        if ($imageUrn) {
+                            $imageUrns[] = ['id' => $imageUrn];
+                        }
+                    }
+
+                    if (empty($imageUrns)) {
+                        return new PublishingResultDTO(
+                            success: false,
+                            errorMessage: "LinkedIn image upload failed before publishing post.",
+                            errorCode: 'IMAGE_UPLOAD_FAILED',
+                            retriable: false
+                        );
+                    }
+
                     if (count($imageUrns) === 1) {
                         $postData['content'] = [
                             'media' => [
@@ -245,5 +273,107 @@ class LinkedInPublishingService implements SocialProviderInterface, PublishingPr
             Log::warning("LinkedIn image upload error: " . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Upload a video to LinkedIn via /rest/videos initialize -> PUT chunk(s) -> finalize flow.
+     */
+    protected function registerAndUploadVideo(string $ownerUrn, string $videoUrl, string $accessToken, ?string $localPath = null): ?string
+    {
+        try {
+            $fileContents = ($localPath && is_file($localPath))
+                ? @file_get_contents($localPath)
+                : Http::timeout(120)->get($videoUrl)->body();
+
+            if ($fileContents === false || empty($fileContents)) {
+                Log::warning("LinkedIn video read failed: {$videoUrl}");
+                return null;
+            }
+
+            $fileSize = strlen($fileContents);
+            $version = $this->getApiVersion();
+
+            $initResponse = Http::withToken($accessToken)
+                ->withHeaders([
+                    'LinkedIn-Version' => $version,
+                    'X-Restli-Protocol-Version' => '2.0.0',
+                    'Content-Type' => 'application/json',
+                ])
+                ->post("{$this->restApiBase}/videos?action=initializeUpload", [
+                    'initializeUploadRequest' => [
+                        'owner' => $ownerUrn,
+                        'fileSizeBytes' => $fileSize,
+                        'uploadCaptions' => false,
+                        'uploadThumbnail' => false,
+                    ],
+                ]);
+
+            if (!$initResponse->successful()) {
+                Log::warning("LinkedIn video init failed: " . $initResponse->body());
+                return null;
+            }
+
+            $value = $initResponse->json('value') ?? [];
+            $videoUrn = $value['video'] ?? null;
+            $uploadToken = $value['uploadToken'] ?? '';
+            $instructions = $value['uploadInstructions'] ?? [];
+
+            if (!$videoUrn || empty($instructions)) {
+                return null;
+            }
+
+            $uploadedPartIds = [];
+            foreach ($instructions as $inst) {
+                $firstByte = (int) ($inst['firstByte'] ?? 0);
+                $lastByte = (int) ($inst['lastByte'] ?? ($fileSize - 1));
+                $uploadUrl = $inst['uploadUrl'] ?? null;
+                if (!$uploadUrl) continue;
+
+                $chunk = substr($fileContents, $firstByte, ($lastByte - $firstByte) + 1);
+                $putRes = Http::timeout(180)
+                    ->withBody($chunk, 'application/octet-stream')
+                    ->put($uploadUrl);
+
+                if (!$putRes->successful()) {
+                    Log::warning("LinkedIn video chunk upload failed: " . $putRes->status());
+                    return null;
+                }
+
+                $etag = trim((string) $putRes->header('ETag'), '"');
+                if (!empty($etag)) {
+                    $uploadedPartIds[] = $etag;
+                }
+            }
+
+            $finalizeRes = Http::withToken($accessToken)
+                ->withHeaders([
+                    'LinkedIn-Version' => $version,
+                    'X-Restli-Protocol-Version' => '2.0.0',
+                    'Content-Type' => 'application/json',
+                ])
+                ->post("{$this->restApiBase}/videos?action=finalizeUpload", [
+                    'finalizeUploadRequest' => [
+                        'video' => $videoUrn,
+                        'uploadToken' => $uploadToken,
+                        'uploadedPartIds' => $uploadedPartIds,
+                    ],
+                ]);
+
+            if (!$finalizeRes->successful()) {
+                Log::warning("LinkedIn video finalize failed: " . $finalizeRes->body());
+                return null;
+            }
+
+            return $videoUrn;
+        } catch (Exception $e) {
+            Log::warning("LinkedIn video upload error: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    protected function isVideoMedia(string $url, ?string $localPath = null): bool
+    {
+        $path = $localPath ?: (parse_url($url, PHP_URL_PATH) ?: $url);
+        return (bool) preg_match('/\.(mp4|mov|webm|avi|m4v|mkv)$/i', $path);
     }
 }
