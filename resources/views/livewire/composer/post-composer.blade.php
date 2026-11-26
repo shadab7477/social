@@ -153,6 +153,9 @@
                                     <i class="bi bi-images me-1"></i> Library
                                 </button>
                             </div>
+                            @error('directMediaUpload')
+                                <div class="text-danger small mt-2 fw-semibold">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         @if ($selectedMediaAssets->count() > 0)

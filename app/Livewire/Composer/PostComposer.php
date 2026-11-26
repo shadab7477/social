@@ -220,27 +220,17 @@ class PostComposer extends Component
         ]);
 
         if ($this->directMediaUpload) {
-            $workspace = app('current_workspace');
-            $file = $this->directMediaUpload;
-            $mime = $file->getMimeType() ?: 'application/octet-stream';
-            $mediaType = str_starts_with($mime, 'video/') ? 'video' : 'image';
-            $path = $file->store('media/' . $workspace->id, 'public');
-            $publicUrl = asset('storage/' . ltrim($path, '/'));
-
-            $asset = MediaAsset::create([
-                'workspace_id' => $workspace->id,
-                'uploader_id' => auth()->id(),
-                'file_name' => $file->getClientOriginalName(),
-                'storage_path' => $path,
-                'disk' => 'public',
-                'media_type' => $mediaType,
-                'mime_type' => $mime,
-                'file_size' => $file->getSize(),
-                'public_url' => $publicUrl,
-            ]);
-
-            $this->selectedMediaAssetIds[] = $asset->id;
-            $this->directMediaUpload = null;
+            try {
+                $workspace = app('current_workspace');
+                $uploader = auth()->user();
+                $storageService = app(\App\Services\Media\MediaStorageService::class);
+                $asset = $storageService->storeUploadedFile($this->directMediaUpload, $workspace, $uploader);
+                $this->selectedMediaAssetIds[] = $asset->id;
+                $this->directMediaUpload = null;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Direct media upload failed: ' . $e->getMessage());
+                session()->flash('error', 'Media upload failed: ' . $e->getMessage());
+            }
         }
     }
 

@@ -13,11 +13,22 @@ class AIAssistantService
 {
     protected ?string $apiKey;
     protected string $model;
+    protected string $endpoint;
 
     public function __construct()
     {
-        $this->apiKey = config('services.openai.api_key') ?: env('OPENAI_API_KEY');
-        $this->model = config('services.openai.model', 'gpt-4o-mini');
+        $groqKey = config('services.groq.api_key') ?: env('GROQ_API_KEY');
+        $openaiKey = config('services.openai.api_key') ?: env('OPENAI_API_KEY');
+
+        if (!empty($groqKey) || str_starts_with((string) $openaiKey, 'gsk_')) {
+            $this->apiKey = $groqKey ?: $openaiKey;
+            $this->model = config('services.groq.model', 'llama-3.3-70b-versatile');
+            $this->endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+        } else {
+            $this->apiKey = $openaiKey;
+            $this->model = config('services.openai.model', 'gpt-4o-mini');
+            $this->endpoint = 'https://api.openai.com/v1/chat/completions';
+        }
     }
 
     /**
@@ -149,7 +160,7 @@ class AIAssistantService
         try {
             $response = Http::withToken($this->apiKey)
                 ->timeout(20)
-                ->post('https://api.openai.com/v1/chat/completions', [
+                ->post($this->endpoint, [
                     'model' => $this->model,
                     'messages' => [
                         ['role' => 'system', 'content' => 'You are an expert social media copywriter and growth marketer.'],
