@@ -190,18 +190,19 @@ class LinkedInOAuthService implements OAuthProviderInterface, ProfileDiscoveryIn
                 $user = $userResponse->json();
                 $personUrn = "urn:li:person:{$user['sub']}";
                 $profiles[] = new DiscoveredProfileDTO(
-                    platform: SocialPlatform::LINKEDIN,
+                    platform: SocialPlatform::LINKEDIN->value,
                     profileId: $personUrn,
-                    name: $user['name'] . ' (Personal Profile)',
-                    username: strtolower(str_replace(' ', '', $user['name'])),
+                    name: ($user['name'] ?? 'LinkedIn User') . ' (Personal Profile)',
+                    username: strtolower(str_replace(' ', '', $user['name'] ?? 'linkedinuser')),
                     avatarUrl: $user['picture'] ?? null,
-                    accountType: 'personal',
+                    accessToken: $accessToken,
                     capabilities: [
                         'supports_text' => true,
                         'supports_images' => true,
                         'supports_video' => true,
                         'supports_scheduling' => true,
-                    ]
+                    ],
+                    metadata: ['account_type' => 'personal']
                 );
             }
 
@@ -223,10 +224,10 @@ class LinkedInOAuthService implements OAuthProviderInterface, ProfileDiscoveryIn
                     $orgName = $detailsResponse->json('localizedName') ?? "LinkedIn Company Page ({$orgId})";
 
                     $profiles[] = new DiscoveredProfileDTO(
-                        platform: SocialPlatform::LINKEDIN,
+                        platform: SocialPlatform::LINKEDIN->value,
                         profileId: $orgUrn,
                         name: $orgName . ' (Company Page)',
-                        accountType: 'organization',
+                        accessToken: $accessToken,
                         capabilities: [
                             'supports_text' => true,
                             'supports_images' => true,
@@ -234,7 +235,8 @@ class LinkedInOAuthService implements OAuthProviderInterface, ProfileDiscoveryIn
                             'supports_scheduling' => true,
                             'supports_comments' => true,
                             'supports_analytics' => true,
-                        ]
+                        ],
+                        metadata: ['account_type' => 'organization']
                     );
                 }
             }
