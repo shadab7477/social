@@ -7,9 +7,14 @@
             </h4>
             <p class="text-muted small mb-0">Simple 4-step workflow to upload, configure, preview, and publish.</p>
         </div>
-        <a href="{{ route('posts.index') }}" class="btn btn-sm btn-white bg-white border rounded-pill px-3">
-            <i class="bi bi-arrow-left me-1"></i> Back to Posts
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" wire:click="openAiModal('base')" class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-1">
+                <i class="bi bi-stars text-warning"></i> AI Assistant
+            </button>
+            <a href="{{ route('posts.index') }}" class="btn btn-sm btn-white bg-white border rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Back to Posts
+            </a>
+        </div>
     </div>
 
     <!-- Step Progress Bar -->
