@@ -18,6 +18,20 @@
     </div>
 
     <!-- Flash message -->
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4 py-2 d-flex align-items-center rounded-3" role="alert">
+            <i class="bi bi-exclamation-octagon-fill me-2"></i>
+            <div>{{ session('error') }}</div>
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-4 py-2 d-flex align-items-center rounded-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <div>{{ session('success') }}</div>
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
     @if($feedbackMessage)
         <div class="alert alert-{{ $feedbackType }} alert-dismissible fade show mb-4 py-2 d-flex align-items-center rounded-3" role="alert">
             <i class="bi bi-info-circle-fill me-2"></i>

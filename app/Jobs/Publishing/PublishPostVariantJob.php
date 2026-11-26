@@ -63,12 +63,27 @@ class PublishPostVariantJob implements ShouldQueue
 
         // Prepare Payload
         $mediaUrls = $variant->mediaAssets->pluck('public_url')->toArray();
+        $mediaPaths = $variant->mediaAssets->map(function ($asset) {
+            try {
+                if (!empty($asset->storage_path)) {
+                    $disk = $asset->disk ?: 'public';
+                    if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($asset->storage_path)) {
+                        return \Illuminate\Support\Facades\Storage::disk($disk)->path($asset->storage_path);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Fallback to public URL
+            }
+            return null;
+        })->filter()->values()->toArray();
+
         $payload = new PublishingPayloadDTO(
             caption: $variant->getEffectiveCaption(),
             mediaUrls: $mediaUrls,
             linkUrl: $variant->post->destination_link,
             platformSettings: $variant->platform_settings ?? [],
-            idempotencyKey: $this->idempotencyKey
+            idempotencyKey: $this->idempotencyKey,
+            mediaPaths: $mediaPaths
         );
 
         $startTime = microtime(true);

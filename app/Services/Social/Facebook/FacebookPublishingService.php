@@ -39,22 +39,43 @@ class FacebookPublishingService implements SocialProviderInterface, PublishingPr
 
         $pageId = $profile->profile_id;
         $mediaUrls = array_values(array_filter($payload->mediaUrls));
+        $mediaPaths = array_values(array_filter($payload->mediaPaths));
         $mediaCount = count($mediaUrls);
+        $postType = $payload->platformSettings['post_type'] ?? 'feed';
 
         try {
-            // Check if media is video
+            // Facebook Stories (Photo or Video)
+            if ($postType === 'story') {
+                if ($mediaCount === 0) {
+                    return PublishingResultDTO::failed("Facebook Story requires a photo or video asset.", 'ERR_MEDIA_REQUIRED', false);
+                }
+                if ($this->isVideoUrl($mediaUrls[0])) {
+                    return $this->publishVideoStory($pageId, $token, $mediaUrls[0], $mediaPaths[0] ?? null);
+                }
+                return $this->publishPhotoStory($pageId, $token, $mediaUrls[0], $mediaPaths[0] ?? null);
+            }
+
+            // Facebook Reel
+            if ($postType === 'reel') {
+                if ($mediaCount === 0 || !$this->isVideoUrl($mediaUrls[0])) {
+                    return PublishingResultDTO::failed("Facebook Reel requires an uploaded video.", 'ERR_VIDEO_REQUIRED', false);
+                }
+                return $this->publishReel($pageId, $token, $mediaUrls[0], $mediaPaths[0] ?? null, $payload);
+            }
+
+            // Standard Video Post
             if ($mediaCount === 1 && $this->isVideoUrl($mediaUrls[0])) {
-                return $this->publishVideoPost($pageId, $token, $mediaUrls[0], $payload);
+                return $this->publishVideoPost($pageId, $token, $mediaUrls[0], $payload, $mediaPaths[0] ?? null);
             }
 
             // Multi-photo album post
             if ($mediaCount > 1) {
-                return $this->publishMultiPhotoPost($pageId, $token, $mediaUrls, $payload);
+                return $this->publishMultiPhotoPost($pageId, $token, $mediaUrls, $payload, $mediaPaths);
             }
 
             // Single photo post
             if ($mediaCount === 1) {
-                return $this->publishSinglePhotoPost($pageId, $token, $mediaUrls[0], $payload);
+                return $this->publishSinglePhotoPost($pageId, $token, $mediaUrls[0], $payload, $mediaPaths[0] ?? null);
             }
 
             // Link post
@@ -100,13 +121,22 @@ class FacebookPublishingService implements SocialProviderInterface, PublishingPr
     /**
      * Publish single photo with caption to Page photos.
      */
-    protected function publishSinglePhotoPost(string $pageId, string $token, string $photoUrl, PublishingPayloadDTO $payload): PublishingResultDTO
+    protected function publishSinglePhotoPost(string $pageId, string $token, string $photoUrl, PublishingPayloadDTO $payload, ?string $photoPath = null): PublishingResultDTO
     {
-        $response = Http::withToken($token)
-            ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
-                'url' => $photoUrl,
-                'caption' => $payload->caption,
-            ]);
+        if ($photoPath && is_file($photoPath)) {
+            $response = Http::withToken($token)
+                ->timeout(60)
+                ->attach('source', fopen($photoPath, 'r'), basename($photoPath))
+                ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
+                    'caption' => $payload->caption,
+                ]);
+        } else {
+            $response = Http::withToken($token)
+                ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
+                    'url' => $photoUrl,
+                    'caption' => $payload->caption,
+                ]);
+        }
 
         return $this->handlePostResponse($response, $pageId);
     }
@@ -114,17 +144,27 @@ class FacebookPublishingService implements SocialProviderInterface, PublishingPr
     /**
      * Publish multi-image post via unpublished photo uploads + feed attachment.
      */
-    protected function publishMultiPhotoPost(string $pageId, string $token, array $photoUrls, PublishingPayloadDTO $payload): PublishingResultDTO
+    protected function publishMultiPhotoPost(string $pageId, string $token, array $photoUrls, PublishingPayloadDTO $payload, array $photoPaths = []): PublishingResultDTO
     {
         $attachedMedia = [];
 
         // Step 1: Upload each photo as unpublished
-        foreach ($photoUrls as $url) {
-            $uploadResponse = Http::withToken($token)
-                ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
-                    'url' => $url,
-                    'published' => false,
-                ]);
+        foreach ($photoUrls as $idx => $url) {
+            $path = $photoPaths[$idx] ?? null;
+            if ($path && is_file($path)) {
+                $uploadResponse = Http::withToken($token)
+                    ->timeout(60)
+                    ->attach('source', fopen($path, 'r'), basename($path))
+                    ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
+                        'published' => false,
+                    ]);
+            } else {
+                $uploadResponse = Http::withToken($token)
+                    ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
+                        'url' => $url,
+                        'published' => false,
+                    ]);
+            }
 
             if (!$uploadResponse->successful()) {
                 $errorMsg = $uploadResponse->json('error.message') ?? 'Failed to upload photo to Facebook';
@@ -148,16 +188,142 @@ class FacebookPublishingService implements SocialProviderInterface, PublishingPr
     /**
      * Publish video post to Page videos.
      */
-    protected function publishVideoPost(string $pageId, string $token, string $videoUrl, PublishingPayloadDTO $payload): PublishingResultDTO
+    protected function publishVideoPost(string $pageId, string $token, string $videoUrl, PublishingPayloadDTO $payload, ?string $videoPath = null): PublishingResultDTO
     {
-        $response = Http::withToken($token)
-            ->timeout(120)
-            ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/videos", [
-                'file_url' => $videoUrl,
-                'description' => $payload->caption,
-            ]);
+        if ($videoPath && is_file($videoPath)) {
+            $response = Http::withToken($token)
+                ->timeout(180)
+                ->attach('source', fopen($videoPath, 'r'), basename($videoPath))
+                ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/videos", [
+                    'description' => $payload->caption,
+                ]);
+        } else {
+            $response = Http::withToken($token)
+                ->timeout(120)
+                ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/videos", [
+                    'file_url' => $videoUrl,
+                    'description' => $payload->caption,
+                ]);
+        }
 
         return $this->handlePostResponse($response, $pageId);
+    }
+
+    /**
+     * Publish Facebook Page Reel via Meta video_reels 3-step upload flow.
+     */
+    protected function publishReel(string $pageId, string $token, string $videoUrl, ?string $videoPath, PublishingPayloadDTO $payload): PublishingResultDTO
+    {
+        $initRes = Http::withToken($token)->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/video_reels", [
+            'upload_phase' => 'start',
+        ]);
+
+        if (!$initRes->successful()) {
+            return $this->handlePostResponse($initRes, $pageId);
+        }
+
+        $videoId = $initRes->json('video_id');
+        $uploadUrl = $initRes->json('upload_url') ?: "https://rupload.facebook.com/video-upload/{$this->graphVersion}/{$videoId}";
+
+        if ($videoPath && is_file($videoPath)) {
+            $bytes = @file_get_contents($videoPath);
+            $uploadRes = Http::withHeaders([
+                'Authorization' => "OAuth {$token}",
+                'offset' => '0',
+                'file_size' => (string) strlen($bytes),
+            ])->timeout(180)->withBody($bytes, 'application/octet-stream')->post($uploadUrl);
+        } else {
+            $uploadRes = Http::withHeaders([
+                'Authorization' => "OAuth {$token}",
+                'file_url' => $videoUrl,
+            ])->timeout(120)->post($uploadUrl);
+        }
+
+        if (!$uploadRes->successful()) {
+            return $this->handlePostResponse($uploadRes, $pageId);
+        }
+
+        $finishRes = Http::withToken($token)->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/video_reels", [
+            'upload_phase' => 'finish',
+            'video_id' => $videoId,
+            'video_state' => 'PUBLISHED',
+            'description' => $payload->caption,
+        ]);
+
+        return $this->handlePostResponse($finishRes, $pageId);
+    }
+
+    /**
+     * Publish Facebook Page Photo Story.
+     */
+    protected function publishPhotoStory(string $pageId, string $token, string $photoUrl, ?string $photoPath): PublishingResultDTO
+    {
+        if ($photoPath && is_file($photoPath)) {
+            $photoRes = Http::withToken($token)
+                ->timeout(60)
+                ->attach('source', fopen($photoPath, 'r'), basename($photoPath))
+                ->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
+                    'published' => false,
+                ]);
+        } else {
+            $photoRes = Http::withToken($token)->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photos", [
+                'url' => $photoUrl,
+                'published' => false,
+            ]);
+        }
+
+        if (!$photoRes->successful()) {
+            return $this->handlePostResponse($photoRes, $pageId);
+        }
+
+        $photoId = $photoRes->json('id');
+        $storyRes = Http::withToken($token)->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/photo_stories", [
+            'photo_id' => $photoId,
+        ]);
+
+        return $this->handlePostResponse($storyRes, $pageId);
+    }
+
+    /**
+     * Publish Facebook Page Video Story.
+     */
+    protected function publishVideoStory(string $pageId, string $token, string $videoUrl, ?string $videoPath): PublishingResultDTO
+    {
+        $initRes = Http::withToken($token)->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/video_stories", [
+            'upload_phase' => 'start',
+        ]);
+
+        if (!$initRes->successful()) {
+            return $this->handlePostResponse($initRes, $pageId);
+        }
+
+        $videoId = $initRes->json('video_id');
+        $uploadUrl = $initRes->json('upload_url') ?: "https://rupload.facebook.com/video-upload/{$this->graphVersion}/{$videoId}";
+
+        if ($videoPath && is_file($videoPath)) {
+            $bytes = @file_get_contents($videoPath);
+            $uploadRes = Http::withHeaders([
+                'Authorization' => "OAuth {$token}",
+                'offset' => '0',
+                'file_size' => (string) strlen($bytes),
+            ])->timeout(180)->withBody($bytes, 'application/octet-stream')->post($uploadUrl);
+        } else {
+            $uploadRes = Http::withHeaders([
+                'Authorization' => "OAuth {$token}",
+                'file_url' => $videoUrl,
+            ])->timeout(120)->post($uploadUrl);
+        }
+
+        if (!$uploadRes->successful()) {
+            return $this->handlePostResponse($uploadRes, $pageId);
+        }
+
+        $finishRes = Http::withToken($token)->post("https://graph.facebook.com/{$this->graphVersion}/{$pageId}/video_stories", [
+            'upload_phase' => 'finish',
+            'video_id' => $videoId,
+        ]);
+
+        return $this->handlePostResponse($finishRes, $pageId);
     }
 
     /**

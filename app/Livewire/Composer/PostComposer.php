@@ -332,14 +332,17 @@ class PostComposer extends Component
     {
         $this->showValidationWarnings = true;
 
-        // Auto-fill YouTube title from caption if still empty
+        // Auto-fill YouTube title from custom or base caption if still empty
         foreach ($this->selectedProfileIds as $pid) {
             $p = SocialProfile::find($pid);
             $plat = $p?->platform instanceof SocialPlatform ? $p->platform->value : (string)$p?->platform;
             if ($plat === 'youtube') {
                 $currTitle = trim($this->platformSettings[$pid]['title'] ?? '');
                 if (empty($currTitle)) {
-                    $firstLine = trim(strtok($this->baseCaption, "\r\n") ?: '');
+                    $cap = !empty($this->customizedFlags[$pid]) && !empty($this->customCaptions[$pid])
+                        ? $this->customCaptions[$pid]
+                        : $this->baseCaption;
+                    $firstLine = trim(strtok($cap, "\r\n") ?: '');
                     $this->platformSettings[$pid]['title'] = !empty($firstLine) ? mb_substr($firstLine, 0, 100) : 'Social Video';
                 }
             }
@@ -386,6 +389,7 @@ class PostComposer extends Component
             'timezone' => $tz,
         ]);
 
+        $publishErrors = [];
         if ($action === 'now') {
             foreach ($post->variants as $variant) {
                 if (app()->environment('testing')) {
@@ -399,18 +403,26 @@ class PostComposer extends Component
                             'status' => \App\Enums\PostStatus::FAILED,
                             'error_message' => $e->getMessage(),
                         ]);
+                        $publishErrors[] = $e->getMessage();
                     }
                 }
             }
+
+            if (!empty($publishErrors)) {
+                $post->update(['status' => PostStatus::FAILED]);
+            }
         }
 
-        $message = match ($action) {
-            'draft' => "Post draft saved successfully!",
-            'schedule' => "Post scheduled for " . $scheduledAt->format('M d, Y h:i A') . "!",
-            'now' => "Post published immediately!",
-        };
-
-        session()->flash('success', $message);
+        if (!empty($publishErrors)) {
+            session()->flash('error', 'Publishing failed: ' . $publishErrors[0]);
+        } else {
+            $message = match ($action) {
+                'draft' => "Post draft saved successfully!",
+                'schedule' => "Post scheduled for " . $scheduledAt->format('M d, Y h:i A') . "!",
+                'now' => "Post processed for publishing!",
+            };
+            session()->flash('success', $message);
+        }
 
         return $this->redirect(route('posts.index'), navigate: true);
     }

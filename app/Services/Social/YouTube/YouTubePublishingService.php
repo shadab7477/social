@@ -63,7 +63,8 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
         }
 
         $videoUrl = $payload->mediaUrls[0];
-        $isShorts = ($payload->platformSettings['post_type'] ?? '') === 'shorts';
+        $videoPath = $payload->mediaPaths[0] ?? null;
+        $isShorts = in_array($payload->platformSettings['post_type'] ?? '', ['shorts', 'short'], true);
 
         // Testing / Mock simulation
         if (app()->environment('testing') && !config('services.youtube.live_publishing', false)) {
@@ -80,6 +81,23 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                     'thumbnail_url' => $payload->platformSettings['thumbnail_url'] ?? null,
                 ]
             );
+        }
+
+        // Proactively refresh expired Google OAuth token if refresh_token is available
+        $connection = $profile->connection;
+        if ($connection && $connection->refresh_token && ($connection->token_expires_at === null || $connection->token_expires_at->isPast() || $connection->token_expires_at->diffInMinutes(now(), false) > -5)) {
+            try {
+                $refreshed = app(YouTubeOAuthService::class)->refreshToken($connection->refresh_token);
+                $accessToken = $refreshed->accessToken;
+                $connection->update([
+                    'access_token' => $refreshed->accessToken,
+                    'refresh_token' => $refreshed->refreshToken ?? $connection->refresh_token,
+                    'token_expires_at' => $refreshed->expiresAt,
+                ]);
+                $profile->update(['access_token' => $refreshed->accessToken]);
+            } catch (\Throwable $refreshEx) {
+                Log::warning("YouTube token proactive refresh failed: " . $refreshEx->getMessage());
+            }
         }
 
         try {
@@ -140,12 +158,36 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                     ],
                 ]);
 
+            if ($initResponse->status() === 401 && $connection && $connection->refresh_token) {
+                $refreshed = app(YouTubeOAuthService::class)->refreshToken($connection->refresh_token);
+                $accessToken = $refreshed->accessToken;
+                $connection->update([
+                    'access_token' => $refreshed->accessToken,
+                    'refresh_token' => $refreshed->refreshToken ?? $connection->refresh_token,
+                    'token_expires_at' => $refreshed->expiresAt,
+                ]);
+                $profile->update(['access_token' => $refreshed->accessToken]);
+
+                $initResponse = Http::withToken($accessToken)
+                    ->withHeaders([
+                        'X-Upload-Content-Type' => 'video/*',
+                        'Content-Type' => 'application/json; charset=UTF-8',
+                    ])
+                    ->post('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', [
+                        'snippet' => $snippet,
+                        'status' => [
+                            'privacyStatus' => $privacy,
+                            'selfDeclaredMadeForKids' => $madeForKids,
+                        ],
+                    ]);
+            }
+
             if ($initResponse->status() !== 200) {
                 return new PublishingResultDTO(
                     success: false,
                     errorMessage: "YouTube Resumable Upload Init failed: " . $initResponse->body(),
                     errorCode: (string) $initResponse->status(),
-                    retriable: true
+                    retriable: $initResponse->status() >= 500
                 );
             }
 
@@ -159,9 +201,21 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                 );
             }
 
-            // Step 2: Fetch and Upload Video Binary Stream
-            $videoBytes = Http::timeout(120)->get($videoUrl)->body();
-            $uploadResponse = Http::withBody($videoBytes, 'video/*')->put($uploadUrl);
+            // Step 2: Read video from local disk (preferred on shared hosting) or remote URL and upload
+            $videoBytes = ($videoPath && is_file($videoPath))
+                ? @file_get_contents($videoPath)
+                : Http::timeout(120)->get($videoUrl)->body();
+
+            if (empty($videoBytes)) {
+                return new PublishingResultDTO(
+                    success: false,
+                    errorMessage: "Could not read video binary data from storage ({$videoUrl}).",
+                    errorCode: 'VIDEO_READ_FAILED',
+                    retriable: false
+                );
+            }
+
+            $uploadResponse = Http::timeout(300)->withBody($videoBytes, 'video/*')->put($uploadUrl);
 
             if ($uploadResponse->successful()) {
                 $data = $uploadResponse->json();
@@ -173,10 +227,21 @@ class YouTubePublishingService implements SocialProviderInterface, PublishingPro
                 $thumbnailUrl = $payload->platformSettings['thumbnail_url'] ?? null;
                 if (!empty($thumbnailUrl) && !empty($videoId)) {
                     try {
-                        $thumbBytes = Http::timeout(30)->get($thumbnailUrl)->body();
+                        $thumbBytes = null;
+                        $thumbMime = 'image/jpeg';
+                        if (preg_match('#/storage(?:-media)?/(.+)$#', $thumbnailUrl, $m)) {
+                            $relPath = urldecode($m[1]);
+                            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($relPath)) {
+                                $thumbBytes = \Illuminate\Support\Facades\Storage::disk('public')->get($relPath);
+                                $thumbMime = \Illuminate\Support\Facades\Storage::disk('public')->mimeType($relPath) ?: 'image/jpeg';
+                            }
+                        }
+                        if (empty($thumbBytes)) {
+                            $thumbBytes = Http::timeout(30)->get($thumbnailUrl)->body();
+                        }
                         if (!empty($thumbBytes)) {
                             $thumbRes = Http::withToken($accessToken)
-                                ->withBody($thumbBytes, 'image/jpeg')
+                                ->withBody($thumbBytes, $thumbMime)
                                 ->post("https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={$videoId}");
 
                             if (!$thumbRes->successful()) {

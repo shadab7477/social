@@ -10,6 +10,7 @@ readonly class PublishingPayloadDTO
         public ?string $linkUrl = null,
         public array $platformSettings = [],
         public ?string $idempotencyKey = null,
+        public array $mediaPaths = [], // Local filesystem paths when hosted on same server
     ) {}
 }
 
