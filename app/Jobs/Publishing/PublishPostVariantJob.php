@@ -114,8 +114,8 @@ class PublishPostVariantJob implements ShouldQueue
 
                 $this->resolveParentPostStatus($variant->post);
             } else {
-                // If retriable and under max retries
-                if ($result->retriable && $variant->retry_count < 2) {
+                // If retriable and under max retries (only release if running on an async queue)
+                if ($result->retriable && $variant->retry_count < 2 && $this->job !== null) {
                     $variant->increment('retry_count');
                     $backoff = 60 * pow(2, $variant->retry_count);
                     $this->release($backoff);
@@ -137,7 +137,7 @@ class PublishPostVariantJob implements ShouldQueue
                 ]);
             }
 
-            if ($variant->retry_count < 2) {
+            if ($variant->retry_count < 2 && $this->job !== null) {
                 $variant->increment('retry_count');
                 $this->release(60 * pow(2, $variant->retry_count));
                 return;
