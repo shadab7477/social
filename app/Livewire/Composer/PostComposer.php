@@ -42,6 +42,7 @@ class PostComposer extends Component
     // Direct File Upload for Post Media & Custom Thumbnail
     public $directMediaUpload = null;
     public $directThumbnailUpload = null;
+    public array $directThumbnailUploads = [];
 
     // Media Library Selector Modal
     public bool $showMediaModal = false;
