@@ -32,10 +32,11 @@ class UnifiedInbox extends Component
     public ?string $feedbackMessage = null;
     public string $feedbackType = 'success';
 
-    public function mount(): void
+    public function mount(?SocialInboxService $inboxService = null): void
     {
-        // Select first conversation if available
+        // Hide any old dummy demo conversations from display
         $first = Conversation::where('status', ConversationStatus::OPEN)
+            ->where('external_conversation_id', 'not like', 'demo_%')
             ->latest('last_activity_at')
             ->first();
 
@@ -158,18 +159,30 @@ class UnifiedInbox extends Component
     {
         $inboxService = $inboxService ?? app(SocialInboxService::class);
         $workspace = app('current_workspace');
-        $count = $inboxService->syncLiveInteractions($workspace);
+        $syncErrors = [];
+        $count = $inboxService->syncLiveInteractions($workspace, $syncErrors);
+
+        // Clear selection if selected conversation was a deleted demo thread
+        if ($this->selectedConversationId && !Conversation::find($this->selectedConversationId)) {
+            $this->selectedConversationId = null;
+        }
 
         if ($count > 0) {
-            $this->feedbackMessage = "Successfully synced {$count} live comment(s) from your connected social pages!";
+            $this->feedbackMessage = "Successfully synced {$count} new live message(s)/comment(s) from your connected accounts!";
             $this->feedbackType = 'success';
+        } elseif (!empty($syncErrors)) {
+            $this->feedbackMessage = "Sync warning: " . $syncErrors[0];
+            $this->feedbackType = 'warning';
         } else {
-            $this->feedbackMessage = "Checked connected social accounts. No new comments were found on your pages.";
+            $this->feedbackMessage = "Synced with your connected Facebook, Instagram & YouTube accounts. No new comments or messages yet.";
             $this->feedbackType = 'info';
         }
 
         if (!$this->selectedConversationId) {
-            $first = Conversation::where('status', ConversationStatus::OPEN)->latest('last_activity_at')->first();
+            $first = Conversation::where('status', ConversationStatus::OPEN)
+                ->where('external_conversation_id', 'not like', 'demo_%')
+                ->latest('last_activity_at')
+                ->first();
             if ($first) {
                 $this->selectedConversationId = $first->id;
             }
@@ -192,6 +205,7 @@ class UnifiedInbox extends Component
     public function render()
     {
         $query = Conversation::query()
+            ->where('external_conversation_id', 'not like', 'demo_%')
             ->with(['socialProfile.client', 'currentAssignment.assignedToUser'])
             ->latest('last_activity_at');
 
@@ -243,10 +257,10 @@ class UnifiedInbox extends Component
 
         // Metrics for folder badges
         $metrics = [
-            'open' => Conversation::where('status', ConversationStatus::OPEN)->count(),
-            'unread' => Conversation::where('is_unread', true)->count(),
-            'assigned_me' => Conversation::whereHas('currentAssignment', fn($a) => $a->where('assigned_to_user_id', Auth::id()))->count(),
-            'resolved' => Conversation::where('status', ConversationStatus::RESOLVED)->count(),
+            'open' => Conversation::where('status', ConversationStatus::OPEN)->where('external_conversation_id', 'not like', 'demo_%')->count(),
+            'unread' => Conversation::where('is_unread', true)->where('external_conversation_id', 'not like', 'demo_%')->count(),
+            'assigned_me' => Conversation::where('external_conversation_id', 'not like', 'demo_%')->whereHas('currentAssignment', fn($a) => $a->where('assigned_to_user_id', Auth::id()))->count(),
+            'resolved' => Conversation::where('status', ConversationStatus::RESOLVED)->where('external_conversation_id', 'not like', 'demo_%')->count(),
         ];
 
         return view('livewire.inbox.unified-inbox', [

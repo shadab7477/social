@@ -56,15 +56,20 @@ class SocialInboxService
                 ]
             );
 
-            // Update snippet, reopen thread if closed, and bump last activity
-            $conversation->update([
-                'snippet' => Str::limit($body, 120),
-                'is_unread' => true,
-                'status' => ConversationStatus::OPEN,
-                'last_activity_at' => $timestamp,
-                'sender_name' => $senderName,
-                'sender_avatar' => $senderAvatar ?? $conversation->sender_avatar,
-            ]);
+            $existingMessage = Message::where('conversation_id', $conversation->id)
+                ->where('external_message_id', $extMsgId)
+                ->first();
+
+            if (!$existingMessage) {
+                $conversation->update([
+                    'snippet' => Str::limit($body, 120),
+                    'is_unread' => true,
+                    'status' => ConversationStatus::OPEN,
+                    'last_activity_at' => $timestamp,
+                    'sender_name' => $senderName,
+                    'sender_avatar' => $senderAvatar ?? $conversation->sender_avatar,
+                ]);
+            }
 
             return Message::updateOrCreate(
                 [
@@ -92,11 +97,38 @@ class SocialInboxService
             $profile = $conversation->socialProfile;
             $accessToken = $profile->access_token ?? $profile->connection?->access_token;
 
-            // Live Meta Graph API Comment Reply dispatch
+            // Live Platform API Reply dispatch
             if ($accessToken && !empty($conversation->external_conversation_id) && !str_starts_with($conversation->external_conversation_id, 'demo_')) {
                 try {
-                    $url = "https://graph.facebook.com/v20.0/{$conversation->external_conversation_id}/comments";
-                    Http::withToken($accessToken)->timeout(10)->post($url, ['message' => $replyText]);
+                    $platform = $profile->platform instanceof \App\Enums\SocialPlatform
+                        ? $profile->platform->value
+                        : (string) $profile->platform;
+
+                    if ($platform === 'youtube') {
+                        Http::withToken($accessToken)->timeout(10)
+                            ->post('https://www.googleapis.com/youtube/v3/comments?part=snippet', [
+                                'snippet' => [
+                                    'parentId' => $conversation->external_conversation_id,
+                                    'textOriginal' => $replyText,
+                                ],
+                            ]);
+                    } elseif ($platform === 'instagram') {
+                        Http::withToken($accessToken)->timeout(10)
+                            ->post("https://graph.facebook.com/v20.0/{$conversation->external_conversation_id}/replies", [
+                                'message' => $replyText,
+                            ]);
+                    } elseif ($conversation->type === ConversationType::DIRECT_MESSAGE && !empty($conversation->sender_profile_id)) {
+                        Http::withToken($accessToken)->timeout(10)
+                            ->post("https://graph.facebook.com/v20.0/{$profile->profile_id}/messages", [
+                                'recipient' => ['id' => $conversation->sender_profile_id],
+                                'message' => ['text' => $replyText],
+                            ]);
+                    } else {
+                        Http::withToken($accessToken)->timeout(10)
+                            ->post("https://graph.facebook.com/v20.0/{$conversation->external_conversation_id}/comments", [
+                                'message' => $replyText,
+                            ]);
+                    }
                 } catch (\Exception $e) {
                     Log::warning("Provider reply dispatch skipped: " . $e->getMessage());
                 }
@@ -156,13 +188,22 @@ class SocialInboxService
     }
 
     /**
-     * Poll Meta Graph API for recent comments on published posts.
+     * Poll Facebook, Instagram, and YouTube APIs for real comments and DMs.
      */
-    public function syncLiveInteractions(\App\Models\Workspace $workspace): int
+    public function syncLiveInteractions(\App\Models\Workspace $workspace, array &$syncErrors = []): int
     {
+        // Clean up any old dummy demo threads in this workspace
+        Conversation::where('workspace_id', $workspace->id)
+            ->where('external_conversation_id', 'like', 'demo_%')
+            ->delete();
+
         $profiles = SocialProfile::where('workspace_id', $workspace->id)
             ->where('is_active', true)
-            ->whereIn('platform', [\App\Enums\SocialPlatform::FACEBOOK, \App\Enums\SocialPlatform::INSTAGRAM])
+            ->whereIn('platform', [
+                \App\Enums\SocialPlatform::FACEBOOK,
+                \App\Enums\SocialPlatform::INSTAGRAM,
+                \App\Enums\SocialPlatform::YOUTUBE,
+            ])
             ->get();
 
         $ingested = 0;
@@ -172,36 +213,137 @@ class SocialInboxService
                 continue;
             }
 
-            try {
-                $res = Http::withToken($token)
-                    ->timeout(10)
-                    ->get("https://graph.facebook.com/v20.0/{$profile->profile_id}/feed", [
-                        'fields' => 'id,message,comments{id,message,from,created_time}',
-                        'limit' => 10,
-                    ]);
+            $platform = $profile->platform instanceof \App\Enums\SocialPlatform
+                ? $profile->platform->value
+                : (string) $profile->platform;
 
-                if ($res->successful()) {
-                    $posts = $res->json('data') ?? [];
-                    foreach ($posts as $post) {
-                        $comments = $post['comments']['data'] ?? [];
-                        foreach ($comments as $comment) {
-                            $this->ingestInboundMessage(
-                                profile: $profile,
-                                extConvId: $comment['id'],
-                                type: ConversationType::COMMENT_THREAD,
-                                senderName: $comment['from']['name'] ?? 'Facebook Visitor',
-                                senderId: (string) ($comment['from']['id'] ?? 'fb_guest'),
-                                senderAvatar: null,
-                                extMsgId: $comment['id'],
-                                body: $comment['message'] ?? 'New comment',
-                                sentAt: isset($comment['created_time']) ? Carbon::parse($comment['created_time']) : now()
-                            );
-                            $ingested++;
+            try {
+                if ($platform === 'facebook') {
+                    // 1. Facebook Page Post Comments
+                    $res = Http::withToken($token)->timeout(12)
+                        ->get("https://graph.facebook.com/v20.0/{$profile->profile_id}/feed", [
+                            'fields' => 'id,message,comments{id,message,from,created_time}',
+                            'limit' => 10,
+                        ]);
+
+                    if ($res->successful()) {
+                        foreach ($res->json('data') ?? [] as $post) {
+                            foreach ($post['comments']['data'] ?? [] as $comment) {
+                                $msg = $this->ingestInboundMessage(
+                                    profile: $profile,
+                                    extConvId: $comment['id'],
+                                    type: ConversationType::COMMENT_THREAD,
+                                    senderName: $comment['from']['name'] ?? 'Facebook Visitor',
+                                    senderId: (string) ($comment['from']['id'] ?? 'fb_guest'),
+                                    senderAvatar: null,
+                                    extMsgId: $comment['id'],
+                                    body: $comment['message'] ?? 'New comment',
+                                    sentAt: isset($comment['created_time']) ? Carbon::parse($comment['created_time']) : now()
+                                );
+                                if ($msg->wasRecentlyCreated) $ingested++;
+                            }
                         }
+                    } elseif ($err = $res->json('error.message')) {
+                        $syncErrors[] = "{$profile->name} (Comments): {$err}";
+                    }
+
+                    // 2. Facebook Page Messenger DMs
+                    $dmRes = Http::withToken($token)->timeout(12)
+                        ->get("https://graph.facebook.com/v20.0/{$profile->profile_id}/conversations", [
+                            'fields' => 'id,updated_time,participants,messages.limit(10){id,message,from,created_time}',
+                            'limit' => 10,
+                        ]);
+
+                    if ($dmRes->successful()) {
+                        foreach ($dmRes->json('data') ?? [] as $thread) {
+                            $participants = collect($thread['participants']['data'] ?? [])
+                                ->first(fn ($p) => ($p['id'] ?? '') !== $profile->profile_id);
+                            $senderName = $participants['name'] ?? 'Messenger User';
+                            $senderId = (string) ($participants['id'] ?? 'fb_dm_user');
+
+                            foreach (array_reverse($thread['messages']['data'] ?? []) as $m) {
+                                if (($m['from']['id'] ?? '') === $profile->profile_id || empty($m['message'])) {
+                                    continue;
+                                }
+                                $msg = $this->ingestInboundMessage(
+                                    profile: $profile,
+                                    extConvId: $thread['id'],
+                                    type: ConversationType::DIRECT_MESSAGE,
+                                    senderName: $m['from']['name'] ?? $senderName,
+                                    senderId: (string) ($m['from']['id'] ?? $senderId),
+                                    senderAvatar: null,
+                                    extMsgId: $m['id'],
+                                    body: $m['message'],
+                                    sentAt: isset($m['created_time']) ? Carbon::parse($m['created_time']) : now()
+                                );
+                                if ($msg->wasRecentlyCreated) $ingested++;
+                            }
+                        }
+                    }
+                } elseif ($platform === 'instagram') {
+                    // Instagram Media Comments
+                    $igRes = Http::withToken($token)->timeout(12)
+                        ->get("https://graph.facebook.com/v20.0/{$profile->profile_id}/media", [
+                            'fields' => 'id,caption,comments{id,text,username,from,timestamp}',
+                            'limit' => 10,
+                        ]);
+
+                    if ($igRes->successful()) {
+                        foreach ($igRes->json('data') ?? [] as $media) {
+                            foreach ($media['comments']['data'] ?? [] as $comment) {
+                                $msg = $this->ingestInboundMessage(
+                                    profile: $profile,
+                                    extConvId: $comment['id'],
+                                    type: ConversationType::COMMENT_THREAD,
+                                    senderName: $comment['username'] ?? ($comment['from']['username'] ?? 'Instagram User'),
+                                    senderId: (string) ($comment['from']['id'] ?? 'ig_guest'),
+                                    senderAvatar: null,
+                                    extMsgId: $comment['id'],
+                                    body: $comment['text'] ?? 'New Instagram comment',
+                                    sentAt: isset($comment['timestamp']) ? Carbon::parse($comment['timestamp']) : now()
+                                );
+                                if ($msg->wasRecentlyCreated) $ingested++;
+                            }
+                        }
+                    } elseif ($err = $igRes->json('error.message')) {
+                        $syncErrors[] = "{$profile->name} (Instagram): {$err}";
+                    }
+                } elseif ($platform === 'youtube') {
+                    // YouTube Channel Comment Threads
+                    $ytRes = Http::withToken($token)->timeout(12)
+                        ->get('https://www.googleapis.com/youtube/v3/commentThreads', [
+                            'part' => 'snippet',
+                            'allThreadsRelatedToChannelId' => $profile->profile_id,
+                            'maxResults' => 20,
+                        ]);
+
+                    if ($ytRes->successful()) {
+                        foreach ($ytRes->json('items') ?? [] as $item) {
+                            $top = $item['snippet']['topLevelComment']['snippet'] ?? [];
+                            $commentId = $item['snippet']['topLevelComment']['id'] ?? $item['id'];
+                            if (empty($top['textOriginal'] ?? $top['textDisplay'] ?? '')) {
+                                continue;
+                            }
+                            $msg = $this->ingestInboundMessage(
+                                profile: $profile,
+                                extConvId: $commentId,
+                                type: ConversationType::COMMENT_THREAD,
+                                senderName: $top['authorDisplayName'] ?? 'YouTube Viewer',
+                                senderId: (string) ($top['authorChannelId']['value'] ?? 'yt_guest'),
+                                senderAvatar: $top['authorProfileImageUrl'] ?? null,
+                                extMsgId: $commentId,
+                                body: $top['textOriginal'] ?? strip_tags($top['textDisplay']),
+                                sentAt: isset($top['publishedAt']) ? Carbon::parse($top['publishedAt']) : now()
+                            );
+                            if ($msg->wasRecentlyCreated) $ingested++;
+                        }
+                    } elseif ($err = $ytRes->json('error.message')) {
+                        $syncErrors[] = "{$profile->name} (YouTube): {$err}";
                     }
                 }
             } catch (\Exception $e) {
                 Log::warning("Live inbox sync failed for profile {$profile->id}: " . $e->getMessage());
+                $syncErrors[] = "{$profile->name}: " . $e->getMessage();
             }
         }
 

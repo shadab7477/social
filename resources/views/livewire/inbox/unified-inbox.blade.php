@@ -284,7 +284,13 @@
                     </div>
 
                 @else
-                    <!-- Empty State / Permission Prompt (Matching Reference Image 4) -->
+                    <!-- Empty State / Sync Prompt -->
+                    @if($feedbackMessage)
+                        <div class="alert alert-{{ $feedbackType }} alert-dismissible fade show m-3 py-2 px-3 small" role="alert">
+                            {{ $feedbackMessage }}
+                            <button type="button" class="btn-close py-2" wire:click="$set('feedbackMessage', null)"></button>
+                        </div>
+                    @endif
                     <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5">
                         <div class="position-relative mb-4">
                             <div class="rounded-4 d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 80px; height: 80px; background: #3b82f6; border-radius: 20px !important;">
