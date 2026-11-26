@@ -81,20 +81,14 @@
                     </div>
 
                     <div class="d-flex gap-2 mb-2">
-                        <button type="button" wire:click="openMediaModal" class="btn btn-sm btn-outline-primary flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1">
-                            <i class="bi bi-images"></i> Media Library
+                        <button type="button" wire:click="openMediaModal" class="btn btn-sm btn-outline-primary flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1 rounded-pill">
+                            <i class="bi bi-images"></i> Library
                         </button>
-                        <label class="btn btn-sm btn-outline-secondary flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1 mb-0 cursor-pointer">
-                            <i class="bi bi-cloud-arrow-up"></i> Upload File
+                        <label class="btn btn-sm btn-dark flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1 mb-0 rounded-pill cursor-pointer">
+                            <span wire:loading.remove wire:target="directMediaUpload"><i class="bi bi-cloud-arrow-up"></i> Upload File</span>
+                            <span wire:loading wire:target="directMediaUpload"><span class="spinner-border spinner-border-sm"></span> Uploading...</span>
                             <input type="file" wire:model="directMediaUpload" class="d-none" accept="image/*,video/mp4,video/quicktime">
                         </label>
-                    </div>
-
-                    <!-- Platform formats requirement banner -->
-                    <div class="p-2 rounded bg-light border mb-2 small" style="font-size: 0.72rem; line-height: 1.5;">
-                        <div class="text-danger fw-semibold"><i class="bi bi-youtube me-1"></i>YouTube: MP4/MOV video required</div>
-                        <div class="text-primary fw-semibold"><i class="bi bi-facebook me-1"></i>Facebook: Photos, Video, or Status</div>
-                        <div class="text-pink fw-semibold" style="color: #d62976;"><i class="bi bi-instagram me-1"></i>Instagram: Photos or 9:16 Reels</div>
                     </div>
 
                     @if ($selectedMediaAssets->count() > 0)
@@ -169,107 +163,166 @@
 
             <div class="card-body p-3">
                 @if ($activeTab === 'base')
-                    <!-- Master Tab Description -->
-                    <div class="alert alert-light border small text-muted mb-3 d-flex align-items-center gap-2">
-                        <i class="bi bi-info-circle text-primary fs-5"></i>
-                        <div>
-                            You are editing the <strong>Master Base Campaign</strong>. Content typed here cascades to all target profiles. Switch to individual tabs above or click the cards below to configure platform-specific settings!
-                        </div>
-                    </div>
-
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label small fw-bold text-dark mb-0">Master Caption Editor</label>
-                            <button type="button" wire:click="openAiModal('base')" class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1 shadow-xs" style="font-size: 0.75rem;">
-                                <i class="bi bi-stars text-warning"></i> AI Assistant
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label small fw-bold text-dark mb-0">Post Caption / Video Description</label>
+                            <button type="button" wire:click="openAiModal('base')" class="btn btn-xs btn-outline-primary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                                <i class="bi bi-stars text-warning"></i> Write with AI
                             </button>
                         </div>
-                        <textarea class="form-control" wire:model.live.debounce.250ms="baseCaption" rows="6" placeholder="Enter core post caption or video description..."></textarea>
+                        <textarea class="form-control bg-light border-0 rounded-3 p-3" wire:model.live.debounce.250ms="baseCaption" rows="5" placeholder="Write your post caption or video description here..."></textarea>
                     </div>
 
-                    <!-- Selected Networks Setup & Compatibility Matrix -->
-                    <div class="mt-4">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <h6 class="small fw-bold text-dark mb-0 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;">
-                                <i class="bi bi-sliders2 text-primary me-1"></i>Selected Networks Setup & Quick Actions
-                            </h6>
-                            <span class="text-muted small" style="font-size: 0.72rem;">Configure format, video title & thumbnail per network</span>
-                        </div>
+                    <!-- Inline Simple Network Configuration Cards -->
+                    @if (count($selectedProfileIds) > 0)
+                        <div class="mt-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h6 class="small fw-bold text-dark mb-0 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.74rem;">
+                                    <i class="bi bi-sliders2 text-primary me-1"></i>Platform Settings ({{ count($selectedProfileIds) }})
+                                </h6>
+                                <span class="text-muted" style="font-size: 0.72rem;">Simple quick setup — no tab switching needed</span>
+                            </div>
 
-                        <div class="d-flex flex-column gap-2">
-                            @foreach ($availableProfiles as $profile)
-                                @if (in_array($profile->id, $selectedProfileIds, true))
-                                    @php
-                                        $pVal = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform->value : (string)$profile->platform;
-                                        $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
-                                        $settings = $platformSettings[$profile->id] ?? [];
-                                    @endphp
-                                    <div wire:click="setTab('{{ $profile->id }}')" class="p-3 border rounded-3 bg-white hover-shadow transition cursor-pointer d-flex align-items-center justify-content-between" style="cursor: pointer;">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }}" style="width: 38px; height: 38px; font-size: 1.1rem;">
-                                                <i class="bi {{ $pEnum?->icon() }}"></i>
-                                            </span>
-                                            <div>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="fw-bold text-dark small">{{ $profile->name }}</span>
-                                                    <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">{{ $pEnum?->label() }}</span>
+                            <div class="d-flex flex-column gap-3">
+                                @foreach ($availableProfiles as $profile)
+                                    @if (in_array($profile->id, $selectedProfileIds, true))
+                                        @php
+                                            $pVal = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform->value : (string)$profile->platform;
+                                            $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
+                                            $settings = $platformSettings[$profile->id] ?? [];
+                                            $hasVideo = $selectedMediaAssets->where('media_type', 'video')->count() > 0;
+                                            $hasMedia = $selectedMediaAssets->count() > 0;
+                                        @endphp
+                                        <div class="p-3 border rounded-3 bg-white shadow-xs">
+                                            <!-- Card Top Row -->
+                                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2 pb-2 border-bottom">
+                                                <div class="d-flex align-items-center gap-2 min-w-0">
+                                                    <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }} flex-shrink-0" style="width: 30px; height: 30px; font-size: 0.9rem;">
+                                                        <i class="bi {{ $pEnum?->icon() }}"></i>
+                                                    </span>
+                                                    <div class="min-w-0">
+                                                        <div class="fw-bold text-dark small text-truncate">{{ $profile->name }}</div>
+                                                    </div>
                                                 </div>
-
-                                                @if ($pVal === 'youtube')
-                                                    @php
-                                                        $ytAutoTitle = !empty($settings['title']) ? $settings['title'] : ($baseCaption ? \Illuminate\Support\Str::limit($baseCaption, 45) : 'Auto from caption');
-                                                        $hasVideo = $selectedMediaAssets->where('media_type', 'video')->count() > 0;
-                                                    @endphp
-                                                    <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
-                                                        <span class="badge {{ ($settings['post_type'] ?? 'video') === 'shorts' ? 'bg-danger' : 'bg-secondary' }}" style="font-size: 0.68rem;">
-                                                            {{ ($settings['post_type'] ?? 'video') === 'shorts' ? '⚡ YouTube Shorts (9:16)' : '🎬 Standard Video (16:9)' }}
-                                                        </span>
-                                                        <span class="text-muted small text-truncate" style="max-width: 200px; font-size: 0.72rem;">
-                                                            Title: <strong>{{ $ytAutoTitle }}</strong>
-                                                        </span>
-                                                        @if(!empty($settings['thumbnail_url']))
-                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-image"></i> Custom Thumbnail</span>
-                                                        @endif
-                                                        @if($hasVideo)
-                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-check2"></i> Video Attached</span>
-                                                        @else
-                                                            <span class="badge bg-warning-subtle text-warning border border-warning" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Video Needed</span>
-                                                        @endif
-                                                    </div>
-                                                @elseif ($pVal === 'facebook')
-                                                    <div class="d-flex align-items-center gap-2 mt-1">
-                                                        <span class="badge bg-primary-subtle text-primary" style="font-size: 0.68rem;">
-                                                            {{ ucfirst($settings['post_type'] ?? 'feed') }} Post
-                                                        </span>
-                                                        <span class="text-muted small" style="font-size: 0.72rem;">Photos, Video, or Status</span>
-                                                        <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-check2"></i> Ready</span>
-                                                    </div>
-                                                @elseif ($pVal === 'instagram')
-                                                    @php $hasMedia = $selectedMediaAssets->count() > 0; @endphp
-                                                    <div class="d-flex align-items-center gap-2 mt-1">
-                                                        <span class="badge bg-danger-subtle text-danger" style="font-size: 0.68rem;">
-                                                            {{ ucfirst($settings['post_type'] ?? 'feed') }} Post
-                                                        </span>
-                                                        @if($hasMedia)
-                                                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;"><i class="bi bi-check2"></i> Media Attached</span>
-                                                        @else
-                                                            <span class="badge bg-warning-subtle text-warning border border-warning" style="font-size: 0.65rem;"><i class="bi bi-exclamation-circle"></i> Photo/Reel Needed</span>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <div class="text-muted small mt-1" style="font-size: 0.72rem;">Standard Update</div>
-                                                @endif
+                                                <button type="button" wire:click="setTab('{{ $profile->id }}')" class="btn btn-xs btn-light border rounded-pill px-2 py-1 text-muted flex-shrink-0" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-pencil me-1"></i>Custom Caption
+                                                </button>
                                             </div>
-                                        </div>
 
-                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 text-nowrap" style="font-size: 0.75rem;">
-                                            Configure {{ $pEnum?->label() }} <i class="bi bi-chevron-right ms-1"></i>
-                                        </button>
-                                    </div>
-                                @endif
-                            @endforeach
+                                            @if ($pVal === 'youtube')
+                                                <div x-data="{ showAdvYt: false }">
+                                                    <!-- Video vs Shorts Pill -->
+                                                    <div class="d-flex gap-2 mb-2">
+                                                        <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'video')"
+                                                            class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? 'video') === 'video' ? 'btn-danger' : 'btn-outline-secondary' }}">
+                                                            <i class="bi bi-film me-1"></i> Standard Video (16:9)
+                                                        </button>
+                                                        <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'shorts')"
+                                                            class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'shorts' ? 'btn-danger' : 'btn-outline-secondary' }}">
+                                                            <i class="bi bi-lightning-charge-fill me-1"></i> Shorts (9:16)
+                                                        </button>
+                                                    </div>
+
+                                                    <!-- Title & Privacy Row -->
+                                                    <div class="row g-2 mb-2">
+                                                        <div class="col-md-8">
+                                                            <input type="text" class="form-control form-control-sm" wire:model="platformSettings.{{ $profile->id }}.title" maxlength="100" placeholder="Video Title * (auto-fills from caption)">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <select class="form-select form-select-sm" wire:model="platformSettings.{{ $profile->id }}.privacy_status">
+                                                                <option value="public">Public</option>
+                                                                <option value="unlisted">Unlisted</option>
+                                                                <option value="private">Private</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Thumbnail Quick Row -->
+                                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                                        @if (!empty($settings['thumbnail_url']))
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <img src="{{ $settings['thumbnail_url'] }}" class="rounded border" style="width: 48px; height: 28px; object-fit: cover;">
+                                                                <span class="badge bg-success-subtle text-success small">Thumbnail Attached</span>
+                                                                <button type="button" wire:click="removeThumbnail({{ $profile->id }})" class="btn btn-xs btn-link text-danger p-0">Remove</button>
+                                                            </div>
+                                                        @else
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <label class="btn btn-xs btn-outline-secondary rounded-pill px-2 py-1 mb-0 cursor-pointer" style="font-size: 0.72rem;">
+                                                                    <span wire:loading.remove wire:target="directThumbnailUploads.{{ $profile->id }}"><i class="bi bi-image me-1"></i>Upload Thumbnail</span>
+                                                                    <span wire:loading wire:target="directThumbnailUploads.{{ $profile->id }}"><span class="spinner-border spinner-border-sm"></span> Uploading...</span>
+                                                                    <input type="file" wire:model="directThumbnailUploads.{{ $profile->id }}" class="d-none" accept="image/*">
+                                                                </label>
+                                                                <button type="button" wire:click="openThumbnailModal({{ $profile->id }})" class="btn btn-xs btn-link text-decoration-none p-0" style="font-size: 0.72rem;">
+                                                                    or Library
+                                                                </button>
+                                                            </div>
+                                                        @endif
+
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            @if(!$hasVideo)
+                                                                <span class="badge bg-warning-subtle text-warning border border-warning" style="font-size: 0.68rem;">Attach Video (MP4/MOV)</span>
+                                                            @endif
+                                                            <button type="button" @click="showAdvYt = !showAdvYt" class="btn btn-xs btn-link text-muted text-decoration-none p-0" style="font-size: 0.72rem;">
+                                                                <span x-text="showAdvYt ? 'Hide Advanced' : '+ Tags & Category'"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Collapsible Advanced -->
+                                                    <div x-show="showAdvYt" x-cloak class="mt-2 pt-2 border-top row g-2">
+                                                        <div class="col-md-5">
+                                                            <select class="form-select form-select-sm" wire:model="platformSettings.{{ $profile->id }}.category_id">
+                                                                <option value="22">People & Blogs</option>
+                                                                <option value="28">Science & Tech</option>
+                                                                <option value="27">Education</option>
+                                                                <option value="24">Entertainment</option>
+                                                                <option value="17">Sports</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-7">
+                                                            <input type="text" class="form-control form-control-sm" wire:model="platformSettings.{{ $profile->id }}.tags" placeholder="Tags (comma-separated)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @elseif ($pVal === 'facebook')
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
+                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                                        <i class="bi bi-card-text me-1"></i> Page Post
+                                                    </button>
+                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
+                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                                        <i class="bi bi-play-btn me-1"></i> Reel
+                                                    </button>
+                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
+                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                                        <i class="bi bi-circle me-1"></i> Story
+                                                    </button>
+                                                </div>
+                                            @elseif ($pVal === 'instagram')
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
+                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-dark' : 'btn-outline-secondary' }}">
+                                                        Feed Post
+                                                    </button>
+                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
+                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-dark' : 'btn-outline-secondary' }}">
+                                                        Reel
+                                                    </button>
+                                                    <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
+                                                        class="btn btn-sm flex-grow-1 rounded-pill {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-dark' : 'btn-outline-secondary' }}">
+                                                        Story
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <div class="small text-muted">Ready to publish standard update to {{ $pEnum?->label() }}.</div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 @else
                     <!-- Individual Profile Variant Tab -->
                     @php
@@ -743,19 +796,19 @@
                     <!-- Action Trigger Buttons -->
                     <div class="d-grid gap-2">
                         @if ($publishMode === 'now')
-                            <button type="button" wire:click="savePost('now')" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" wire:loading.attr="disabled">
-                                <i class="bi bi-send-fill"></i>
-                                <span>Publish to {{ count($selectedProfileIds) }} Profile(s)</span>
+                            <button type="button" wire:click="savePost('now')" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="savePost"><i class="bi bi-send-fill me-1"></i> Publish to {{ count($selectedProfileIds) }} Profile(s)</span>
+                                <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Publishing Now...</span>
                             </button>
                         @elseif ($publishMode === 'schedule')
-                            <button type="button" wire:click="savePost('schedule')" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" wire:loading.attr="disabled">
-                                <i class="bi bi-calendar-check-fill"></i>
-                                <span>Schedule Post</span>
+                            <button type="button" wire:click="savePost('schedule')" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="savePost"><i class="bi bi-calendar-check-fill me-1"></i> Schedule Post</span>
+                                <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Scheduling...</span>
                             </button>
                         @else
-                            <button type="button" wire:click="savePost('draft')" class="btn btn-secondary d-flex align-items-center justify-content-center gap-2" wire:loading.attr="disabled">
-                                <i class="bi bi-file-earmark-text"></i>
-                                <span>Save as Draft</span>
+                            <button type="button" wire:click="savePost('draft')" class="btn btn-secondary d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 fw-semibold" wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="savePost"><i class="bi bi-file-earmark-text me-1"></i> Save as Draft</span>
+                                <span wire:loading wire:target="savePost"><span class="spinner-border spinner-border-sm me-1"></span> Saving...</span>
                             </button>
                         @endif
                     </div>

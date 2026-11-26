@@ -160,6 +160,20 @@ class PostComposer extends Component
         $this->showThumbnailModal = true;
     }
 
+    public function updatedDirectThumbnailUploads($file, $profileId): void
+    {
+        $this->validate([
+            "directThumbnailUploads.{$profileId}" => 'image|max:5120',
+        ]);
+
+        if ($file && $profileId) {
+            $path = $file->store('thumbnails', 'public');
+            $url = asset('storage/' . ltrim($path, '/'));
+            $this->selectThumbnailAsset((int) $profileId, $url);
+            unset($this->directThumbnailUploads[$profileId]);
+        }
+    }
+
     public function updatedDirectThumbnailUpload(): void
     {
         $this->validate([
