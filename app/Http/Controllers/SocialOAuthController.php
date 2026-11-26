@@ -49,6 +49,7 @@ class SocialOAuthController extends Controller
             SocialPlatform::LINKEDIN => config('services.linkedin.client_id', env('LINKEDIN_CLIENT_ID')),
             SocialPlatform::YOUTUBE,
             SocialPlatform::GOOGLE_BUSINESS => config('services.google.client_id', env('GOOGLE_CLIENT_ID')),
+            SocialPlatform::PINTEREST => config('services.pinterest.client_id', env('PINTEREST_CLIENT_ID')),
             default => null,
         };
 
@@ -57,6 +58,7 @@ class SocialOAuthController extends Controller
                 SocialPlatform::FACEBOOK, SocialPlatform::INSTAGRAM => 'META_APP_ID and META_APP_SECRET',
                 SocialPlatform::LINKEDIN => 'LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET',
                 SocialPlatform::YOUTUBE, SocialPlatform::GOOGLE_BUSINESS => 'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET',
+                SocialPlatform::PINTEREST => 'PINTEREST_CLIENT_ID and PINTEREST_CLIENT_SECRET',
                 default => 'API credentials',
             };
 
