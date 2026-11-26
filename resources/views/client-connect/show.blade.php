@@ -125,6 +125,27 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Pinterest -->
+            <div class="col-12">
+                <div class="card border shadow-xs hover-shadow transition">
+                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center bg-danger text-white rounded-3" style="width: 48px; height: 48px;">
+                                <i class="bi bi-pin-angle-fill fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">Pinterest Business &amp; Boards</h6>
+                                <p class="text-muted small mb-0">Pin images, videos, and destination links directly to your boards.</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'pinterest']) }}" class="btn btn-outline-danger d-inline-flex align-items-center gap-2 px-3">
+                            <i class="bi bi-plug-fill"></i>
+                            <span>Connect Pinterest</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Currently Active Profiles (if any) -->

@@ -49,6 +49,7 @@ class ClientConnectController extends Controller
             SocialPlatform::LINKEDIN => config('services.linkedin.client_id', env('LINKEDIN_CLIENT_ID')),
             SocialPlatform::YOUTUBE,
             SocialPlatform::GOOGLE_BUSINESS => config('services.google.client_id', env('GOOGLE_CLIENT_ID')),
+            SocialPlatform::PINTEREST => config('services.pinterest.client_id', env('PINTEREST_CLIENT_ID')),
             default => null,
         };
 
