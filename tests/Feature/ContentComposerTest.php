@@ -168,5 +168,63 @@ class ContentComposerTest extends TestCase
         $this->assertStringContainsString('Copy of Sunday Campaign', $duplicatedPost->title);
         $this->assertCount(1, $duplicatedPost->variants);
     }
+
+    /**
+     * Test configuring YouTube video settings and publishing now.
+     */
+    public function test_can_configure_youtube_settings_and_publish_now(): void
+    {
+        $ytConnection = SocialConnection::create([
+            'workspace_id' => $this->workspace->id,
+            'platform' => SocialPlatform::YOUTUBE,
+            'account_id' => 'yt_acc_1',
+            'account_name' => 'Shadab Khan YT',
+            'access_token' => 'mock_yt_token',
+            'scopes' => ['https://www.googleapis.com/auth/youtube.upload'],
+        ]);
+
+        $ytProfile = SocialProfile::create([
+            'workspace_id' => $this->workspace->id,
+            'connection_id' => $ytConnection->id,
+            'platform' => 'youtube',
+            'profile_id' => 'yt_ch_1',
+            'name' => 'Shadab Khan (YouTube Channel)',
+            'capabilities' => ['supports_video' => true],
+            'publishing_enabled' => true,
+        ]);
+
+        $videoAsset = MediaAsset::create([
+            'workspace_id' => $this->workspace->id,
+            'uploader_id' => $this->user->id,
+            'file_name' => 'promo_short.mp4',
+            'storage_path' => 'workspaces/1/media/promo_short.mp4',
+            'disk' => 'public',
+            'mime_type' => 'video/mp4',
+            'file_size' => 2048000,
+            'media_type' => 'video',
+            'width' => 1080,
+            'height' => 1920,
+            'aspect_ratio' => '9:16',
+            'public_url' => 'https://cdn.socialpilotx.com/promo_short.mp4',
+        ]);
+
+        Livewire::test(PostComposer::class)
+            ->set('selectedProfileIds', [$ytProfile->id])
+            ->set('baseCaption', 'Testing YouTube Shorts upload!')
+            ->set('selectedMediaAssetIds', [$videoAsset->id])
+            ->call('setTab', (string) $ytProfile->id)
+            ->set("platformSettings.{$ytProfile->id}.post_type", 'short')
+            ->set("platformSettings.{$ytProfile->id}.title", 'My Test Short')
+            ->set("platformSettings.{$ytProfile->id}.privacy_status", 'public')
+            ->set('publishMode', 'now')
+            ->call('savePost', 'now')
+            ->assertHasNoErrors();
+
+        $variant = PostVariant::where('social_profile_id', $ytProfile->id)->first();
+        $this->assertNotNull($variant);
+        $this->assertEquals('short', $variant->platform_settings['post_type'] ?? null);
+        $this->assertEquals('My Test Short', $variant->platform_settings['title'] ?? null);
+        $this->assertEquals('public', $variant->platform_settings['privacy_status'] ?? null);
+    }
 }
 
