@@ -109,6 +109,11 @@
                                     </td>
                                     <td class="pe-3 text-end">
                                         <div class="btn-group btn-group-sm">
+                                            @if ($client->contact_email)
+                                                <button wire:click="sendClientInvite({{ $client->id }})" wire:loading.attr="disabled" class="btn btn-light border text-primary" title="Send Portal Invitation Email">
+                                                    <i class="bi bi-envelope-paper"></i>
+                                                </button>
+                                            @endif
                                             <button wire:click="editClient({{ $client->id }})" class="btn btn-light border" title="Edit Client">
                                                 <i class="bi bi-pencil"></i>
                                             </button>

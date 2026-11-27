@@ -88,6 +88,7 @@ class ClientManager extends Component
 
         if ($this->isEditing && $this->selectedClientId) {
             $client = Client::findOrFail($this->selectedClientId);
+            $oldEmail = strtolower((string) $client->contact_email);
             $clientService->updateClient($client, [
                 'name' => $this->name,
                 'client_code' => $this->client_code,
@@ -98,9 +99,14 @@ class ClientManager extends Component
                 'status' => $this->status,
                 'notes' => $this->notes,
             ]);
-            session()->flash('success', "Client '{$this->name}' updated successfully.");
+            if (!empty($this->contact_email) && strtolower(trim($this->contact_email)) !== $oldEmail) {
+                $this->dispatchInviteMail($client->fresh());
+                session()->flash('success', "Client '{$this->name}' updated and invitation mail sent to {$this->contact_email}!");
+            } else {
+                session()->flash('success', "Client '{$this->name}' updated successfully.");
+            }
         } else {
-            $clientService->createClient($workspace, [
+            $client = $clientService->createClient($workspace, [
                 'name' => $this->name,
                 'client_code' => $this->client_code,
                 'contact_person' => $this->contact_person,
@@ -110,7 +116,12 @@ class ClientManager extends Component
                 'status' => $this->status,
                 'notes' => $this->notes,
             ]);
-            session()->flash('success', "Client '{$this->name}' created successfully.");
+            if (!empty($client->contact_email)) {
+                $this->dispatchInviteMail($client);
+                session()->flash('success', "Client '{$this->name}' created and invitation mail sent to {$client->contact_email}!");
+            } else {
+                session()->flash('success', "Client '{$this->name}' created successfully.");
+            }
         }
 
         $this->showModal = false;
@@ -123,6 +134,53 @@ class ClientManager extends Component
         $this->assignTargetUserId = null;
         $this->assignCanApprove = false;
         $this->showAssignModal = true;
+    }
+
+    public function sendClientInvite(int $clientId): void
+    {
+        $client = Client::findOrFail($clientId);
+        if (empty($client->contact_email)) {
+            session()->flash('error', "Please add a Client Login Gmail / Email for '{$client->name}' first.");
+            return;
+        }
+
+        if ($this->dispatchInviteMail($client)) {
+            session()->flash('success', "Client Portal invitation email sent to {$client->contact_email}!");
+        }
+    }
+
+    protected function dispatchInviteMail(Client $client): bool
+    {
+        $email = strtolower(trim($client->contact_email));
+        if (empty($email)) {
+            return false;
+        }
+
+        $workspaceName = app('current_workspace')->name ?? 'PostSync Agency';
+        $loginUrl = route('login');
+        $clientName = $client->contact_person ?: $client->name;
+
+        try {
+            \Illuminate\Support\Facades\Mail::html(
+                "<div style='font-family:sans-serif;max-width:520px;margin:auto;padding:28px;border:1px solid #e2e8f0;border-radius:14px;background:#ffffff;'>
+                    <h2 style='margin:0 0 12px;color:#0f172a;'>You're invited to {$workspaceName} Client Portal</h2>
+                    <p style='color:#475569;line-height:1.6;'>Hi {$clientName},</p>
+                    <p style='color:#475569;line-height:1.6;'><strong>{$workspaceName}</strong> has added <strong>{$client->name}</strong> on PostSync. You can now view your scheduled posts, approve upcoming content, check live analytics, and download reports.</p>
+                    <div style='margin:24px 0;text-align:center;'>
+                        <a href='{$loginUrl}' style='display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:12px 26px;border-radius:999px;font-weight:600;'>Open Client Portal</a>
+                    </div>
+                    <p style='color:#64748b;font-size:13px;'>Simply sign in using your email <strong>{$email}</strong> to receive a 6-digit OTP code (no password needed).</p>
+                </div>",
+                function ($msg) use ($email, $workspaceName) {
+                    $msg->to($email)->subject("Invitation to {$workspaceName} Client Portal");
+                }
+            );
+            return true;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Client invite mail failed for {$email}: " . $e->getMessage());
+            session()->flash('error', "Client saved, but email could not be sent: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function assignMember(ClientService $clientService): void
