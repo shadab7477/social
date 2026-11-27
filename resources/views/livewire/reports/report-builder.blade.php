@@ -129,7 +129,7 @@
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end gap-1">
                                         @if($report->isReady())
-                                            <a href="{{ route('reports.download', $report->id) }}" class="btn btn-sm btn-outline-primary" title="Download Report">
+                                            <a href="{{ route('reports.download', $report->id) }}" target="_blank" download class="btn btn-sm btn-outline-primary" title="Download Report">
                                                 <i class="bi bi-download"></i>
                                             </a>
                                             @if($report->format === \App\Enums\ReportFormat::PDF && $report->file_url)

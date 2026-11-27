@@ -30,9 +30,17 @@ class ReportDownloadController extends Controller
 
         if ($report->format === ReportFormat::PDF && class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
             $html = Storage::disk('public')->get($report->file_path);
+
+            // Remove external font/CSS CDN links so DomPDF renders instantly without remote timeouts
+            $html = preg_replace('/<link[^>]*>/i', '', $html) ?? $html;
+
+            $accentColor = $report->branding_options['primary_color'] ?? '#4f46e5';
+            $html = str_replace('var(--primary-accent)', $accentColor, $html);
+
             $downloadFilename = "{$cleanTitle}-{$report->date_from->format('Ymd')}-{$report->date_to->format('Ymd')}.pdf";
 
             return \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+                ->setOption(['isRemoteEnabled' => false, 'defaultFont' => 'DejaVu Sans'])
                 ->setPaper('a4', 'portrait')
                 ->download($downloadFilename);
         }

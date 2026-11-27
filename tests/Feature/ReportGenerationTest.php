@@ -185,6 +185,7 @@ class ReportGenerationTest extends TestCase
         $response = $this->get(route('reports.download', $report->id));
         $response->assertOk();
         $response->assertDownload();
+        $this->assertStringStartsWith('%PDF-', $response->streamedContent());
 
         // 2. User from another workspace cannot download report (Tenant isolation check)
         $alienUser = User::factory()->create();
