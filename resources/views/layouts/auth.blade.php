@@ -18,13 +18,7 @@
 <body class="bg-light d-flex align-items-center justify-content-center py-4 px-2" style="min-height: 100dvh;">
     <div class="container px-2 px-sm-3" style="max-width: 460px;">
         <!-- Logo -->
-        <div class="text-center mb-3 mb-sm-4">
-            <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-3 shadow-sm mb-3">
-                <i class="bi bi-send-fill fs-3"></i>
-            </div>
-            <h3 class="fw-bold text-dark mb-1">Post<span class="text-primary">Sync</span></h3>
-            <p class="text-muted small">Social Media Management SaaS for Brands & Agencies</p>
-        </div>
+       
 
         <!-- Auth Card -->
         <div class="card shadow-sm border-0">
