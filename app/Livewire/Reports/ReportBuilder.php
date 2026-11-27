@@ -200,13 +200,6 @@ class ReportBuilder extends Component
             ->with(['client', 'createdBy'])
             ->latest();
 
-        $user = auth()->user();
-        $isClientViewer = $user && $user->isClientViewer();
-        if ($isClientViewer) {
-            $assignedIds = $user->assignedClientIds();
-            $query->whereIn('client_id', !empty($assignedIds) ? $assignedIds : [-1]);
-        }
-
         if ($this->selectedClientId) {
             $query->where('client_id', $this->selectedClientId);
         }

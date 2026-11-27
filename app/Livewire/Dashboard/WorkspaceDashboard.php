@@ -20,35 +20,30 @@ class WorkspaceDashboard extends Component
     public function render()
     {
         $workspace = app('current_workspace');
-        $user = auth()->user();
-        $isClientViewer = $user && $user->isClientViewer($workspace);
-        $clientIds = $isClientViewer ? ($user->assignedClientIds($workspace) ?: [-1]) : null;
 
         // 1. Dynamic Key Metrics
         $totalConnectedProfiles = SocialProfile::where('workspace_id', $workspace->id)
-            ->when($isClientViewer, fn($q) => $q->whereIn('client_id', $clientIds))
             ->where('is_active', true)
             ->count();
 
-        $scheduledPostsCount = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $scheduledPostsCount = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->where('status', PostStatus::SCHEDULED)
             ->count();
 
         $pendingApprovalsCount = Post::where('workspace_id', $workspace->id)
-            ->when($isClientViewer, fn($q) => $q->whereIn('client_id', $clientIds))
             ->where('status', PostStatus::PENDING_APPROVAL)
             ->count();
 
-        $publishedPostsCount = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $publishedPostsCount = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->where('status', PostStatus::PUBLISHED)
             ->count();
 
-        $failedPostsCount = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $failedPostsCount = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->where('status', PostStatus::FAILED)
             ->count();
 
         // Failed Posts requiring attention
-        $failedVariants = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $failedVariants = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->where('status', PostStatus::FAILED)
             ->with(['post.client', 'socialProfile', 'mediaAssets'])
             ->latest('updated_at')
@@ -56,7 +51,7 @@ class WorkspaceDashboard extends Component
             ->get();
 
         // 2. Next Upcoming Post
-        $nextScheduledVariant = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $nextScheduledVariant = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->where('status', PostStatus::SCHEDULED)
             ->whereNotNull('scheduled_at')
             ->where('scheduled_at', '>=', now())
@@ -64,7 +59,7 @@ class WorkspaceDashboard extends Component
             ->first();
 
         // 3. Upcoming Queue (Latest 5 items scheduled or queued)
-        $upcomingVariants = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $upcomingVariants = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->whereIn('status', [PostStatus::SCHEDULED, PostStatus::QUEUED, PostStatus::PUBLISHING])
             ->with(['post.client', 'socialProfile', 'mediaAssets'])
             ->orderBy('scheduled_at', 'asc')
@@ -72,7 +67,7 @@ class WorkspaceDashboard extends Component
             ->get();
 
         // 4. Recently Published Posts (Latest 5 items)
-        $recentPublishedVariants = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id)->when($isClientViewer, fn($pq) => $pq->whereIn('client_id', $clientIds)))
+        $recentPublishedVariants = PostVariant::whereHas('post', fn($q) => $q->where('workspace_id', $workspace->id))
             ->where('status', PostStatus::PUBLISHED)
             ->with(['post.client', 'socialProfile', 'mediaAssets'])
             ->latest('published_at')
@@ -81,7 +76,6 @@ class WorkspaceDashboard extends Component
 
         // 5. Connected Profiles List & Health
         $connectedProfiles = SocialProfile::where('workspace_id', $workspace->id)
-            ->when($isClientViewer, fn($q) => $q->whereIn('client_id', $clientIds))
             ->where('is_active', true)
             ->with('connection')
             ->latest()
