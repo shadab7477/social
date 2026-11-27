@@ -274,7 +274,7 @@
             <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-color: var(--admin-border) !important;">
                 <div>
                     <h5 class="fw-bold text-white mb-0">Platform Users Directory</h5>
-                    <small class="text-muted">Inspect registered accounts, change passwords, toggle roles, or impersonate users.</small>
+                    <small class="text-muted">Inspect registered accounts, toggle roles, or impersonate users.</small>
                 </div>
                 <div class="d-flex align-items-center gap-2 col-md-5 col-12 justify-content-end">
                     <div class="input-group input-group-sm">
@@ -332,9 +332,6 @@
                                     <div class="btn-group btn-group-sm">
                                         <button wire:click="impersonateUser({{ $u->id }})" class="btn btn-outline-info" title="Impersonate User">
                                             <i class="bi bi-box-arrow-in-right"></i> Log In As
-                                        </button>
-                                        <button wire:click="openPasswordModal({{ $u->id }})" class="btn btn-outline-warning" title="Reset Password">
-                                            <i class="bi bi-key-fill"></i> Password
                                         </button>
                                         <button wire:click="toggleSuperAdmin({{ $u->id }})" class="btn {{ $u->is_super_admin ? 'btn-outline-danger' : 'btn-outline-success' }}" title="Toggle Super Admin">
                                             <i class="bi bi-shield-shaded"></i>
@@ -772,10 +769,8 @@
                             <input type="email" wire:model="newUserEmail" class="form-control bg-dark border-secondary text-white" placeholder="rahul@example.com">
                             @error('newUserEmail') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted">Temporary Password <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="newUserPassword" class="form-control bg-dark border-secondary text-white" placeholder="Minimum 8 characters">
-                            @error('newUserPassword') <span class="text-danger small">{{ $message }}</span> @enderror
+                        <div class="alert alert-dark border-secondary small text-muted mb-3">
+                            <i class="bi bi-envelope-check text-info me-1"></i> Users sign in securely via 6-digit Gmail/Email OTP.
                         </div>
                         <div class="form-check form-switch mt-3">
                             <input class="form-check-input" type="checkbox" wire:model="newUserIsAdmin" id="adminSwitch">

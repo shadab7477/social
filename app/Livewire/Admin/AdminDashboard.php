@@ -131,7 +131,6 @@ class AdminDashboard extends Component
     {
         $this->newUserName = '';
         $this->newUserEmail = '';
-        $this->newUserPassword = '';
         $this->newUserIsAdmin = false;
         $this->showCreateUserModal = true;
     }
@@ -141,13 +140,12 @@ class AdminDashboard extends Component
         $this->validate([
             'newUserName' => 'required|min:2|max:100',
             'newUserEmail' => 'required|email|unique:users,email',
-            'newUserPassword' => 'required|min:8',
         ]);
 
         $user = User::create([
             'name' => $this->newUserName,
-            'email' => $this->newUserEmail,
-            'password' => Hash::make($this->newUserPassword),
+            'email' => strtolower(trim($this->newUserEmail)),
+            'password' => Hash::make(\Illuminate\Support\Str::random(32)),
             'is_super_admin' => $this->newUserIsAdmin,
             'timezone' => 'Asia/Kolkata',
         ]);
