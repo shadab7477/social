@@ -168,6 +168,12 @@ class ReportGenerationTest extends TestCase
         $this->assertStringContainsString('#059669', $htmlContent); // Custom brand color injected
         $this->assertStringContainsString('Total Impressions', $htmlContent);
         $this->assertStringContainsString('8,400', $htmlContent);
+
+        // Verify download endpoint converts to real PDF binary cleanly
+        $pdfResponse = $this->get(route('reports.download', $report->id));
+        $pdfResponse->assertOk();
+        $pdfResponse->assertDownload();
+        $this->assertStringStartsWith('%PDF-', $pdfResponse->getContent());
     }
 
     public function test_report_download_controller_enforces_tenant_security(): void
@@ -185,7 +191,6 @@ class ReportGenerationTest extends TestCase
         $response = $this->get(route('reports.download', $report->id));
         $response->assertOk();
         $response->assertDownload();
-        $this->assertStringStartsWith('%PDF-', $response->getContent());
 
         // 2. User from another workspace cannot download report (Tenant isolation check)
         $alienUser = User::factory()->create();
