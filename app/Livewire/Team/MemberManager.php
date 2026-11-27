@@ -53,7 +53,24 @@ class MemberManager extends Component
         $this->lastInviteLink = route('invitations.accept', ['token' => $invitation->token]);
         $this->lastInviteEmail = $this->inviteEmail;
 
-        session()->flash('success', "Invitation generated for {$this->inviteEmail}. You can also copy and share the direct invite link below!");
+        if (config('mail.default') !== 'log') {
+            try {
+                \Illuminate\Support\Facades\Mail::html(
+                    "<div style='font-family:sans-serif;max-width:520px;margin:auto;padding:28px;border:1px solid #e2e8f0;border-radius:14px;'>
+                        <h2 style='margin:0 0 12px;color:#0f172a;'>You're invited to join {$workspace->name}</h2>
+                        <p style='color:#475569;'>You have been invited as <strong>{$role->label()}</strong> on PostSync.</p>
+                        <div style='margin:24px 0;text-align:center;'>
+                            <a href='{$this->lastInviteLink}' style='display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:12px 26px;border-radius:999px;font-weight:600;'>Accept Invitation</a>
+                        </div>
+                    </div>",
+                    fn ($m) => $m->to($this->inviteEmail)->subject("Invitation to join {$workspace->name} on PostSync")
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Team invite mail failed: " . $e->getMessage());
+            }
+        }
+
+        session()->flash('success', "Invitation sent for {$this->inviteEmail}. You can also copy and share the direct invite link below!");
         $this->showInviteModal = false;
         $this->reset(['inviteEmail', 'inviteRole']);
     }
