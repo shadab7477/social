@@ -42,12 +42,12 @@
                 <div class="d-flex align-items-center justify-content-between gap-2">
                     <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Users</span>
-                        <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['totalUsers']) }}</h2>
+                        <h2 class="fw-bold text-white mb-0 mt-1" style="font-size: clamp(1.25rem, 1rem + 1vw, 1.85rem);">{{ number_format($metrics['totalUsers']) }}</h2>
                         <span class="text-danger small fw-medium" style="font-size: 0.75rem;">
                             {{ $metrics['totalSuperAdmins'] }} Super Admin(s)
                         </span>
                     </div>
-                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 flex-shrink-0" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
                         <i class="bi bi-people-fill"></i>
                     </div>
                 </div>
@@ -59,12 +59,12 @@
                 <div class="d-flex align-items-center justify-content-between gap-2">
                     <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Active Workspaces</span>
-                        <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['totalActiveWorkspaces']) }}</h2>
+                        <h2 class="fw-bold text-white mb-0 mt-1" style="font-size: clamp(1.25rem, 1rem + 1vw, 1.85rem);">{{ number_format($metrics['totalActiveWorkspaces']) }}</h2>
                         <span class="text-muted small" style="font-size: 0.75rem;">
                             Total: {{ $metrics['totalWorkspaces'] }}
                         </span>
                     </div>
-                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 flex-shrink-0" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
                         <i class="bi bi-buildings-fill"></i>
                     </div>
                 </div>
@@ -76,12 +76,12 @@
                 <div class="d-flex align-items-center justify-content-between gap-2">
                     <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Channels</span>
-                        <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['totalSocialProfiles']) }}</h2>
+                        <h2 class="fw-bold text-white mb-0 mt-1" style="font-size: clamp(1.25rem, 1rem + 1vw, 1.85rem);">{{ number_format($metrics['totalSocialProfiles']) }}</h2>
                         <span class="text-info small fw-medium" style="font-size: 0.75rem;">
                             {{ $metrics['totalSocialConnections'] }} OAuth
                         </span>
                     </div>
-                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 flex-shrink-0" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
                         <i class="bi bi-share-fill"></i>
                     </div>
                 </div>
@@ -93,12 +93,12 @@
                 <div class="d-flex align-items-center justify-content-between gap-2">
                     <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Published Posts</span>
-                        <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['publishedPosts']) }}</h2>
+                        <h2 class="fw-bold text-white mb-0 mt-1" style="font-size: clamp(1.25rem, 1rem + 1vw, 1.85rem);">{{ number_format($metrics['publishedPosts']) }}</h2>
                         <span class="text-warning small fw-medium" style="font-size: 0.75rem;">
                             {{ $metrics['scheduledPosts'] }} Sched | {{ $metrics['failedPosts'] }} Fail
                         </span>
                     </div>
-                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 flex-shrink-0" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
                         <i class="bi bi-send-check-fill"></i>
                     </div>
                 </div>
@@ -329,16 +329,16 @@
                                     <small class="text-muted">{{ $u->created_at?->format('M d, Y') ?? 'N/A' }}</small>
                                 </td>
                                 <td class="text-end pe-3" data-label="Actions">
-                                    <div class="btn-group btn-group-sm flex-wrap">
-                                        <button wire:click="impersonateUser({{ $u->id }})" class="btn btn-outline-info" title="Impersonate User">
+                                    <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                        <button wire:click="impersonateUser({{ $u->id }})" class="btn btn-sm btn-outline-info" title="Impersonate User">
                                             <i class="bi bi-box-arrow-in-right"></i> Log In As
                                         </button>
-                                        <button wire:click="toggleSuperAdmin({{ $u->id }})" class="btn {{ $u->is_super_admin ? 'btn-outline-danger' : 'btn-outline-success' }}" title="Toggle Super Admin">
+                                        <button wire:click="toggleSuperAdmin({{ $u->id }})" class="btn btn-sm {{ $u->is_super_admin ? 'btn-outline-danger' : 'btn-outline-success' }}" title="Toggle Super Admin">
                                             <i class="bi bi-shield-shaded"></i>
                                             {{ $u->is_super_admin ? 'Demote' : 'Make Admin' }}
                                         </button>
                                         @if ($u->id !== auth()->id())
-                                            <button wire:click="deleteUser({{ $u->id }})" wire:confirm="Are you sure you want to delete this user?" class="btn btn-outline-danger" title="Delete">
+                                            <button wire:click="deleteUser({{ $u->id }})" wire:confirm="Are you sure you want to delete this user?" class="btn btn-sm btn-outline-danger" title="Delete" aria-label="Delete user">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         @endif
@@ -425,14 +425,14 @@
                                     </button>
                                 </td>
                                 <td class="text-end pe-3" data-label="Actions">
-                                    <div class="btn-group btn-group-sm">
-                                        <button wire:click="switchIntoWorkspace({{ $ws->id }})" class="btn btn-outline-primary" title="Enter Workspace">
+                                    <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                        <button wire:click="switchIntoWorkspace({{ $ws->id }})" class="btn btn-sm btn-outline-primary" title="Enter Workspace">
                                             <i class="bi bi-box-arrow-in-up-right"></i> Enter
                                         </button>
-                                        <button wire:click="openEditWorkspaceModal({{ $ws->id }})" class="btn btn-outline-warning" title="Edit Plan & Limits">
+                                        <button wire:click="openEditWorkspaceModal({{ $ws->id }})" class="btn btn-sm btn-outline-warning" title="Edit Plan & Limits">
                                             <i class="bi bi-pencil-square"></i> Plan
                                         </button>
-                                        <button wire:click="toggleWorkspaceStatus({{ $ws->id }})" class="btn {{ $ws->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}" title="Toggle Status">
+                                        <button wire:click="toggleWorkspaceStatus({{ $ws->id }})" class="btn btn-sm {{ $ws->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}" title="Toggle Status" aria-label="Toggle workspace status">
                                             <i class="bi {{ $ws->is_active ? 'bi-pause-circle' : 'bi-play-circle' }}"></i>
                                         </button>
                                     </div>

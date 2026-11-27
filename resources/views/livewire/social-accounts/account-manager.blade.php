@@ -114,19 +114,21 @@
                                         $connPlat = $conn->platform instanceof \App\Enums\SocialPlatform ? $conn->platform : \App\Enums\SocialPlatform::tryFrom($conn->platform);
                                     @endphp
                                     <tr>
-                                        <td colspan="5" class="ps-3 py-3 text-muted small">
-                                            <span class="badge bg-light text-dark border me-2">{{ $connPlat?->label() }}</span>
-                                            Account <strong>'{{ $conn->account_name }}'</strong> is authorized, but no pages or channels have been selected yet.
-                                        </td>
-                                        <td colspan="2" class="pe-3 text-end">
-                                            <div class="d-inline-flex gap-1">
-                                                <button type="button" wire:click="discoverForConnection({{ $conn->id }})" wire:loading.attr="disabled" class="btn btn-xs btn-outline-primary rounded-pill px-2 py-1">
-                                                    <span wire:loading.remove wire:target="discoverForConnection({{ $conn->id }})"><i class="bi bi-arrow-repeat me-1"></i>Select Pages</span>
-                                                    <span wire:loading wire:target="discoverForConnection({{ $conn->id }})"><span class="spinner-border spinner-border-sm"></span></span>
-                                                </button>
-                                                <button type="button" wire:click="deleteConnection({{ $conn->id }})" wire:confirm="Remove this unused account connection?" class="btn btn-xs btn-light border text-danger rounded-pill px-2 py-1" title="Remove Connection" aria-label="Remove Connection">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                        <td colspan="7" class="px-3 py-3 text-muted small">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                                                <div>
+                                                    <span class="badge bg-light text-dark border me-2">{{ $connPlat?->label() }}</span>
+                                                    Account <strong>'{{ $conn->account_name }}'</strong> is authorized, but no pages or channels have been selected yet.
+                                                </div>
+                                                <div class="d-inline-flex flex-wrap gap-1">
+                                                    <button type="button" wire:click="discoverForConnection({{ $conn->id }})" wire:loading.attr="disabled" class="btn btn-xs btn-outline-primary rounded-pill px-2 py-1">
+                                                        <span wire:loading.remove wire:target="discoverForConnection({{ $conn->id }})"><i class="bi bi-arrow-repeat me-1"></i>Select Pages</span>
+                                                        <span wire:loading wire:target="discoverForConnection({{ $conn->id }})"><span class="spinner-border spinner-border-sm"></span></span>
+                                                    </button>
+                                                    <button type="button" wire:click="deleteConnection({{ $conn->id }})" wire:confirm="Remove this unused account connection?" class="btn btn-xs btn-light border text-danger rounded-pill px-2 py-1" title="Remove Connection" aria-label="Remove Connection">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -182,7 +184,7 @@
                         @endif
                     </div>
 
-                    <p class="text-muted small mb-4" style="min-height: 38px;">
+                    <p class="text-muted small mb-4 flex-grow-1">
                         @switch($platform->value)
                             @case('facebook') Direct publishing for Pages, Reels & Feed. @break
                             @case('instagram') Professional Business & Creator single images, reels, carousels. @break

@@ -342,24 +342,24 @@
                                 @elseif ($pVal === 'facebook')
                                     <label class="form-label small fw-bold text-dark mb-2">Choose Facebook Format</label>
                                     <div class="row g-2">
-                                        <div class="col-4">
+                                        <div class="col-12 col-sm-4">
                                             <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
-                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
-                                                <i class="bi bi-card-text d-block fs-5 mb-1"></i>
+                                                class="btn w-100 py-2 rounded-3 d-flex d-sm-block align-items-center justify-content-center gap-2 {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-card-text d-inline d-sm-block fs-5 mb-0 mb-sm-1"></i>
                                                 <span class="small fw-semibold">Page Post</span>
                                             </button>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-12 col-sm-4">
                                             <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
-                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
-                                                <i class="bi bi-play-btn d-block fs-5 mb-1"></i>
+                                                class="btn w-100 py-2 rounded-3 d-flex d-sm-block align-items-center justify-content-center gap-2 {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-play-btn d-inline d-sm-block fs-5 mb-0 mb-sm-1"></i>
                                                 <span class="small fw-semibold">Facebook Reel</span>
                                             </button>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-12 col-sm-4">
                                             <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
-                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
-                                                <i class="bi bi-circle d-block fs-5 mb-1"></i>
+                                                class="btn w-100 py-2 rounded-3 d-flex d-sm-block align-items-center justify-content-center gap-2 {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-primary' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-circle d-inline d-sm-block fs-5 mb-0 mb-sm-1"></i>
                                                 <span class="small fw-semibold">Story</span>
                                             </button>
                                         </div>
@@ -367,24 +367,24 @@
                                 @elseif ($pVal === 'instagram')
                                     <label class="form-label small fw-bold text-dark mb-2">Choose Instagram Format</label>
                                     <div class="row g-2 mb-2">
-                                        <div class="col-4">
+                                        <div class="col-12 col-sm-4">
                                             <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'feed')"
-                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
-                                                <i class="bi bi-grid-3x3 d-block fs-5 mb-1"></i>
+                                                class="btn w-100 py-2 rounded-3 d-flex d-sm-block align-items-center justify-content-center gap-2 {{ ($settings['post_type'] ?? 'feed') === 'feed' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-grid-3x3 d-inline d-sm-block fs-5 mb-0 mb-sm-1"></i>
                                                 <span class="small fw-semibold">Feed Post</span>
                                             </button>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-12 col-sm-4">
                                             <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'reel')"
-                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
-                                                <i class="bi bi-play-btn-fill d-block fs-5 mb-1"></i>
+                                                class="btn w-100 py-2 rounded-3 d-flex d-sm-block align-items-center justify-content-center gap-2 {{ ($settings['post_type'] ?? '') === 'reel' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-play-btn-fill d-inline d-sm-block fs-5 mb-0 mb-sm-1"></i>
                                                 <span class="small fw-semibold">Reel</span>
                                             </button>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-12 col-sm-4">
                                             <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'story')"
-                                                class="btn w-100 py-2 rounded-3 {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
-                                                <i class="bi bi-circle d-block fs-5 mb-1"></i>
+                                                class="btn w-100 py-2 rounded-3 d-flex d-sm-block align-items-center justify-content-center gap-2 {{ ($settings['post_type'] ?? '') === 'story' ? 'btn-dark' : 'btn-white bg-white border text-dark' }}">
+                                                <i class="bi bi-circle d-inline d-sm-block fs-5 mb-0 mb-sm-1"></i>
                                                 <span class="small fw-semibold">Story</span>
                                             </button>
                                         </div>

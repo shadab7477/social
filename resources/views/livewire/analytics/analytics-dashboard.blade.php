@@ -261,7 +261,7 @@
         <!-- ============================================== -->
         <!-- MIDDLE COLUMN: SOCIAL PROFILES SUB-SIDEBAR     -->
         <!-- ============================================== -->
-        <aside class="recur-profiles-col" x-data="{ profilesOpen: window.innerWidth >= 992 }">
+        <aside class="recur-profiles-col" x-data="{ profilesOpen: window.innerWidth >= 992 }" @resize.window="if (window.innerWidth >= 992) profilesOpen = true">
             <div class="d-flex align-items-center justify-content-between pb-1">
                 <h6 class="fw-bold mb-0 text-dark">Social Profiles ({{ $allProfiles->count() }})</h6>
                 <button type="button" @click="profilesOpen = !profilesOpen" class="btn btn-sm btn-light border rounded-pill px-2 py-0 d-lg-none small fw-semibold" :aria-expanded="profilesOpen">
@@ -413,10 +413,10 @@
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <!-- Date Range Dropdown with comparison label -->
                     <div class="dropdown">
-                        <button class="btn btn-recur-pill dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem; padding: 0.45rem 1rem;">
+                        <button class="btn btn-recur-pill dropdown-toggle d-flex flex-wrap align-items-center gap-1 gap-sm-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem; padding: 0.45rem 0.85rem;">
                             <i class="bi bi-calendar3 text-muted"></i>
                             <span class="fw-semibold">{{ $dateLabel }}</span>
-                            <span class="text-muted" style="font-size: 0.72rem;">vs {{ $prevDateLabel }}</span>
+                            <span class="text-muted d-none d-sm-inline" style="font-size: 0.72rem;">vs {{ $prevDateLabel }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
                             <li><button class="dropdown-item @if($dateRange === '7d') active fw-bold @endif" wire:click="setDateRange('7d')"><i class="bi bi-clock me-2"></i>Last 7 Days</button></li>

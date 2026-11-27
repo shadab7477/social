@@ -451,7 +451,7 @@
                                                 <div class="mt-2 pt-2 border-top">
                                                     <small class="fw-bold text-muted d-block mb-1">Execution Attempts Log:</small>
                                                     @foreach($variant->publishingRecord->attempts as $attempt)
-                                                        <div class="d-flex justify-content-between small text-muted py-1 border-bottom border-light">
+                                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small text-muted py-1 border-bottom border-light">
                                                             <span>
                                                                 Attempt #{{ $attempt->attempt_number }}
                                                                 <span class="badge {{ $attempt->response_status_code === 200 ? 'bg-success' : 'bg-danger' }} ms-1">

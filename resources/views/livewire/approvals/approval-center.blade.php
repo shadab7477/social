@@ -63,7 +63,7 @@
         <!-- Filter Controls -->
         <div class="card-body bg-light border-top py-3">
             <div class="row g-2 align-items-center">
-                <div class="col-md-4">
+                <div class="col-12 col-sm-6 col-md-4">
                     <select wire:model.live="selectedClientId" class="form-select form-select-sm">
                         <option value="">All Clients</option>
                         @foreach($clients as $c)
@@ -71,7 +71,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-sm-6 col-md-4">
                     <select wire:model.live="stageFilter" class="form-select form-select-sm">
                         <option value="">All Review Stages</option>
                         @foreach($stages as $stage)
@@ -79,7 +79,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4 text-end">
+                <div class="col-12 col-md-4 text-end">
                     @if($selectedClientId || $stageFilter)
                         <button wire:click="$set('selectedClientId', null); $set('stageFilter', '');" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-x-lg me-1"></i> Reset Filters
@@ -267,15 +267,15 @@
                     <!-- Approval Card Footer Action Buttons -->
                     @if($approval->isPending())
                         <div class="card-footer bg-white border-top py-3 d-flex flex-wrap justify-content-end align-items-center gap-2">
-                            <button wire:click="openRejectModal({{ $approval->id }})" class="btn btn-sm btn-outline-danger">
+                            <button wire:click="openRejectModal({{ $approval->id }})" class="btn btn-sm btn-outline-danger flex-fill flex-sm-grow-0">
                                 <i class="bi bi-x-circle me-1"></i> Reject Post
                             </button>
 
-                            <button wire:click="openChangesModal({{ $approval->id }})" class="btn btn-sm btn-outline-warning text-dark">
+                            <button wire:click="openChangesModal({{ $approval->id }})" class="btn btn-sm btn-outline-warning text-dark flex-fill flex-sm-grow-0">
                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Request Changes
                             </button>
 
-                            <button wire:click="approve({{ $approval->id }})" class="btn btn-sm btn-success px-3">
+                            <button wire:click="approve({{ $approval->id }})" class="btn btn-sm btn-success px-3 flex-fill flex-sm-grow-0">
                                 <i class="bi bi-check2-circle me-1"></i> Approve Post
                             </button>
                         </div>

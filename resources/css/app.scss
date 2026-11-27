@@ -734,12 +734,46 @@ p, li {
 // 5. Comprehensive Responsive Design System
 // -------------------------------------------------------------
 
-// Custom 5-column desktop breakpoint helper (used in landing page)
+// Custom 5-column desktop breakpoint helper & responsive width utilities
 .col-lg-2-4 {
     @media (min-width: 992px) {
         flex: 0 0 auto;
         width: 20%;
     }
+}
+
+@media (min-width: 576px) {
+    .w-sm-auto { width: auto !important; }
+    .flex-sm-grow-0 { flex-grow: 0 !important; }
+}
+@media (min-width: 768px) {
+    .w-md-auto { width: auto !important; }
+}
+@media (min-width: 992px) {
+    .w-lg-auto { width: auto !important; }
+}
+@media (min-width: 1200px) {
+    .w-xl-auto { width: auto !important; }
+}
+
+// Keep all dropdown menus safely inside narrow mobile viewports
+.dropdown-menu {
+    max-inline-size: calc(100dvw - 1.5rem);
+}
+
+// Make Laravel Bootstrap 5 pagination bars wrap cleanly on mobile
+nav[aria-label="Pagination Navigation"],
+.pagination-wrapper {
+    > div {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+.media-thumb-box {
+    aspect-ratio: 4 / 3;
+    inline-size: 100%;
+    overflow: hidden;
 }
 
 // Responsive Border Helpers (avoid stuck vertical divider on mobile stacks)
@@ -1040,6 +1074,192 @@ p, li {
     .pagination {
         flex-wrap: wrap;
         gap: 0.25rem;
+    }
+}
+
+// -------------------------------------------------------------
+// 6. Public SaaS Marketing & Landing Theme (.public-site)
+// -------------------------------------------------------------
+.public-site {
+    background-color: #ffffff;
+    color: #0f172a;
+    background-image: none;
+
+    .public-navbar {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .text-gradient-indigo {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .hero-aura-bg {
+        background-color: #f8fafc;
+        background-image:
+            radial-gradient(at 10% 15%, rgba(212, 241, 235, 0.85) 0px, transparent 42%),
+            radial-gradient(at 92% 12%, rgba(228, 221, 255, 0.85) 0px, transparent 45%),
+            radial-gradient(at 80% 85%, rgba(254, 221, 229, 0.72) 0px, transparent 45%),
+            radial-gradient(at 18% 85%, rgba(216, 239, 248, 0.85) 0px, transparent 42%);
+        position: relative;
+        overflow: clip;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 1rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(79, 70, 229, 0.2);
+        color: #4338ca;
+        font-size: 0.8rem;
+        font-weight: 700;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.08);
+    }
+
+    .hero-title {
+        font-size: clamp(2rem, 1.35rem + 2.8vw, 3.6rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.035em;
+        color: #0f172a;
+    }
+
+    .hero-lead {
+        font-size: clamp(1rem, 0.92rem + 0.4vw, 1.18rem);
+        line-height: 1.65;
+        color: #475569;
+        max-inline-size: 56ch;
+    }
+
+    .btn-hero-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.8rem 1.75rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+        &:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px -5px rgba(79, 70, 229, 0.5);
+        }
+    }
+
+    .btn-hero-secondary {
+        background: rgba(255, 255, 255, 0.95);
+        color: #0f172a;
+        border: 1px solid #cbd5e1;
+        border-radius: 9999px;
+        padding: 0.8rem 1.75rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+
+        &:hover {
+            color: #0f172a;
+            background-color: #ffffff;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+    }
+
+    .showcase-card {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(22px);
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px -15px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.04);
+        overflow: hidden;
+    }
+
+    .bento-platforms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+        gap: 1rem;
+    }
+
+    .platform-bento-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 1.25rem;
+        text-align: start;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+
+        &:hover {
+            transform: translateY(-3px);
+            border-color: rgba(79, 70, 229, 0.35);
+            box-shadow: 0 14px 28px -10px rgba(79, 70, 229, 0.14);
+        }
+    }
+
+    .glass-feature-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        padding: 1.75rem;
+        height: 100%;
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 36px -12px rgba(15, 23, 42, 0.08);
+        }
+    }
+
+    .pricing-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 26px;
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.09);
+        }
+
+        &.pricing-card-featured {
+            border: 2px solid #4f46e5;
+            background: linear-gradient(180deg, rgba(238, 242, 255, 0.5) 0%, #ffffff 42%);
+            box-shadow: 0 24px 48px -15px rgba(79, 70, 229, 0.22);
+        }
+    }
+
+    .compliance-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 22px;
+        padding: 1.5rem;
+        height: 100%;
     }
 }
 

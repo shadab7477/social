@@ -57,17 +57,17 @@
     @if ($folders->count() > 0)
         <div class="row g-3 mb-4">
             @foreach ($folders as $folder)
-                <div class="col-md-3 col-sm-6">
+                <div class="col-xl-3 col-md-4 col-sm-6 col-12">
                     <div wire:click="selectFolder({{ $folder->id }})" class="card border shadow-sm p-3 cursor-pointer text-decoration-none hover-shadow" style="cursor: pointer;">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex flex-wrap align-items-center gap-2">
-                                <i class="bi bi-folder-fill text-warning fs-4"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark small text-truncate" style="max-width: 140px;">{{ $folder->name }}</h6>
+                        <div class="d-flex align-items-center justify-content-between gap-2 min-w-0">
+                            <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+                                <i class="bi bi-folder-fill text-warning fs-4 flex-shrink-0"></i>
+                                <div class="min-w-0 flex-grow-1">
+                                    <h6 class="fw-bold mb-0 text-dark small text-truncate">{{ $folder->name }}</h6>
                                     <span class="text-muted" style="font-size: 0.75rem;">{{ $folder->assets_count }} items</span>
                                 </div>
                             </div>
-                            <i class="bi bi-chevron-right text-muted small"></i>
+                            <i class="bi bi-chevron-right text-muted small flex-shrink-0"></i>
                         </div>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
                         <div class="col-xl-3 col-lg-4 col-md-6 col-6">
                             <div class="card h-100 border overflow-hidden shadow-xs post-preview-card">
                                 <!-- Media Thumbnail Preview -->
-                                <div class="position-relative bg-dark d-flex align-items-center justify-content-center" style="height: 180px; overflow: hidden;">
+                                <div class="position-relative bg-dark d-flex align-items-center justify-content-center media-thumb-box">
                                     @if ($asset->isImage() || $asset->media_type === 'gif')
                                         <img src="{{ $asset->public_url }}" alt="{{ $asset->file_name }}" class="w-100 h-100" style="object-fit: cover;" onerror="this.onerror=null; this.classList.add('d-none'); if (this.nextElementSibling) this.nextElementSibling.classList.remove('d-none');">
                                         <div class="d-none text-center p-3 text-white-50">
