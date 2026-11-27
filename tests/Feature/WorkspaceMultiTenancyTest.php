@@ -22,14 +22,20 @@ class WorkspaceMultiTenancyTest extends TestCase
      */
     public function test_user_can_register_and_automatically_creates_workspace(): void
     {
-        Livewire::test(Register::class)
+        $component = Livewire::test(Register::class)
             ->set('name', 'Vikram Sharma')
             ->set('email', 'vikram@apexagency.com')
-            ->set('password', 'SecurePass123!')
-            ->set('password_confirmation', 'SecurePass123!')
             ->set('workspace_name', 'Apex Digital Agency')
             ->set('timezone', 'Asia/Kolkata')
-            ->call('register')
+            ->call('sendOtp')
+            ->assertSet('otpSent', true);
+
+        $otp = \Illuminate\Support\Facades\Cache::get('register_otp_vikram@apexagency.com');
+        $this->assertNotEmpty($otp);
+
+        $component
+            ->set('otpCode', (string) $otp)
+            ->call('verifyAndRegister')
             ->assertRedirect(route('dashboard'));
 
         $this->assertAuthenticated();
@@ -64,10 +70,17 @@ class WorkspaceMultiTenancyTest extends TestCase
         $workspaceManager = app(WorkspaceManagerService::class);
         $workspace = $workspaceManager->createWorkspace($user, 'MediaWorks International');
 
-        Livewire::test(Login::class)
+        $component = Livewire::test(Login::class)
             ->set('email', 'sarah@mediaworks.com')
-            ->set('password', 'Password123!')
-            ->call('login')
+            ->call('sendOtp')
+            ->assertSet('otpSent', true);
+
+        $otp = \Illuminate\Support\Facades\Cache::get('auth_otp_sarah@mediaworks.com');
+        $this->assertNotEmpty($otp);
+
+        $component
+            ->set('otpCode', (string) $otp)
+            ->call('verifyOtp')
             ->assertRedirect(route('dashboard'));
 
         $this->assertAuthenticatedAs($user);

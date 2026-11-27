@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'workspace' => IdentifyWorkspace::class,
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'agency_only' => \App\Http\Middleware\EnsureAgencyStaff::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

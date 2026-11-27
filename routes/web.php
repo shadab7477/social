@@ -64,47 +64,32 @@ Route::post('/logout', function () {
 
 // Protected Multi-Tenant SaaS Workspace Routes
 Route::middleware(['auth', 'workspace'])->group(function () {
-    // Workspace Switching & Creation
-    Route::post('/workspace/switch/{workspaceId}', WorkspaceSwitchController::class)->name('workspace.switch');
-    Route::post('/workspaces/create', \App\Http\Controllers\WorkspaceCreateController::class)->name('workspaces.create');
-
-    // Dashboard & Overview
+    // Client Portal & Shared Routes (scoped automatically for client_viewer role)
     Route::get('/dashboard', \App\Livewire\Dashboard\WorkspaceDashboard::class)->name('dashboard');
-
-    // Publishing & Content
-    Route::get('/composer', \App\Livewire\Composer\PostComposer::class)->name('composer');
     Route::get('/calendar', \App\Livewire\Calendar\ContentCalendar::class)->name('calendar');
     Route::get('/posts', \App\Livewire\Posts\PostList::class)->name('posts.index');
-
-    Route::get('/media', \App\Livewire\MediaLibrary\MediaManager::class)->name('media.index');
-
-    // Engagement & Social Profiles
-    Route::get('/social-accounts', \App\Livewire\SocialAccounts\AccountManager::class)->name('social-accounts.index');
-
-    // OAuth 2.0 PKCE Handshake Initiator (Workspace Users)
-    Route::get('/oauth/connect/{platform}', [\App\Http\Controllers\SocialOAuthController::class, 'connect'])->name('oauth.connect');
-
-    Route::get('/inbox', \App\Livewire\Inbox\UnifiedInbox::class)->name('inbox.index');
-
     Route::get('/analytics', \App\Livewire\Analytics\AnalyticsDashboard::class)->name('analytics.index');
-
     Route::get('/reports', \App\Livewire\Reports\ReportBuilder::class)->name('reports.index');
     Route::get('/reports/{report}/download', [\App\Http\Controllers\ReportDownloadController::class, 'download'])->name('reports.download');
-
-    // Clients & Approvals
-    Route::get('/clients', \App\Livewire\Clients\ClientManager::class)->name('clients.index');
     Route::get('/approvals', \App\Livewire\Approvals\ApprovalCenter::class)->name('approvals.index');
 
-    Route::get('/team', \App\Livewire\Team\MemberManager::class)->name('team.index');
-
-    Route::get('/automations', \App\Livewire\Automations\AutomationManager::class)->name('automations.index');
-
-    // Billing & Workspace Settings
-    Route::get('/billing', \App\Livewire\Billing\BillingManager::class)->name('billing.index');
-
-    Route::get('/settings', function () {
-        return view('dashboard', ['headerTitle' => 'Workspace Settings']);
-    })->name('settings.index');
+    // Agency Staff Only Routes (blocked for client_viewer accounts)
+    Route::middleware('agency_only')->group(function () {
+        Route::post('/workspace/switch/{workspaceId}', WorkspaceSwitchController::class)->name('workspace.switch');
+        Route::post('/workspaces/create', \App\Http\Controllers\WorkspaceCreateController::class)->name('workspaces.create');
+        Route::get('/composer', \App\Livewire\Composer\PostComposer::class)->name('composer');
+        Route::get('/media', \App\Livewire\MediaLibrary\MediaManager::class)->name('media.index');
+        Route::get('/social-accounts', \App\Livewire\SocialAccounts\AccountManager::class)->name('social-accounts.index');
+        Route::get('/oauth/connect/{platform}', [\App\Http\Controllers\SocialOAuthController::class, 'connect'])->name('oauth.connect');
+        Route::get('/inbox', \App\Livewire\Inbox\UnifiedInbox::class)->name('inbox.index');
+        Route::get('/clients', \App\Livewire\Clients\ClientManager::class)->name('clients.index');
+        Route::get('/team', \App\Livewire\Team\MemberManager::class)->name('team.index');
+        Route::get('/automations', \App\Livewire\Automations\AutomationManager::class)->name('automations.index');
+        Route::get('/billing', \App\Livewire\Billing\BillingManager::class)->name('billing.index');
+        Route::get('/settings', function () {
+            return view('dashboard', ['headerTitle' => 'Workspace Settings']);
+        })->name('settings.index');
+    });
 });
 
 // Super Administrator Platform Master Control Panel

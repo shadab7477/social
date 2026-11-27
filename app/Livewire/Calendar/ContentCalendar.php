@@ -48,7 +48,13 @@ class ContentCalendar extends Component
         $endDate = Carbon::parse($end)->endOfDay();
 
         $query = PostVariant::query()
-            ->whereHas('post') // Enforces workspace multi-tenant scope automatically
+            ->whereHas('post', function ($pq) {
+                $user = auth()->user();
+                if ($user && $user->isClientViewer()) {
+                    $assignedIds = $user->assignedClientIds();
+                    $pq->whereIn('client_id', !empty($assignedIds) ? $assignedIds : [-1]);
+                }
+            }) // Enforces workspace & client multi-tenant scope automatically
             ->with(['post.client', 'socialProfile', 'mediaAssets'])
             ->where(function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('scheduled_at', [$startDate, $endDate])

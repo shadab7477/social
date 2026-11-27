@@ -200,6 +200,12 @@ class PostList extends Component
             ->with(['client', 'author', 'variants.socialProfile', 'variants.mediaAssets'])
             ->latest();
 
+        $user = auth()->user();
+        if ($user && $user->isClientViewer()) {
+            $assignedIds = $user->assignedClientIds();
+            $query->whereIn('client_id', !empty($assignedIds) ? $assignedIds : [-1]);
+        }
+
         // Status Filter
         if ($this->statusFilter !== 'all') {
             if ($this->statusFilter === 'failed') {

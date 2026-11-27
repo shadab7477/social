@@ -109,4 +109,49 @@ class User extends Authenticatable
     {
         return $this->workspaces()->where('workspaces.id', $workspaceId)->exists();
     }
+
+    /**
+     * Get user's role in the given (or active) workspace.
+     */
+    public function workspaceRole(?Workspace $workspace = null): ?\App\Enums\WorkspaceRole
+    {
+        $ws = $workspace ?? $this->activeWorkspace();
+        if (!$ws) {
+            return null;
+        }
+
+        $member = $this->workspaceMembers()->where('workspace_id', $ws->id)->first();
+        return $member?->role;
+    }
+
+    /**
+     * Check if user is a restricted Client Viewer in the current workspace.
+     */
+    public function isClientViewer(?Workspace $workspace = null): bool
+    {
+        return $this->workspaceRole($workspace) === \App\Enums\WorkspaceRole::CLIENT_VIEWER;
+    }
+
+    /**
+     * Get assigned client IDs for this user (via client_members or matching client contact_email).
+     */
+    public function assignedClientIds(?Workspace $workspace = null): array
+    {
+        $ws = $workspace ?? $this->activeWorkspace();
+        if (!$ws) {
+            return [];
+        }
+
+        $memberIds = \App\Models\ClientMember::where('user_id', $this->id)
+            ->pluck('client_id')
+            ->toArray();
+
+        $emailMatchIds = Client::withoutGlobalScopes()
+            ->where('workspace_id', $ws->id)
+            ->whereRaw('LOWER(contact_email) = ?', [strtolower($this->email)])
+            ->pluck('id')
+            ->toArray();
+
+        return array_values(array_unique(array_merge($memberIds, $emailMatchIds)));
+    }
 }

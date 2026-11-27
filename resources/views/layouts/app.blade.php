@@ -36,46 +36,60 @@
                 <button class="btn-close d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Close"></button>
             </div>
 
-            <!-- Workspace Switcher Pill inside Sidebar -->
-            <div class="px-3 pt-1 pb-2">
-                <div class="dropdown">
-                    <button class="btn btn-sm w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
-                        <div class="d-flex align-items-center gap-2 text-truncate">
-                            <span class="pulse-online"></span>
-                            <div class="text-truncate">
-                                <div class="text-dark small fw-bold text-truncate" style="max-width: 135px;">
-                                    {{ session('active_workspace_name', 'Workspace') }}
+            @php
+                $currWs = app()->bound('current_workspace') ? app('current_workspace') : null;
+                $isClientViewer = auth()->check() ? auth()->user()->isClientViewer($currWs) : false;
+            @endphp
+
+            <!-- Workspace Switcher / Client Portal Indicator -->
+            @if(!$isClientViewer)
+                <div class="px-3 pt-1 pb-2">
+                    <div class="dropdown">
+                        <button class="btn btn-sm w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
+                            <div class="d-flex align-items-center gap-2 text-truncate">
+                                <span class="pulse-online"></span>
+                                <div class="text-truncate">
+                                    <div class="text-dark small fw-bold text-truncate" style="max-width: 135px;">
+                                        {{ session('active_workspace_name', 'Workspace') }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <i class="bi bi-chevron-expand text-muted small"></i>
-                    </button>
-                    <ul class="dropdown-menu shadow border-0 p-2" style="min-width: 220px; border-radius: 16px;">
-                        <li class="dropdown-header text-uppercase small text-muted fw-bold">Switch Workspace</li>
-                        @auth
-                            @foreach(auth()->user()->workspaces as $ws)
-                                <li>
-                                    <form method="POST" action="{{ route('workspace.switch', $ws->id) }}">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between rounded py-2 {{ $ws->id == session('active_workspace_id') ? 'active fw-bold' : '' }}">
-                                            <span class="text-truncate">{{ $ws->name }}</span>
-                                            @if($ws->id == session('active_workspace_id'))
-                                                <i class="bi bi-check2 text-primary"></i>
-                                            @endif
-                                        </button>
-                                    </form>
-                                </li>
-                            @endforeach
-                        @endauth
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li>
-                            <button type="button" class="dropdown-item text-primary fw-semibold d-flex align-items-center py-2 rounded" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
-                                <i class="bi bi-plus-circle me-2"></i>+ New Client Workspace
-                            </button>
-                        </li>
-                    </ul>
+                            <i class="bi bi-chevron-expand text-muted small"></i>
+                        </button>
+                        <ul class="dropdown-menu shadow border-0 p-2" style="min-width: 220px; border-radius: 16px;">
+                            <li class="dropdown-header text-uppercase small text-muted fw-bold">Switch Workspace</li>
+                            @auth
+                                @foreach(auth()->user()->workspaces as $ws)
+                                    <li>
+                                        <form method="POST" action="{{ route('workspace.switch', $ws->id) }}">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between rounded py-2 {{ $ws->id == session('active_workspace_id') ? 'active fw-bold' : '' }}">
+                                                <span class="text-truncate">{{ $ws->name }}</span>
+                                                @if($ws->id == session('active_workspace_id'))
+                                                    <i class="bi bi-check2 text-primary"></i>
+                                                @endif
+                                            </button>
+                                        </form>
+                                    </li>
+                                @endforeach
+                            @endauth
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <button type="button" class="dropdown-item text-primary fw-semibold d-flex align-items-center py-2 rounded" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
+                                    <i class="bi bi-plus-circle me-2"></i>+ New Client Workspace
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="px-3 pt-1 pb-2">
+                    <div class="p-2 border bg-light rounded-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-pill">Client Portal</span>
+                        <span class="small fw-semibold text-dark text-truncate">{{ session('active_workspace_name', 'Brand') }}</span>
+                    </div>
+                </div>
+            @endif
 
             <div class="sidebar-menu">
                 <nav class="nav flex-column">
@@ -89,77 +103,93 @@
                     </a>
                     <a href="{{ route('posts.index') }}" wire:navigate class="nav-link {{ request()->routeIs('posts.*') ? 'active' : '' }}">
                         <i class="bi bi-check2-square"></i>
-                        <span>My Posts</span>
+                        <span>{{ $isClientViewer ? 'Posts' : 'My Posts' }}</span>
                     </a>
                     <a href="{{ route('analytics.index') }}" wire:navigate class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
                         <i class="bi bi-graph-up"></i>
                         <span>Analytics</span>
                     </a>
-                    <a href="{{ route('media.index') }}" wire:navigate class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}">
-                        <i class="bi bi-file-earmark-text"></i>
-                        <span>Media & Docs</span>
-                    </a>
-                </nav>
-
-                <div class="menu-header">INTEGRATIONS</div>
-                <nav class="nav flex-column">
-                    <a href="{{ route('social-accounts.index') }}" wire:navigate class="nav-link {{ request()->routeIs('social-accounts.*') ? 'active' : '' }}">
-                        <i class="bi bi-share"></i>
-                        <span>Social Accounts</span>
-                    </a>
-                    <a href="{{ route('inbox.index') }}" wire:navigate class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
-                        <i class="bi bi-chat-dots"></i>
-                        <span>Social Inbox</span>
-                    </a>
-                    <a href="{{ route('reports.index') }}" wire:navigate class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                        <i class="bi bi-file-earmark-bar-graph"></i>
-                        <span>Client Reports</span>
-                    </a>
-                </nav>
-
-                <div class="menu-header">TEAMS & CLIENTS</div>
-                <nav class="nav flex-column">
-                    <a href="{{ route('clients.index') }}" wire:navigate class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
-                        <i class="bi bi-buildings"></i>
-                        <span>Clients</span>
-                    </a>
-                    <a href="{{ route('approvals.index') }}" wire:navigate class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
-                        <i class="bi bi-check-circle"></i>
-                        <span>Approvals</span>
-                    </a>
-                    <a href="{{ route('team.index') }}" wire:navigate class="nav-link {{ request()->routeIs('team.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i>
-                        <span>Team & Roles</span>
-                    </a>
-                    <a href="{{ route('automations.index') }}" wire:navigate class="nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}">
-                        <i class="bi bi-cpu"></i>
-                        <span>Automations</span>
-                    </a>
-                </nav>
-
-                <div class="menu-header">SETTINGS</div>
-                <nav class="nav flex-column">
-                    <a href="{{ route('billing.index') }}" wire:navigate class="nav-link {{ request()->routeIs('billing.*') ? 'active' : '' }}">
-                        <i class="bi bi-credit-card"></i>
-                        <span>Billing & Plans</span>
-                    </a>
-                    <a href="{{ route('settings.index') }}" wire:navigate class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </nav>
-
-                @auth
-                    @if (auth()->user()->is_super_admin)
-                        <div class="menu-header text-danger">SUPER ADMIN</div>
-                        <nav class="nav flex-column">
-                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }} text-danger">
-                                <i class="bi bi-speedometer2 text-danger"></i>
-                                <span>Admin Panel</span>
-                            </a>
-                        </nav>
+                    @if(!$isClientViewer)
+                        <a href="{{ route('media.index') }}" wire:navigate class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>Media & Docs</span>
+                        </a>
                     @endif
-                @endauth
+                </nav>
+
+                @if(!$isClientViewer)
+                    <div class="menu-header">INTEGRATIONS</div>
+                    <nav class="nav flex-column">
+                        <a href="{{ route('social-accounts.index') }}" wire:navigate class="nav-link {{ request()->routeIs('social-accounts.*') ? 'active' : '' }}">
+                            <i class="bi bi-share"></i>
+                            <span>Social Accounts</span>
+                        </a>
+                        <a href="{{ route('inbox.index') }}" wire:navigate class="nav-link {{ request()->routeIs('inbox.*') ? 'active' : '' }}">
+                            <i class="bi bi-chat-dots"></i>
+                            <span>Social Inbox</span>
+                        </a>
+                        <a href="{{ route('reports.index') }}" wire:navigate class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-bar-graph"></i>
+                            <span>Client Reports</span>
+                        </a>
+                    </nav>
+
+                    <div class="menu-header">TEAMS & CLIENTS</div>
+                    <nav class="nav flex-column">
+                        <a href="{{ route('clients.index') }}" wire:navigate class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                            <i class="bi bi-buildings"></i>
+                            <span>Clients</span>
+                        </a>
+                        <a href="{{ route('approvals.index') }}" wire:navigate class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Approvals</span>
+                        </a>
+                        <a href="{{ route('team.index') }}" wire:navigate class="nav-link {{ request()->routeIs('team.*') ? 'active' : '' }}">
+                            <i class="bi bi-people"></i>
+                            <span>Team & Roles</span>
+                        </a>
+                        <a href="{{ route('automations.index') }}" wire:navigate class="nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}">
+                            <i class="bi bi-cpu"></i>
+                            <span>Automations</span>
+                        </a>
+                    </nav>
+
+                    <div class="menu-header">SETTINGS</div>
+                    <nav class="nav flex-column">
+                        <a href="{{ route('billing.index') }}" wire:navigate class="nav-link {{ request()->routeIs('billing.*') ? 'active' : '' }}">
+                            <i class="bi bi-credit-card"></i>
+                            <span>Billing & Plans</span>
+                        </a>
+                        <a href="{{ route('settings.index') }}" wire:navigate class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                            <i class="bi bi-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </nav>
+
+                    @auth
+                        @if (auth()->user()->is_super_admin)
+                            <div class="menu-header text-danger">SUPER ADMIN</div>
+                            <nav class="nav flex-column">
+                                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }} text-danger">
+                                    <i class="bi bi-speedometer2 text-danger"></i>
+                                    <span>Admin Panel</span>
+                                </a>
+                            </nav>
+                        @endif
+                    @endauth
+                @else
+                    <div class="menu-header">CLIENT REVIEW</div>
+                    <nav class="nav flex-column">
+                        <a href="{{ route('approvals.index') }}" wire:navigate class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Approvals</span>
+                        </a>
+                        <a href="{{ route('reports.index') }}" wire:navigate class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-bar-graph"></i>
+                            <span>Reports</span>
+                        </a>
+                    </nav>
+                @endif
             </div>
 
             <div class="sidebar-footer">
@@ -217,7 +247,7 @@
                     @php
                         $currWs = app('current_workspace');
                     @endphp
-                    @if ($currWs)
+                    @if ($currWs && !$isClientViewer)
                         <div class="dropdown d-none d-sm-block">
                             <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark d-flex align-items-center gap-1 shadow-xs" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.82rem; font-weight: 500;">
                                 <i class="bi bi-link-45deg text-primary"></i>
@@ -243,10 +273,12 @@
                  
 
                     <!-- + Create Black Pill Button -->
-                    <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">
-                        <i class="bi bi-plus-lg"></i>
-                        <span>Create</span>
-                    </a>
+                    @if (!$isClientViewer)
+                        <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>Create</span>
+                        </a>
+                    @endif
 
                     <!-- User Avatar Circle -->
                     <div class="dropdown">
@@ -260,8 +292,10 @@
                                 <div class="fw-bold text-dark">{{ auth()->user()->name ?? 'User' }}</div>
                                 <div class="text-muted small">{{ auth()->user()->email ?? 'user@postsync.cloud' }}</div>
                             </li>
-                            <li><a class="dropdown-item small py-2 rounded" href="{{ route('settings.index') }}"><i class="bi bi-person me-2"></i>My Profile</a></li>
-                            <li><a class="dropdown-item small py-2 rounded" href="{{ route('billing.index') }}"><i class="bi bi-credit-card me-2"></i>Subscription & Plans</a></li>
+                            @if (!$isClientViewer)
+                                <li><a class="dropdown-item small py-2 rounded" href="{{ route('settings.index') }}"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                                <li><a class="dropdown-item small py-2 rounded" href="{{ route('billing.index') }}"><i class="bi bi-credit-card me-2"></i>Subscription & Plans</a></li>
+                            @endif
                             @if (auth()->user()?->is_super_admin)
                                 <li>
                                     <a class="dropdown-item small py-2 rounded text-danger fw-semibold" href="{{ route('admin.dashboard') }}">

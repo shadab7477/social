@@ -194,6 +194,13 @@ class ApprovalCenter extends Component
             ])
             ->latest();
 
+        $user = Auth::user();
+        if ($user && $user->isClientViewer()) {
+            $assignedIds = $user->assignedClientIds();
+            $scopedIds = !empty($assignedIds) ? $assignedIds : [-1];
+            $query->whereHas('post', fn($q) => $q->whereIn('client_id', $scopedIds));
+        }
+
         // Status Filter
         if ($this->statusFilter !== 'all') {
             $query->where('status', $this->statusFilter);

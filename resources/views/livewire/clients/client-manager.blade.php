@@ -176,8 +176,9 @@
                                     <input type="text" class="form-control" wire:model="contact_person" placeholder="Manager Name">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">Contact Email</label>
-                                    <input type="email" class="form-control" wire:model="contact_email" placeholder="client@example.com">
+                                    <label class="form-label small fw-semibold">Client Login Gmail / Email</label>
+                                    <input type="email" class="form-control" wire:model="contact_email" placeholder="client@gmail.com">
+                                    <div class="form-text" style="font-size: 0.72rem;">Client can sign in with this Gmail via OTP to view their own Analytics, Posts &amp; Reports.</div>
                                 </div>
                             </div>
 

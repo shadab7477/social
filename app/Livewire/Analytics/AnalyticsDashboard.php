@@ -197,6 +197,13 @@ class AnalyticsDashboard extends Component
         $profilesQuery = SocialProfile::with('connection')
             ->where('is_active', true);
 
+        $user = auth()->user();
+        $isClientViewer = $user && $user->isClientViewer();
+        if ($isClientViewer) {
+            $assignedIds = $user->assignedClientIds();
+            $profilesQuery->whereIn('client_id', !empty($assignedIds) ? $assignedIds : [-1]);
+        }
+
         if (!empty(trim($this->profileSearch))) {
             $term = '%' . trim($this->profileSearch) . '%';
             $profilesQuery->where(function ($q) use ($term) {
@@ -212,6 +219,11 @@ class AnalyticsDashboard extends Component
         // 2. Query Snapshots for Current Period
         $currentQuery = AnalyticsSnapshot::query()
             ->whereBetween('metric_date', [$startDate->toDateString(), $endDate->toDateString()]);
+
+        if ($isClientViewer) {
+            $profileIdsForClient = $allProfiles->pluck('id')->toArray();
+            $currentQuery->whereIn('social_profile_id', !empty($profileIdsForClient) ? $profileIdsForClient : [-1]);
+        }
 
         if ($selectedProfile && $this->viewMode !== 'overview') {
             $currentQuery->where('social_profile_id', $selectedProfile->id);
