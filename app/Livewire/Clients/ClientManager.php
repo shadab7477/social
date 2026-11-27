@@ -117,8 +117,10 @@ class ClientManager extends Component
                 'notes' => $this->notes,
             ]);
             if (!empty($client->contact_email)) {
-                $this->dispatchInviteMail($client);
-                session()->flash('success', "Client '{$this->name}' created and invitation mail sent to {$client->contact_email}!");
+                $mailSent = $this->dispatchInviteMail($client);
+                if ($mailSent) {
+                    session()->flash('success', "Client '{$this->name}' created and invitation mail sent to {$client->contact_email}!");
+                }
             } else {
                 session()->flash('success', "Client '{$this->name}' created successfully.");
             }
@@ -159,6 +161,25 @@ class ClientManager extends Component
         $workspaceName = app('current_workspace')->name ?? 'PostSync Agency';
         $loginUrl = route('login');
         $clientName = $client->contact_person ?: $client->name;
+
+        if (config('mail.default') === 'log' && !app()->environment('testing')) {
+            \Illuminate\Support\Facades\Mail::html(
+                "<div style='font-family:sans-serif;max-width:520px;margin:auto;padding:28px;border:1px solid #e2e8f0;border-radius:14px;background:#ffffff;'>
+                    <h2 style='margin:0 0 12px;color:#0f172a;'>You're invited to {$workspaceName} Client Portal</h2>
+                    <p style='color:#475569;line-height:1.6;'>Hi {$clientName},</p>
+                    <p style='color:#475569;line-height:1.6;'><strong>{$workspaceName}</strong> has added <strong>{$client->name}</strong> on PostSync. You can now view your scheduled posts, approve upcoming content, check live analytics, and download reports.</p>
+                    <div style='margin:24px 0;text-align:center;'>
+                        <a href='{$loginUrl}' style='display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:12px 26px;border-radius:999px;font-weight:600;'>Open Client Portal</a>
+                    </div>
+                    <p style='color:#64748b;font-size:13px;'>Simply sign in using your email <strong>{$email}</strong> to receive a 6-digit OTP code (no password needed).</p>
+                </div>",
+                function ($msg) use ($email, $workspaceName) {
+                    $msg->to($email)->subject("Invitation to {$workspaceName} Client Portal");
+                }
+            );
+            session()->flash('error', "Client saved, lekin server .env mein MAIL_MAILER=log hai — real Gmail delivery ke liye .env mein SMTP credentials configure karein.");
+            return false;
+        }
 
         try {
             \Illuminate\Support\Facades\Mail::html(
