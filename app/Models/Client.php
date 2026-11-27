@@ -38,7 +38,7 @@ class Client extends Model
                 }
                 $code = $baseCode . '-01';
                 $counter = 1;
-                while (static::where('client_code', $code)->where('workspace_id', $client->workspace_id)->exists()) {
+                while (static::withTrashed()->where('client_code', $code)->where('workspace_id', $client->workspace_id)->exists()) {
                     $counter++;
                     $code = sprintf('%s-%02d', $baseCode, $counter);
                 }

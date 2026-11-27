@@ -19,7 +19,7 @@ class ClientService
         return DB::transaction(function () use ($workspace, $data) {
             $clientCode = !empty($data['client_code']) ? strtoupper(trim($data['client_code'])) : null;
 
-            if ($clientCode && Client::where('workspace_id', $workspace->id)->where('client_code', $clientCode)->exists()) {
+            if ($clientCode && Client::withTrashed()->where('workspace_id', $workspace->id)->where('client_code', $clientCode)->exists()) {
                 throw ValidationException::withMessages([
                     'client_code' => "The client code '{$clientCode}' is already taken in this workspace.",
                 ]);
