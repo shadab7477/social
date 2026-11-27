@@ -145,7 +145,8 @@ class AdminDashboard extends Component
         $user = User::create([
             'name' => $this->newUserName,
             'email' => strtolower(trim($this->newUserEmail)),
-            'password' => Hash::make(\Illuminate\Support\Str::random(32)),
+            'password' => null,
+            'email_verified_at' => now(),
             'is_super_admin' => $this->newUserIsAdmin,
             'timezone' => 'Asia/Kolkata',
         ]);

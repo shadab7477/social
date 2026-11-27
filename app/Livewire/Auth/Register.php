@@ -86,7 +86,7 @@ class Register extends Component
         $user = User::create([
             'name' => $this->name,
             'email' => $email,
-            'password' => Hash::make(Str::random(32)),
+            'password' => null,
             'email_verified_at' => now(),
             'timezone' => $this->timezone,
         ]);

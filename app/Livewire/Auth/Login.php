@@ -98,7 +98,7 @@ class Login extends Component
             $user = User::create([
                 'name' => $firstClient->contact_person ?: $firstClient->name,
                 'email' => $email,
-                'password' => Hash::make(Str::random(32)),
+                'password' => null,
                 'email_verified_at' => now(),
                 'timezone' => $firstClient->timezone ?: 'UTC',
             ]);
