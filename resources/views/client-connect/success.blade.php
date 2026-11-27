@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Account Connected Successfully — {{ $workspace->name }} | PostSync</title>
 
     <!-- Google Fonts (Inter) -->
@@ -13,8 +13,8 @@
 
     @vite(['resources/css/app.scss', 'resources/js/app.js'])
 </head>
-<body class="bg-light min-vh-100 py-5 d-flex align-items-center">
-    <div class="container" style="max-width: 580px;">
+<body class="bg-light py-4 py-md-5 px-2 d-flex align-items-center" style="min-height: 100dvh;">
+    <div class="container px-2 px-sm-3" style="max-width: 580px;">
         
         <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
             <!-- Success Icon -->

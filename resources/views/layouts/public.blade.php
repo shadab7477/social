@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="google-site-verification" content="tuBIHo4VEXVajmCWU_MtsqRhAjhxd8HpTUrYDicrg80" />
     <title>{{ $title ?? 'PostSync SaaS' }} — All-in-One Social Media Management SaaS</title>
     @stack('meta')
@@ -24,7 +24,7 @@
                 Post<span class="text-primary">Sync SaaS</span>
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-controls="publicNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -35,7 +35,7 @@
                     <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
                 </ul>
 
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-grid d-lg-flex align-items-center gap-2 mt-3 mt-lg-0">
                     <a href="{{ route('login') }}" class="btn btn-outline-secondary px-3">Sign In</a>
                     <a href="{{ route('register') }}" class="btn btn-primary px-3">Start Free Trial</a>
                 </div>
@@ -54,7 +54,7 @@
         <div class="container text-center text-md-start">
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 fw-bold fs-4 text-white mb-2">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 fw-bold fs-4 text-white mb-2">
                         <i class="bi bi-send-fill text-primary"></i> PostSync SaaS
                     </div>
                     <p class="text-secondary small">The commercial-grade, multi-tenant social media management SaaS built for modern digital marketing agencies, enterprises, and local businesses.</p>

@@ -36,12 +36,12 @@
             <h6 class="fw-bold mb-0 text-dark">Active Members ({{ $members->count() }})</h6>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Active workspace members">
+                <table class="table table-hover align-middle mb-0 table-stack-mobile">
                     <thead class="table-light small text-uppercase">
                         <tr>
                             <th class="ps-3">Team Member</th>
-                            <th>Role & Permissions</th>
+                            <th>Role &amp; Permissions</th>
                             <th>Status</th>
                             <th>Joined Date</th>
                             <th class="pe-3 text-end">Actions</th>
@@ -50,18 +50,18 @@
                     <tbody>
                         @foreach ($members as $member)
                             <tr>
-                                <td class="ps-3">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                                <td class="ps-3 td-primary-stack" data-label="Member">
+                                    <div class="d-flex align-items-center gap-2 min-w-0">
+                                        <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 36px; height: 36px;">
                                             {{ strtoupper(substr($member->user->name, 0, 1)) }}
                                         </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark">{{ $member->user->name }}</div>
-                                            <div class="text-muted small">{{ $member->user->email }}</div>
+                                        <div class="min-w-0 flex-grow-1">
+                                            <div class="fw-semibold text-dark text-truncate">{{ $member->user->name }}</div>
+                                            <div class="text-muted small text-break">{{ $member->user->email }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Role">
                                     @php
                                         $roleBadgeClass = match($member->role->value) {
                                             'owner' => 'bg-primary-subtle text-primary border border-primary-subtle',
@@ -76,23 +76,23 @@
                                         {{ $member->role->label() }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     @if ($member->is_active)
                                         <span class="badge bg-success-subtle text-success">Active</span>
                                     @else
                                         <span class="badge bg-danger-subtle text-danger">Suspended</span>
                                     @endif
                                 </td>
-                                <td class="small text-muted">
+                                <td class="small text-muted" data-label="Joined">
                                     {{ $member->joined_at ? $member->joined_at->format('M d, Y') : '—' }}
                                 </td>
-                                <td class="pe-3 text-end">
+                                <td class="pe-3 text-end" data-label="Actions">
                                     @if (!$member->isOwner())
                                         <div class="btn-group btn-group-sm">
-                                            <button wire:click="openRoleModal({{ $member->id }})" class="btn btn-light border" title="Edit Role">
+                                            <button wire:click="openRoleModal({{ $member->id }})" class="btn btn-light border" title="Edit Role" aria-label="Edit Role">
                                                 <i class="bi bi-shield-shaded"></i>
                                             </button>
-                                            <button wire:click="removeMember({{ $member->id }})" wire:confirm="Are you sure you want to remove {{ $member->user->name }} from this workspace?" class="btn btn-light border text-danger" title="Remove Member">
+                                            <button wire:click="removeMember({{ $member->id }})" wire:confirm="Are you sure you want to remove {{ $member->user->name }} from this workspace?" class="btn btn-light border text-danger" title="Remove Member" aria-label="Remove Member">
                                                 <i class="bi bi-person-x"></i>
                                             </button>
                                         </div>
@@ -115,8 +115,8 @@
         </div>
         <div class="card-body p-0">
             @if ($invitations->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Pending workspace invitations">
+                    <table class="table table-hover align-middle mb-0 table-stack-mobile">
                         <thead class="table-light small text-uppercase">
                             <tr>
                                 <th class="ps-3">Invited Email</th>
@@ -129,16 +129,16 @@
                         <tbody>
                             @foreach ($invitations as $inv)
                                 <tr>
-                                    <td class="ps-3 fw-medium">{{ $inv->email }}</td>
-                                    <td>
+                                    <td class="ps-3 fw-medium td-primary-stack text-break" data-label="Invited Email">{{ $inv->email }}</td>
+                                    <td data-label="Role">
                                         <span class="badge bg-light text-dark border">{{ $inv->role->label() }}</span>
                                     </td>
-                                    <td class="small text-muted">{{ $inv->created_at->format('M d, Y') }}</td>
-                                    <td class="small text-muted">
+                                    <td class="small text-muted" data-label="Sent Date">{{ $inv->created_at->format('M d, Y') }}</td>
+                                    <td class="small text-muted" data-label="Expires">
                                         {{ $inv->expires_at->diffForHumans() }}
                                     </td>
-                                    <td class="pe-3 text-end">
-                                        <div class="d-flex align-items-center justify-content-end gap-1">
+                                    <td class="pe-3 text-end" data-label="Action">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-end gap-1">
                                             <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.75rem;" onclick="navigator.clipboard.writeText('{{ route('invitations.accept', ['token' => $inv->token]) }}'); this.innerHTML='<i class=\'bi bi-check2\'></i> Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-link-45deg\'></i> Copy Link', 2000);" title="Copy Invite Link">
                                                 <i class="bi bi-link-45deg"></i> Copy Link
                                             </button>
@@ -164,7 +164,7 @@
     <!-- Invite Member Modal -->
     @if ($showInviteModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <h5 class="modal-title fs-6 fw-bold">Invite New Team Member</h5>
@@ -207,7 +207,7 @@
     <!-- Change Role Modal -->
     @if ($showRoleModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <h5 class="modal-title fs-6 fw-bold">Change Role</h5>

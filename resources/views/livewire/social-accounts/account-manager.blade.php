@@ -35,8 +35,8 @@
         </div>
         <div class="card-body p-0">
             @if ($connections->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Connected social profiles">
+                    <table class="table table-hover align-middle mb-0 table-stack-mobile">
                         <thead class="table-light small text-uppercase">
                             <tr>
                                 <th class="ps-3">Profile / Page</th>
@@ -55,53 +55,55 @@
                                         $profPlat = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
                                     @endphp
                                     <tr>
-                                        <td class="ps-3">
-                                            <div class="d-flex align-items-center gap-2">
+                                        <td class="ps-3 td-primary-stack" data-label="Profile / Page">
+                                            <div class="d-flex align-items-center gap-2 min-w-0">
                                                 @if ($profile->avatar_url)
-                                                    <img src="{{ $profile->avatar_url }}" alt="{{ $profile->name }}" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                                                    <img src="{{ $profile->avatar_url }}" alt="{{ $profile->name }}" class="rounded-circle flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;">
                                                 @else
-                                                    <span class="platform-icon {{ $profPlat?->value ?? 'facebook' }}" style="width: 36px; height: 36px;">
+                                                    <span class="platform-icon {{ $profPlat?->value ?? 'facebook' }} flex-shrink-0" style="width: 36px; height: 36px;">
                                                         <i class="bi {{ $profPlat?->icon() ?? 'bi-share' }}"></i>
                                                     </span>
                                                 @endif
-                                                <div>
-                                                    <div class="fw-semibold text-dark">{{ $profile->name }}</div>
+                                                <div class="min-w-0 flex-grow-1">
+                                                    <div class="fw-semibold text-dark text-truncate">{{ $profile->name }}</div>
                                                     @if ($profile->username)
-                                                        <div class="text-muted small">&#64;{{ $profile->username }}</div>
+                                                        <div class="text-muted small text-truncate">&#64;{{ $profile->username }}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <span class="platform-icon {{ $profPlat?->value ?? 'facebook' }}" style="width: 24px; height: 24px; font-size: 0.75rem;">
-                                                <i class="bi {{ $profPlat?->icon() ?? 'bi-share' }}"></i>
-                                            </span>
-                                            <span class="small ms-1 fw-medium">{{ $profPlat?->label() }}</span>
+                                        <td data-label="Platform">
+                                            <div class="d-inline-flex align-items-center gap-1">
+                                                <span class="platform-icon {{ $profPlat?->value ?? 'facebook' }}" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                                    <i class="bi {{ $profPlat?->icon() ?? 'bi-share' }}"></i>
+                                                </span>
+                                                <span class="small fw-medium">{{ $profPlat?->label() }}</span>
+                                            </div>
                                         </td>
-                                        <td>
+                                        <td data-label="Client">
                                             @if ($profile->client)
                                                 <span class="badge bg-light text-dark border">{{ $profile->client->name }}</span>
                                             @else
                                                 <span class="text-muted small fst-italic">Workspace Default</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Health">
                                             <span class="badge {{ $conn->status->badgeClass() }}">
                                                 {{ $conn->status->label() }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Publishing">
                                             <button type="button" wire:click="toggleProfilePublishing({{ $profile->id }})" class="btn btn-sm {{ $profile->publishing_enabled ? 'btn-outline-success' : 'btn-outline-secondary' }} py-0 px-2" style="font-size: 0.75rem;">
                                                 <i class="bi {{ $profile->publishing_enabled ? 'bi-check2' : 'bi-pause' }} me-1"></i>
                                                 {{ $profile->publishing_enabled ? 'Enabled' : 'Paused' }}
                                             </button>
                                         </td>
-                                        <td class="small text-muted">
+                                        <td class="small text-muted" data-label="Last Sync">
                                             {{ $conn->last_sync_at ? $conn->last_sync_at->diffForHumans() : '—' }}
                                         </td>
-                                        <td class="pe-3 text-end">
+                                        <td class="pe-3 text-end" data-label="Actions">
                                             <div class="btn-group btn-group-sm">
-                                                <button wire:click="deleteProfile({{ $profile->id }})" wire:confirm="Are you sure you want to remove this profile from your workspace?" class="btn btn-light border text-danger" title="Remove Profile">
+                                                <button wire:click="deleteProfile({{ $profile->id }})" wire:confirm="Are you sure you want to remove this profile from your workspace?" class="btn btn-light border text-danger" title="Remove Profile" aria-label="Remove Profile">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -122,7 +124,7 @@
                                                     <span wire:loading.remove wire:target="discoverForConnection({{ $conn->id }})"><i class="bi bi-arrow-repeat me-1"></i>Select Pages</span>
                                                     <span wire:loading wire:target="discoverForConnection({{ $conn->id }})"><span class="spinner-border spinner-border-sm"></span></span>
                                                 </button>
-                                                <button type="button" wire:click="deleteConnection({{ $conn->id }})" wire:confirm="Remove this unused account connection?" class="btn btn-xs btn-light border text-danger rounded-pill px-2 py-1" title="Remove Connection">
+                                                <button type="button" wire:click="deleteConnection({{ $conn->id }})" wire:confirm="Remove this unused account connection?" class="btn btn-xs btn-light border text-danger rounded-pill px-2 py-1" title="Remove Connection" aria-label="Remove Connection">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -150,8 +152,8 @@
             @php
                 $connectedCount = $platformCounts[$platform->value] ?? 0;
             @endphp
-            <div class="col-xl-3 col-lg-4 col-md-6">
-                <div class="card h-100 border shadow-sm p-3">
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                <div class="card h-100 border shadow-sm p-3 d-flex flex-column">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center gap-2">
                             <span class="platform-icon {{ $platform->cssClass() }}">
@@ -211,7 +213,7 @@
                                     <button type="button" class="btn btn-primary btn-sm px-2 d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-expanded="false" title="Copy / Share Client Direct URL (Instant Redirect to {{ $platform->label() }})">
                                         <i class="bi bi-link-45deg fs-6"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 250px;">
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width: min(260px, calc(100dvw - 2rem));">
                                         <li class="px-2 py-1">
                                             <span class="small fw-bold text-dark d-block">Client Direct URL</span>
                                             <span class="text-muted" style="font-size: 0.72rem;">Client taps this link and logs in directly with {{ $platform->label() }}.</span>
@@ -252,7 +254,7 @@
     <!-- Post-OAuth Profile Selection Modal -->
     @if ($showProfileModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <div>
@@ -279,7 +281,7 @@
                             <label class="form-label small fw-semibold mb-2">Discovered Accounts ({{ count($discoveredProfiles) }} available):</label>
                             <div class="list-group">
                                 @forelse ($discoveredProfiles as $item)
-                                    <label class="list-group-item d-flex align-items-center justify-content-between p-3">
+                                    <label class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-2 p-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <input class="form-check-input flex-shrink-0" type="checkbox" value="{{ $item['profileId'] }}" wire:model="selectedProfileIds">
                                             @if ($item['avatarUrl'])
@@ -323,7 +325,7 @@
         $waMessage = 'Hi! Please click this link to securely connect your official Facebook, Instagram, or LinkedIn accounts so we can manage your social media marketing: ' . $clientConnectUrl;
     @endphp
     <div class="modal fade" id="clientConnectModal" tabindex="-1" aria-labelledby="clientConnectModalLabel" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="clientConnectModalLabel">

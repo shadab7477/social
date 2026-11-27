@@ -76,8 +76,8 @@
                 <a href="{{ route('calendar') }}" class="btn btn-sm btn-outline-primary">Open Calendar</a>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Upcoming scheduled posts">
+                    <table class="table table-hover align-middle mb-0 table-stack-mobile">
                         <thead class="table-light small text-uppercase">
                             <tr>
                                 <th class="ps-3">Campaign / Post</th>
@@ -90,39 +90,39 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="ps-3">
-                                    <div class="fw-semibold text-truncate" style="max-width: 200px;">Weekend Brunch Announcement</div>
-                                    <span class="text-muted small text-truncate d-block" style="max-width: 200px;">"Hand-crafted desserts & live acoustic tunes..."</span>
+                                <td class="ps-3 td-primary-stack" data-label="Post">
+                                    <div class="fw-semibold text-truncate" style="max-width: 100%;">Weekend Brunch Announcement</div>
+                                    <span class="text-muted small text-truncate d-block" style="max-width: 100%;">"Hand-crafted desserts &amp; live acoustic tunes..."</span>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">Sharma Restaurant</span></td>
-                                <td>
-                                    <div class="d-flex gap-1">
+                                <td data-label="Client"><span class="badge bg-light text-dark border">Sharma Restaurant</span></td>
+                                <td data-label="Platforms">
+                                    <div class="d-flex gap-1 justify-content-end justify-content-md-start">
                                         <span class="platform-icon facebook" style="width:24px;height:24px;font-size:0.75rem;"><i class="bi bi-facebook"></i></span>
                                         <span class="platform-icon instagram" style="width:24px;height:24px;font-size:0.75rem;"><i class="bi bi-instagram"></i></span>
                                     </div>
                                 </td>
-                                <td class="small">Today at 6:30 PM <span class="text-muted">(UTC)</span></td>
-                                <td><x-badge status="scheduled" /></td>
-                                <td class="pe-3 text-end">
-                                    <a href="#" class="btn btn-sm btn-light border"><i class="bi bi-pencil"></i></a>
+                                <td class="small" data-label="Scheduled">Today at 6:30 PM <span class="text-muted">(UTC)</span></td>
+                                <td data-label="Status"><x-badge status="scheduled" /></td>
+                                <td class="pe-3 text-end" data-label="Action">
+                                    <a href="#" class="btn btn-sm btn-light border" aria-label="Edit post"><i class="bi bi-pencil"></i></a>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="ps-3">
-                                    <div class="fw-semibold text-truncate" style="max-width: 200px;">Summer Collection Teaser</div>
-                                    <span class="text-muted small text-truncate d-block" style="max-width: 200px;">"Sneak peek at our sustainable cotton linen..."</span>
+                                <td class="ps-3 td-primary-stack" data-label="Post">
+                                    <div class="fw-semibold text-truncate" style="max-width: 100%;">Summer Collection Teaser</div>
+                                    <span class="text-muted small text-truncate d-block" style="max-width: 100%;">"Sneak peek at our sustainable cotton linen..."</span>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">Fashion Store</span></td>
-                                <td>
-                                    <div class="d-flex gap-1">
+                                <td data-label="Client"><span class="badge bg-light text-dark border">Fashion Store</span></td>
+                                <td data-label="Platforms">
+                                    <div class="d-flex gap-1 justify-content-end justify-content-md-start">
                                         <span class="platform-icon instagram" style="width:24px;height:24px;font-size:0.75rem;"><i class="bi bi-instagram"></i></span>
                                         <span class="platform-icon pinterest" style="width:24px;height:24px;font-size:0.75rem;"><i class="bi bi-pin-angle-fill"></i></span>
                                     </div>
                                 </td>
-                                <td class="small">Tomorrow at 10:00 AM</td>
-                                <td><x-badge status="approved" /></td>
-                                <td class="pe-3 text-end">
-                                    <a href="#" class="btn btn-sm btn-light border"><i class="bi bi-pencil"></i></a>
+                                <td class="small" data-label="Scheduled">Tomorrow at 10:00 AM</td>
+                                <td data-label="Status"><x-badge status="approved" /></td>
+                                <td class="pe-3 text-end" data-label="Action">
+                                    <a href="#" class="btn btn-sm btn-light border" aria-label="Edit post"><i class="bi bi-pencil"></i></a>
                                 </td>
                             </tr>
                         </tbody>

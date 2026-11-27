@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="google-site-verification" content="tuBIHo4VEXVajmCWU_MtsqRhAjhxd8HpTUrYDicrg80" />
 
@@ -21,7 +21,7 @@
 <body>
     <div class="app-container">
         <!-- Floating Rounded Sidebar (Reference Design) -->
-        <aside class="app-sidebar">
+        <aside class="app-sidebar" id="appSidebar" aria-label="Workspace Navigation">
             <div class="sidebar-brand d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
                     <div class="brand-icon">
@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn-close d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-label="Close"></button>
+                <button class="btn-close d-lg-none" type="button" onclick="closeMobileSidebar()" aria-label="Close navigation menu"></button>
             </div>
 
             @php
@@ -214,7 +214,7 @@
         </aside>
 
         <!-- Mobile Sidebar Backdrop Overlay -->
-        <div class="sidebar-backdrop d-lg-none" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+        <div class="sidebar-backdrop d-lg-none" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
 
         <!-- Main Content Area -->
         <div class="app-content">
@@ -225,22 +225,22 @@
 
             <!-- Top Navbar (Reference Design) -->
             <header class="app-header">
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-sm btn-outline-secondary d-lg-none rounded-circle header-circle-btn" type="button" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                    <button id="mobileSidebarToggle" class="header-circle-btn d-lg-none" type="button" onclick="toggleMobileSidebar()" aria-controls="appSidebar" aria-expanded="false" aria-label="Toggle Navigation">
                         <i class="bi bi-list fs-5"></i>
                     </button>
-                    <div>
-                        <h3 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size: 1.65rem; letter-spacing: -0.02em;">
-                            Welcome back <span class="fs-4">👋</span>
+                    <div class="min-w-0">
+                        <h3 class="header-greeting fw-bold text-dark mb-0 d-flex align-items-center gap-2 text-truncate">
+                            <span>Welcome back</span> <span aria-hidden="true">👋</span>
                         </h3>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <div class="d-flex align-items-center gap-2 gap-sm-3 flex-shrink-0">
                     <!-- Search Pill Input -->
-                    <div class="search-pill-box d-none d-md-flex">
+                    <div class="search-pill-box d-none d-lg-flex">
                         <i class="bi bi-search text-muted small"></i>
-                        <input type="text" placeholder="Search something...">
+                        <input type="text" placeholder="Search something..." aria-label="Search workspace">
                     </div>
 
                     <!-- Client Link Pill -->
@@ -248,12 +248,12 @@
                         $currWs = app('current_workspace');
                     @endphp
                     @if ($currWs && !$isClientViewer)
-                        <div class="dropdown d-none d-sm-block">
-                            <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark d-flex align-items-center gap-1 shadow-xs" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.82rem; font-weight: 500;">
-                                <i class="bi bi-link-45deg text-primary"></i>
-                                <span>Share Client Link</span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light border rounded-pill px-2 px-sm-3 py-1 text-dark d-flex align-items-center gap-1 shadow-xs" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Share Client Connect Link" style="font-size: 0.82rem; font-weight: 500;">
+                                <i class="bi bi-link-45deg text-primary fs-6"></i>
+                                <span class="d-none d-md-inline">Share Client Link</span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 270px; border-radius: 16px;">
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width: min(280px, calc(100dvw - 1.5rem)); border-radius: 16px;">
                                 <li class="px-2 py-1">
                                     <div class="small fw-bold text-dark">Client Direct Connect</div>
                                     <div class="text-muted" style="font-size: 0.72rem;">Share this link with your client so they can connect their accounts directly:</div>
@@ -282,7 +282,7 @@
 
                     <!-- User Avatar Circle -->
                     <div class="dropdown">
-                        <button class="btn btn-link p-0 text-decoration-none dropdown-toggle header-circle-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-link p-0 text-decoration-none header-circle-btn border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu">
                             <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; background: #111827; font-size: 0.85rem;">
                                 {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
                             </div>
@@ -353,7 +353,7 @@
 
     <!-- Create Workspace Modal -->
     <div class="modal fade" id="createWorkspaceModal" tabindex="-1" aria-labelledby="createWorkspaceModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <form method="POST" action="{{ route('workspaces.create') }}">
                     @csrf
@@ -363,7 +363,7 @@
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body p-4">
+                    <div class="modal-body p-3 p-sm-4">
                         <p class="text-muted small mb-3">
                             Workspaces provide 100% data isolation. Create separate workspaces for each client or brand to manage their own dedicated social channels, media assets, content calendars, and team members.
                         </p>
@@ -399,15 +399,28 @@
     @livewireScripts
     @stack('scripts')
     <script>
-        function toggleMobileSidebar() {
-            const sidebar = document.querySelector('.app-sidebar');
+        function setMobileSidebarState(isOpen) {
+            const sidebar = document.getElementById('appSidebar') || document.querySelector('.app-sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
-            if (sidebar && backdrop) {
-                sidebar.classList.toggle('show-mobile');
-                backdrop.classList.toggle('show');
-                document.body.classList.toggle('overflow-hidden');
-            }
+            const toggleBtn = document.getElementById('mobileSidebarToggle');
+            if (!sidebar || !backdrop) return;
+            sidebar.classList.toggle('show-mobile', isOpen);
+            backdrop.classList.toggle('show', isOpen);
+            document.body.classList.toggle('overflow-hidden', isOpen);
+            if (toggleBtn) toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         }
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('appSidebar') || document.querySelector('.app-sidebar');
+            const isCurrentlyOpen = sidebar ? sidebar.classList.contains('show-mobile') : false;
+            setMobileSidebarState(!isCurrentlyOpen);
+        }
+        function closeMobileSidebar() {
+            setMobileSidebarState(false);
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMobileSidebar();
+        });
+        document.addEventListener('livewire:navigated', () => closeMobileSidebar());
     </script>
 </body>
 </html>

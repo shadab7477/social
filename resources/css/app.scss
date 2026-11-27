@@ -42,26 +42,51 @@ body {
         radial-gradient(at 15% 85%, rgba(216, 239, 248, 0.85) 0px, transparent 45%);
     background-attachment: fixed;
     background-size: cover;
-    min-height: 100vh;
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+    overflow-wrap: break-word;
+
+    @media (hover: none), (max-width: 991.98px) {
+        background-attachment: scroll;
+    }
+}
+
+img, video {
+    max-inline-size: 100%;
+    block-size: auto;
+}
+
+:where(a, code) {
+    overflow-wrap: anywhere;
+}
+
+h1, h2, h3, h4, .h1, .h2, .h3, .h4 {
+    text-wrap: balance;
+}
+
+p, li {
+    text-wrap: pretty;
 }
 
 // 3. SaaS App Layout Styles
 .app-container {
     display: flex;
-    min-height: 100vh;
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
     padding: 1.25rem;
     gap: 1.25rem;
 
-    @media (max-width: 991px) {
-        padding: 0.75rem;
+    @media (max-width: 991.98px) {
+        padding-block: 0.65rem;
+        padding-inline: max(0.75rem, env(safe-area-inset-left, 0px)) max(0.75rem, env(safe-area-inset-right, 0px));
         gap: 0;
     }
 }
 
-// Floating Rounded Sidebar (Reference Design)
+// Floating Rounded Sidebar (Reference Design + Responsive Drawer)
 .app-sidebar {
     width: 250px;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(25px);
     border: 1px solid rgba(255, 255, 255, 0.85);
     border-radius: 28px;
@@ -69,19 +94,27 @@ body {
     flex-direction: column;
     flex-shrink: 0;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
-    transition: all 0.25s ease-in-out;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s ease;
     z-index: 1000;
     overflow: hidden;
 
-    @media (max-width: 991px) {
+    @media (max-width: 991.98px) {
         position: fixed;
-        left: -290px;
-        top: 0;
-        bottom: 0;
+        inset-block: 0;
+        inset-inline-start: 0;
+        inline-size: min(280px, 84dvw);
         height: 100vh;
+        height: 100svh;
         border-radius: 0 24px 24px 0;
+        z-index: 1055;
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.28);
+        transform: translateX(-105%);
+        visibility: hidden;
+        overscroll-behavior: contain;
+
         &.show-mobile {
-            left: 0;
+            transform: translateX(0);
+            visibility: visible;
         }
     }
 
@@ -170,7 +203,7 @@ body {
     }
 
     .sidebar-footer {
-        padding: 1rem 1.25rem 1.25rem;
+        padding: 0.85rem 1.15rem max(1.1rem, env(safe-area-inset-bottom, 0px));
         border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
 }
@@ -185,53 +218,66 @@ body {
     .main-body {
         padding: 0.5rem 0 1.5rem;
         flex: 1;
+        min-width: 0;
     }
 }
 
 // Floating Top Header
 .app-header {
-    height: 64px;
+    min-block-size: 58px;
     background: transparent;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.25rem 0.5rem 1rem;
-    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.65rem 1rem;
+    padding: 0.25rem 0.25rem 0.85rem;
+    margin-bottom: 0.35rem;
 
-.search-pill-box {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #e2e8f0;
-    border-radius: 30px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    padding: 0.45rem 1.15rem;
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    width: 280px;
+    .header-greeting {
+        font-size: clamp(1.05rem, 0.92rem + 1vw, 1.6rem);
+        letter-spacing: -0.02em;
+    }
 
-    input {
-        border: none;
-        background: transparent;
-        font-size: 0.85rem;
-        outline: none;
-        color: #1e293b;
-        width: 100%;
-        &::placeholder {
-            color: #94a3b8;
+    > * {
+        min-inline-size: 0;
+    }
+
+    .search-pill-box {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #e2e8f0;
+        border-radius: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        padding: 0.45rem 1.15rem;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        inline-size: clamp(200px, 22vw, 280px);
+
+        input {
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            outline: none;
+            color: #1e293b;
+            width: 100%;
+            &::placeholder {
+                color: #94a3b8;
+            }
         }
     }
-}
 
     .header-circle-btn {
-        width: 42px;
-        height: 42px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.85);
-        display: flex;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         color: #1e293b;
+        flex-shrink: 0;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
         transition: transform 0.15s ease;
         text-decoration: none;
@@ -240,6 +286,10 @@ body {
             transform: scale(1.05);
             color: #000;
         }
+    }
+
+    .dropdown-menu {
+        max-inline-size: calc(100dvw - 1.5rem);
     }
 }
 
@@ -373,8 +423,10 @@ body {
     }
 }
 
-// Mini Calendar Widget Styles
+// Mini Calendar Widget Styles (Container-aware)
 .mini-calendar-card {
+    container: minical / inline-size;
+
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -390,8 +442,8 @@ body {
     }
 
     .calendar-day-cell {
-        width: 34px;
-        height: 34px;
+        width: clamp(28px, 8cqi, 36px);
+        height: clamp(28px, 8cqi, 36px);
         margin: 0 auto;
         border-radius: 50%;
         display: flex;
@@ -425,6 +477,18 @@ body {
             background-color: rgba(0, 0, 0, 0.05);
         }
     }
+
+    @container minical (inline-size < 320px) {
+        .calendar-grid {
+            gap: 3px;
+        }
+        .calendar-weekday {
+            font-size: 0.64rem;
+        }
+        .calendar-day-cell {
+            font-size: 0.75rem;
+        }
+    }
 }
 
 // Black Pill Button (+ Create)
@@ -432,15 +496,22 @@ body {
     background-color: #111827;
     color: #ffffff !important;
     border-radius: 30px;
-    padding: 0.55rem 1.35rem;
+    padding: 0.52rem 1.2rem;
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     border: none;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.45rem;
+    white-space: nowrap;
     box-shadow: 0 6px 18px rgba(17, 24, 39, 0.2);
     transition: transform 0.15s ease, background 0.15s ease;
+
+    @media (max-width: 575.98px) {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+    }
 
     &:hover {
         background-color: #000000;
@@ -660,32 +731,262 @@ body {
 }
 
 // -------------------------------------------------------------
-// 5. Responsive Mobile & Tablet Layout Rules
+// 5. Comprehensive Responsive Design System
 // -------------------------------------------------------------
-@media (max-width: 991.98px) {
-    .app-sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: -280px;
-        width: 270px;
-        height: 100vh;
-        z-index: 1055;
-        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.25);
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-        &.show-mobile {
-            transform: translateX(280px);
+// Custom 5-column desktop breakpoint helper (used in landing page)
+.col-lg-2-4 {
+    @media (min-width: 992px) {
+        flex: 0 0 auto;
+        width: 20%;
+    }
+}
+
+// Responsive Border Helpers (avoid stuck vertical divider on mobile stacks)
+@media (min-width: 768px) {
+    .border-md-end {
+        border-right: 1px solid var(--bs-border-color, #dee2e6) !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .border-lg-end {
+        border-right: 1px solid var(--bs-border-color, #dee2e6) !important;
+    }
+}
+
+// Single-Row Horizontal Scrollable Tablists & Filter Pill Strips
+.nav-tabs-scrollable,
+.nav-pills-scrollable,
+.status-pills-scroller {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    scroll-snap-type: inline proximity;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    > .nav-item,
+    > .btn,
+    > button {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        scroll-snap-align: start;
+    }
+}
+
+@media (min-width: 992px) {
+    .status-pills-scroller {
+        flex-wrap: wrap !important;
+        overflow-x: visible;
+    }
+}
+
+// Container-Query Driven Responsive Data Tables (.table-wrapper + .table-stack-mobile)
+.table-wrapper {
+    overflow: auto;
+    max-inline-size: 100%;
+    container: table / inline-size;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+
+    > .table {
+        margin-bottom: 0;
+    }
+}
+
+@container table (inline-size < 680px) {
+    .table-stack-mobile {
+        display: block !important;
+
+        thead {
+            display: none !important;
+        }
+
+        tbody {
+            display: flex !important;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.5rem;
+        }
+
+        tbody tr {
+            display: block !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 0.35rem 0.85rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        }
+
+        tbody td {
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.55rem 0 !important;
+            border: none !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            text-align: end;
+            width: 100% !important;
+            max-width: none !important;
+        }
+
+        tbody td:last-child {
+            border-bottom: none !important;
+            padding-top: 0.65rem !important;
+        }
+
+        tbody td[data-label]::before {
+            content: attr(data-label);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            text-align: start;
+            flex-shrink: 0;
+        }
+
+        tbody td.td-primary-stack {
+            flex-direction: column;
+            align-items: stretch !important;
+            text-align: start !important;
+
+            &[data-label]::before {
+                margin-bottom: 0.15rem;
+            }
+        }
+
+        tbody td[colspan] {
+            display: block !important;
+            text-align: center !important;
+            border-bottom: none !important;
+            padding: 2rem 1rem !important;
+        }
+
+        tbody td[colspan]::before {
+            display: none !important;
+            content: none !important;
         }
     }
 
+    // Dark-theme Admin card adaptation inside stacked tables
+    .admin-card .table-stack-mobile {
+        tbody tr {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        tbody td {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        tbody td[data-label]::before {
+            color: #94a3b8;
+        }
+    }
+}
+
+// Responsive FullCalendar Polish
+.fc {
+    .fc-toolbar {
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    @media (max-width: 767.98px) {
+        .fc-toolbar {
+            justify-content: center;
+        }
+        .fc-toolbar-title {
+            font-size: 1.05rem !important;
+        }
+        .fc-button {
+            padding: 0.32rem 0.55rem !important;
+            font-size: 0.76rem !important;
+        }
+        .fc-daygrid-day-frame {
+            min-height: 62px !important;
+        }
+    }
+}
+
+// Modal Viewport & Scroll Containment Safety
+.modal {
+    overscroll-behavior: contain;
+
+    &.show.d-block {
+        overflow-y: auto;
+        padding-inline: 0.25rem;
+    }
+
+    .modal-content {
+        max-block-size: calc(100dvh - 1.5rem);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .modal-header,
+    .modal-footer {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+// Touch Device Target Ergonomics
+@media (pointer: coarse) {
+    :where(.app-sidebar .nav-link, .dropdown-item, .form-select, .form-control:not([type="color"])) {
+        min-block-size: 42px;
+    }
+
+    :where(.btn:not(.btn-xs):not(.btn-close)) {
+        min-block-size: 38px;
+    }
+}
+
+// Unified Inbox Responsive Layout Helpers
+.unified-inbox-wrapper {
+    @media (min-width: 768px) {
+        height: calc(100dvh - 120px);
+        min-height: 540px;
+    }
+
+    @media (max-width: 767.98px) {
+        height: auto;
+        min-height: calc(100dvh - 105px);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .inbox-pane-mobile-hidden {
+        display: none !important;
+    }
+}
+
+@media (max-width: 991.98px) {
     .sidebar-backdrop {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(15, 23, 42, 0.6);
+        inset: 0;
+        background-color: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(3px);
         z-index: 1050;
         display: none;
@@ -698,59 +999,51 @@ body {
         }
     }
 
-    .app-header {
-        padding: 0 1rem;
-        height: 58px;
-    }
-
     .app-content {
         width: 100%;
         min-width: 0;
 
         .main-body {
-            padding: 1rem 0.75rem;
+            padding: 0.5rem 0.25rem 1.25rem;
         }
     }
 
-    // Modal dialogs on mobile
     .modal-dialog {
-        margin: 0.5rem;
+        margin: 0.75rem auto;
+        max-inline-size: calc(100dvw - 1.5rem);
     }
 }
 
-@media (max-width: 576px) {
-    .app-header {
-        padding: 0 0.75rem;
-
-        .workspace-switcher {
-            max-width: 130px;
-        }
-    }
-
-    .main-body {
-        padding: 0.85rem 0.5rem !important;
-    }
-
+@media (max-width: 575.98px) {
     .card {
         margin-bottom: 0.85rem;
         border-radius: $border-radius-sm;
 
         .card-header, .card-body, .card-footer {
-            padding: 0.75rem;
+            padding: 0.85rem;
         }
     }
 
+    .modal-body {
+        padding: 1rem !important;
+    }
+
     .btn-sm {
-        padding: 0.3rem 0.55rem;
-        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.78rem;
     }
 
     .table {
-        font-size: 0.8rem;
+        font-size: 0.82rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 0.25rem;
     }
 }
 
-// Touch momentum scrolling for all tables and grids
+// Touch momentum scrolling for standard tables
 .table-responsive {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
@@ -790,9 +1083,6 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
-
-
-
 .search-pill-box {
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #e2e8f0;
@@ -802,7 +1092,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    width: 280px;
+    inline-size: min(280px, 100%);
 
     input {
         border: none;

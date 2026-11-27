@@ -3,7 +3,7 @@
         .recur-wrapper {
             display: flex;
             gap: 1.5rem;
-            min-height: calc(100vh - 120px);
+            min-height: calc(100dvh - 120px);
         }
 
         /* Middle Sub-Sidebar (Social Profiles) */
@@ -164,12 +164,13 @@
         }
 
         .metric-big-num {
-            font-size: 2rem;
+            font-size: clamp(1.35rem, 1.1rem + 1.2vw, 2rem);
             font-weight: 800;
             color: #0f172a;
             line-height: 1.2;
             margin-top: 0.6rem;
             margin-bottom: 0.4rem;
+            word-break: break-word;
         }
 
         .delta-tag {
@@ -228,9 +229,17 @@
         @media (max-width: 991.98px) {
             .recur-wrapper {
                 flex-direction: column;
+                gap: 1rem;
             }
             .recur-profiles-col {
                 width: 100%;
+                padding: 1rem;
+            }
+            .recur-banner-card {
+                padding: 1rem;
+            }
+            .recur-metric-box {
+                padding: 1rem;
             }
         }
     </style>
@@ -252,55 +261,57 @@
         <!-- ============================================== -->
         <!-- MIDDLE COLUMN: SOCIAL PROFILES SUB-SIDEBAR     -->
         <!-- ============================================== -->
-        <aside class="recur-profiles-col">
+        <aside class="recur-profiles-col" x-data="{ profilesOpen: window.innerWidth >= 992 }">
             <div class="d-flex align-items-center justify-content-between pb-1">
-                <h6 class="fw-bold mb-0 text-dark">Social Profiles</h6>
-                <button class="btn btn-sm btn-link text-muted p-0" title="Collapse Pane">
-                    <i class="bi bi-chevron-left"></i>
+                <h6 class="fw-bold mb-0 text-dark">Social Profiles ({{ $allProfiles->count() }})</h6>
+                <button type="button" @click="profilesOpen = !profilesOpen" class="btn btn-sm btn-light border rounded-pill px-2 py-0 d-lg-none small fw-semibold" :aria-expanded="profilesOpen">
+                    <span x-text="profilesOpen ? 'Hide' : 'Select'"></span>
+                    <i class="bi ms-1" :class="profilesOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 </button>
             </div>
 
             <!-- Top Filter Category Items -->
-            <div class="d-flex flex-column gap-1">
-                <div wire:click="setViewMode('overview')" class="recur-menu-item {{ $viewMode === 'overview' ? 'active' : '' }}">
+            <div class="status-pills-scroller flex-lg-column gap-2 gap-lg-1 pb-1 pb-lg-0">
+                <div wire:click="setViewMode('overview')" class="recur-menu-item flex-shrink-0 {{ $viewMode === 'overview' ? 'active' : '' }}">
                     <div class="recur-menu-icon" style="background: #eef2ff; color: #4f46e5;">
                         <i class="bi bi-grid-fill"></i>
                     </div>
                     <div>
-                        <div class="small fw-bold">Overview</div>
-                        <div class="text-muted" style="font-size: 0.74rem;">All social profiles</div>
+                        <div class="small fw-bold text-nowrap">Overview</div>
+                        <div class="text-muted text-nowrap d-none d-lg-block" style="font-size: 0.74rem;">All social profiles</div>
                     </div>
                 </div>
 
-                <div wire:click="setViewMode('by_label')" class="recur-menu-item {{ $viewMode === 'by_label' ? 'active' : '' }}">
+                <div wire:click="setViewMode('by_label')" class="recur-menu-item flex-shrink-0 {{ $viewMode === 'by_label' ? 'active' : '' }}">
                     <div class="recur-menu-icon" style="background: #eff6ff; color: #2563eb;">
                         <i class="bi bi-tag-fill"></i>
                     </div>
                     <div>
-                        <div class="small fw-bold">By Label</div>
-                        <div class="text-muted" style="font-size: 0.74rem;">Compare across campaigns</div>
+                        <div class="small fw-bold text-nowrap">By Label</div>
+                        <div class="text-muted text-nowrap d-none d-lg-block" style="font-size: 0.74rem;">Compare across campaigns</div>
                     </div>
                 </div>
 
-                <div wire:click="setViewMode('custom_reports')" class="recur-menu-item {{ $viewMode === 'custom_reports' ? 'active' : '' }}">
+                <div wire:click="setViewMode('custom_reports')" class="recur-menu-item flex-shrink-0 {{ $viewMode === 'custom_reports' ? 'active' : '' }}">
                     <div class="recur-menu-icon" style="background: #eff6ff; color: #2563eb;">
                         <i class="bi bi-sliders"></i>
                     </div>
                     <div>
-                        <div class="small fw-bold">Custom Reports</div>
-                        <div class="text-muted" style="font-size: 0.74rem;">Build your own report</div>
+                        <div class="small fw-bold text-nowrap">Custom Reports</div>
+                        <div class="text-muted text-nowrap d-none d-lg-block" style="font-size: 0.74rem;">Build your own report</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Search Profile Input -->
-            <div class="position-relative">
-                <input type="text" wire:model.live.debounce.300ms="profileSearch" class="form-control form-control-sm rounded-pill px-3 py-2 border bg-light" placeholder="Search profiles...">
-                <i class="bi bi-search position-absolute text-muted" style="right: 14px; top: 9px; font-size: 0.8rem;"></i>
-            </div>
+            <div class="d-lg-flex flex-column gap-2" :class="{ 'd-none d-lg-flex': !profilesOpen, 'd-flex': profilesOpen }">
+                <!-- Search Profile Input -->
+                <div class="position-relative">
+                    <input type="text" wire:model.live.debounce.300ms="profileSearch" class="form-control form-control-sm rounded-pill px-3 py-2 border bg-light" placeholder="Search profiles...">
+                    <i class="bi bi-search position-absolute text-muted" style="right: 14px; top: 9px; font-size: 0.8rem;"></i>
+                </div>
 
-            <!-- Profile List Items -->
-            <div class="overflow-y-auto pe-1" style="max-height: 520px;">
+                <!-- Profile List Items -->
+                <div class="overflow-y-auto pe-1" style="max-height: 460px;">
                 @forelse($allProfiles as $prof)
                     @php
                         $isSelected = ($selectedProfileId === $prof->id) && ($viewMode === 'profile');
@@ -346,6 +357,7 @@
                         No connected profiles found.
                     </div>
                 @endforelse
+                </div>
             </div>
         </aside>
 
@@ -354,10 +366,10 @@
         <!-- ============================================== -->
         <main class="recur-content-col">
             <!-- Header bar with Title and Organic selector -->
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2 min-w-0">
                     <span class="fs-4 text-primary"><i class="bi bi-file-earmark-bar-graph-fill"></i></span>
-                    <h4 class="fw-bold mb-0 text-dark">Analytics & Reports</h4>
+                    <h4 class="fw-bold mb-0 text-dark">Analytics &amp; Reports</h4>
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-sm btn-recur-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -416,18 +428,18 @@
 
                     <!-- Sync Live Data Button -->
                     <button wire:click="syncNow" wire:loading.attr="disabled" class="btn btn-recur-pill d-flex align-items-center gap-1" title="Fetch live metrics from platform API">
-                    
+                        <span wire:loading.remove wire:target="syncNow" class="d-flex align-items-center gap-1">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span class="d-none d-sm-inline">Sync</span>
+                        </span>
                         <span wire:loading wire:target="syncNow" class="d-flex align-items-center gap-1">
                             <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true" style="width: 14px; height: 14px;"></span>
                             <span>Syncing...</span>
                         </span>
                     </button>
 
-                    <!-- Chat with AI Button -->
-                   
-
                     <!-- Share / Export Button -->
-                    <button wire:click="openShareModal" class="btn btn-recur-primary d-flex align-items-center gap-1">
+                    <button wire:click="openShareModal" class="btn btn-recur-primary d-flex align-items-center gap-1" aria-label="Share or download report">
                         <i class="bi bi-share-fill"></i>
                     </button>
                 </div>
@@ -442,7 +454,7 @@
 
                             <div class="row g-3">
                                 <!-- Total Fans / Subscribers -->
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-6 col-md-6 col-lg-4">
                                     <div class="recur-metric-box">
                                         <div class="metric-icon-pill">
                                             <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #ec4899; width: 26px; height: 26px;">
@@ -455,7 +467,7 @@
                                 </div>
 
                                 <!-- Talking About This / Channel Views -->
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-6 col-md-6 col-lg-4">
                                     <div class="recur-metric-box">
                                         <div class="metric-icon-pill">
                                             <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
@@ -478,7 +490,7 @@
 
                             <div class="row g-3">
                                 <!-- 1. Total Follows / New Subs -->
-                                <div class="col-xl-3 col-lg-4 col-md-6">
+                                <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                                     <div class="recur-metric-box">
                                         <div class="metric-icon-pill">
                                             <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #f5f3ff; color: #8b5cf6; width: 26px; height: 26px;">
@@ -494,7 +506,7 @@
                                 </div>
 
                                 <!-- 2. Total Views / Video Views / Impressions -->
-                                <div class="col-xl-3 col-lg-4 col-md-6">
+                                <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                                     <div class="recur-metric-box">
                                         <div class="metric-icon-pill">
                                             <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #06b6d4; width: 26px; height: 26px;">
@@ -510,7 +522,7 @@
                     </div>
 
                     <!-- 3. Engagement -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfdf5; color: #10b981; width: 26px; height: 26px;">
@@ -526,7 +538,7 @@
                     </div>
 
                     <!-- 4. Content Interactions / Comments -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fffbeb; color: #f59e0b; width: 26px; height: 26px;">
@@ -542,7 +554,7 @@
                     </div>
 
                     <!-- 5. Published Posts / Videos & Shorts -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fef2f2; color: #ef4444; width: 26px; height: 26px;">
@@ -558,7 +570,7 @@
                     </div>
 
                     <!-- 6. Page Views / Estimated Reach -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #ecfeff; color: #0891b2; width: 26px; height: 26px;">
@@ -574,7 +586,7 @@
                     </div>
 
                     <!-- 7. Reactions / Video Likes -->
-                    <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="col-6 col-xl-3 col-lg-4 col-md-6">
                         <div class="recur-metric-box">
                             <div class="metric-icon-pill">
                                 <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" style="background: #fdf2f8; color: #db2777; width: 26px; height: 26px;">
@@ -592,8 +604,8 @@
             </div>
 
             <!-- SECTION 3: Recent Content Performance -->
-            <div class="recur-metric-box p-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="recur-metric-box p-3 p-sm-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                     <div>
                         <h6 class="fw-bold text-dark mb-0">Top Published Content</h6>
                         <small class="text-muted">Posts published to this channel during the current date period.</small>
@@ -601,8 +613,8 @@
                     <a href="{{ route('posts.index') }}" class="btn btn-sm btn-link text-primary text-decoration-none">View All Posts ↗</a>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Top published content">
+                    <table class="table table-hover align-middle mb-0 table-stack-mobile">
                         <thead class="small text-muted text-uppercase" style="border-bottom: 1px solid #f1f5f9;">
                             <tr>
                                 <th style="width: 320px;">Content</th>
@@ -615,37 +627,37 @@
                         <tbody>
                             @forelse($topVariants as $post)
                                 <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
+                                    <td class="td-primary-stack" data-label="Content">
+                                        <div class="d-flex align-items-center gap-2 min-w-0">
                                             @if($post->mediaAssets->isNotEmpty())
-                                                <img src="{{ $post->mediaAssets->first()->public_url }}" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" alt="">
+                                                <img src="{{ $post->mediaAssets->first()->public_url }}" class="rounded flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" alt="">
                                             @else
-                                                <div class="rounded d-flex align-items-center justify-content-center bg-light text-muted" style="width: 40px; height: 40px;">
+                                                <div class="rounded d-flex align-items-center justify-content-center bg-light text-muted flex-shrink-0" style="width: 40px; height: 40px;">
                                                     <i class="bi bi-card-text"></i>
                                                 </div>
                                             @endif
-                                            <div class="text-truncate" style="max-width: 250px;">
+                                            <div class="min-w-0 flex-grow-1">
                                                 <div class="fw-semibold text-dark text-truncate small">{{ $post->getEffectiveCaption() ?: 'Social Media Post' }}</div>
                                                 <small class="text-muted">{{ $post->socialProfile?->platform?->label() ?? 'Social' }}</small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Published">
                                         <small class="text-dark">{{ $post->published_at?->format('M d, Y h:i A') ?? 'N/A' }}</small>
                                     </td>
-                                    <td>
+                                    <td data-label="Impressions">
                                         <span class="badge bg-light text-dark border">
                                             {{ number_format($post->analyticsSnapshots->where('metric_name', 'impressions')->first()?->metric_value ?? 1) }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Reactions">
                                         <span class="badge bg-light text-dark border">
                                             {{ number_format($post->analyticsSnapshots->where('metric_name', 'likes')->first()?->metric_value ?? 0) }}
                                         </span>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end" data-label="Action">
                                         @if($post->external_post_url)
-                                            <a href="{{ $post->external_post_url }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-2">
+                                            <a href="{{ $post->external_post_url }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-2" aria-label="View live post">
                                                 <i class="bi bi-box-arrow-up-right"></i>
                                             </a>
                                         @endif
@@ -746,7 +758,7 @@
     <!-- ============================================== -->
     @if($showAiChatModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content border-0 shadow-lg rounded-4">
                     <div class="modal-header border-bottom py-3">
                         <div class="d-flex align-items-center gap-2">
@@ -784,7 +796,7 @@
     <!-- ============================================== -->
     @if($showShareModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg rounded-4">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold text-dark mb-0">

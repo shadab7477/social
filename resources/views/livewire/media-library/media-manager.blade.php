@@ -9,7 +9,7 @@
                 Upload and organize your social media photos, videos, and branding assets with Cloudflare R2 / S3 storage.
             </p>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             <button wire:click="$set('showFolderModal', true)" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2">
                 <i class="bi bi-folder-plus"></i>
                 <span>New Folder</span>
@@ -29,20 +29,20 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
             <div class="row g-2 align-items-center justify-content-between">
-                <div class="col-md-6 d-flex align-items-center gap-2">
+                <div class="col-md-6 d-flex flex-wrap align-items-center gap-2">
                     <button wire:click="selectFolder(null)" class="btn btn-sm {{ is_null($currentFolderId) ? 'btn-primary' : 'btn-light border' }}">
                         <i class="bi bi-grid-fill me-1"></i> Root / All
                     </button>
                     @if ($currentFolder)
                         <span class="text-muted small">/</span>
-                        <span class="badge bg-light text-dark border px-2 py-1 fs-6">
+                        <span class="badge bg-light text-dark border px-2 py-1 fs-6 text-truncate" style="max-width: 180px;">
                             <i class="bi bi-folder-fill text-warning me-1"></i> {{ $currentFolder->name }}
                         </span>
                     @endif
                 </div>
-                <div class="col-md-6 d-flex align-items-center gap-2">
-                    <input type="text" class="form-control form-control-sm bg-light" wire:model.live.debounce.300ms="search" placeholder="Search files...">
-                    <select class="form-select form-select-sm bg-light w-auto" wire:model.live="typeFilter">
+                <div class="col-md-6 d-flex flex-wrap flex-sm-nowrap align-items-center gap-2">
+                    <input type="text" class="form-control form-control-sm bg-light flex-grow-1" wire:model.live.debounce.300ms="search" placeholder="Search files...">
+                    <select class="form-select form-select-sm bg-light w-100 w-sm-auto" wire:model.live="typeFilter">
                         <option value="all">All Formats</option>
                         <option value="image">Images</option>
                         <option value="video">Videos</option>
@@ -60,7 +60,7 @@
                 <div class="col-md-3 col-sm-6">
                     <div wire:click="selectFolder({{ $folder->id }})" class="card border shadow-sm p-3 cursor-pointer text-decoration-none hover-shadow" style="cursor: pointer;">
                         <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
                                 <i class="bi bi-folder-fill text-warning fs-4"></i>
                                 <div>
                                     <h6 class="fw-bold mb-0 text-dark small text-truncate" style="max-width: 140px;">{{ $folder->name }}</h6>
@@ -79,9 +79,9 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body p-3">
             @if ($assets->count() > 0)
-                <div class="row g-3">
+                <div class="row g-2 g-sm-3">
                     @foreach ($assets as $asset)
-                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-6">
                             <div class="card h-100 border overflow-hidden shadow-xs post-preview-card">
                                 <!-- Media Thumbnail Preview -->
                                 <div class="position-relative bg-dark d-flex align-items-center justify-content-center" style="height: 180px; overflow: hidden;">
@@ -149,7 +149,7 @@
     <!-- Create Folder Modal -->
     @if ($showFolderModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <h5 class="modal-title fs-6 fw-bold">Create Folder</h5>
@@ -176,13 +176,13 @@
     <!-- Asset Inspector Details Modal -->
     @if ($showDetailModal && $selectedAsset)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content shadow border-0">
-                    <div class="modal-header">
-                        <h5 class="modal-title fs-6 fw-bold text-truncate" style="max-width: 500px;">
+                    <div class="modal-header gap-2">
+                        <h5 class="modal-title fs-6 fw-bold text-truncate min-w-0">
                             {{ $selectedAsset->file_name }}
                         </h5>
-                        <button type="button" class="btn-close" wire:click="$set('showDetailModal', false)"></button>
+                        <button type="button" class="btn-close flex-shrink-0" wire:click="$set('showDetailModal', false)"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row g-4">

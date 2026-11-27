@@ -43,8 +43,8 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             @if ($clients->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Clients directory">
+                    <table class="table table-hover align-middle mb-0 table-stack-mobile">
                         <thead class="table-light small text-uppercase">
                             <tr>
                                 <th class="ps-3">Client</th>
@@ -59,65 +59,65 @@
                         <tbody>
                             @foreach ($clients as $client)
                                 <tr>
-                                    <td class="ps-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                                    <td class="ps-3 td-primary-stack" data-label="Client">
+                                        <div class="d-flex align-items-center gap-2 min-w-0">
+                                            <div class="avatar bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 38px; height: 38px;">
                                                 {{ strtoupper(substr($client->name, 0, 2)) }}
                                             </div>
-                                            <div>
-                                                <div class="fw-semibold text-dark">{{ $client->name }}</div>
+                                            <div class="min-w-0 flex-grow-1">
+                                                <div class="fw-semibold text-dark text-truncate">{{ $client->name }}</div>
                                                 @if ($client->notes)
-                                                    <div class="text-muted small text-truncate" style="max-width: 220px;">{{ $client->notes }}</div>
+                                                    <div class="text-muted small text-truncate">{{ $client->notes }}</div>
                                                 @endif
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Code">
                                         <span class="badge bg-light text-dark border font-monospace">{{ $client->client_code }}</span>
                                     </td>
-                                    <td>
+                                    <td data-label="Contact">
                                         @if ($client->contact_person || $client->contact_email)
                                             <div class="small fw-medium">{{ $client->contact_person ?? 'Not specified' }}</div>
-                                            <div class="text-muted small">{{ $client->contact_email }}</div>
+                                            <div class="text-muted small text-break">{{ $client->contact_email }}</div>
                                         @else
                                             <span class="text-muted small">—</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-label="Timezone">
                                         <span class="small text-secondary">{{ $client->timezone }}</span>
                                     </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                                    <td data-label="Team">
+                                        <div class="d-flex align-items-center justify-content-end justify-content-md-start gap-1 flex-wrap">
                                             @forelse ($client->users as $member)
                                                 <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-1" title="{{ $member->email }}">
                                                     <span>{{ $member->name }}</span>
                                                     @if ($member->pivot->can_approve)
                                                         <i class="bi bi-shield-check text-success" title="Can Approve Posts"></i>
                                                     @endif
-                                                    <button type="button" wire:click="removeMember({{ $client->id }}, {{ $member->id }})" class="btn-close" style="font-size: 0.55rem;"></button>
+                                                    <button type="button" wire:click="removeMember({{ $client->id }}, {{ $member->id }})" class="btn-close" style="font-size: 0.55rem;" aria-label="Remove {{ $member->name }}"></button>
                                                 </span>
                                             @empty
-                                                <span class="text-muted small fst-italic">No members assigned</span>
+                                                <span class="text-muted small fst-italic">No members</span>
                                             @endforelse
                                             <button type="button" wire:click="openAssignModal({{ $client->id }})" class="btn btn-sm btn-outline-secondary py-0 px-1 border-dashed" style="font-size: 0.75rem;">
                                                 <i class="bi bi-person-plus"></i> Assign
                                             </button>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Status">
                                         <x-badge :status="$client->status" />
                                     </td>
-                                    <td class="pe-3 text-end">
+                                    <td class="pe-3 text-end" data-label="Actions">
                                         <div class="btn-group btn-group-sm">
                                             @if ($client->contact_email)
-                                                <button wire:click="sendClientInvite({{ $client->id }})" wire:loading.attr="disabled" class="btn btn-light border text-primary" title="Send Portal Invitation Email">
+                                                <button wire:click="sendClientInvite({{ $client->id }})" wire:loading.attr="disabled" class="btn btn-light border text-primary" title="Send Portal Invitation Email" aria-label="Send Portal Invitation Email">
                                                     <i class="bi bi-envelope-paper"></i>
                                                 </button>
                                             @endif
-                                            <button wire:click="editClient({{ $client->id }})" class="btn btn-light border" title="Edit Client">
+                                            <button wire:click="editClient({{ $client->id }})" class="btn btn-light border" title="Edit Client" aria-label="Edit Client">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button wire:click="deleteClient({{ $client->id }})" wire:confirm="Are you sure you want to remove {{ $client->name }}?" class="btn btn-light border text-danger" title="Delete Client">
+                                            <button wire:click="deleteClient({{ $client->id }})" wire:confirm="Are you sure you want to remove {{ $client->name }}?" class="btn btn-light border text-danger" title="Delete Client" aria-label="Delete Client">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -150,7 +150,7 @@
     <!-- Create / Edit Client Modal -->
     @if ($showModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <h5 class="modal-title fs-6 fw-bold">
@@ -230,7 +230,7 @@
     <!-- Assign Member Modal -->
     @if ($showAssignModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <h5 class="modal-title fs-6 fw-bold">Assign Team Member</h5>

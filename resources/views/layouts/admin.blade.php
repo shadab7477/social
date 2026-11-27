@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="dark">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Super Admin Control Center' }} — PostSync Platform</title>
@@ -38,17 +38,19 @@
             color: #f1f5f9;
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
+            min-height: 100dvh;
         }
 
         .admin-shell {
             display: flex;
             min-height: 100vh;
+            min-height: 100dvh;
         }
 
         /* Dedicated Admin Sidebar */
         .admin-sidebar {
             width: 280px;
-            background: rgba(13, 17, 28, 0.95);
+            background: rgba(13, 17, 28, 0.96);
             backdrop-filter: blur(20px);
             border-right: 1px solid var(--admin-border);
             display: flex;
@@ -57,9 +59,24 @@
             top: 0;
             bottom: 0;
             left: 0;
-            z-index: 1040;
-            padding: 1.5rem 1rem;
-            transition: all 0.3s ease;
+            z-index: 1055;
+            padding: 1.5rem 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.28s;
+        }
+
+        .admin-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 8, 15, 0.65);
+            backdrop-filter: blur(3px);
+            z-index: 1050;
+            display: none;
+        }
+
+        .admin-backdrop.show {
+            display: block;
         }
 
         .admin-brand {
@@ -128,14 +145,16 @@
         }
 
         .admin-topbar {
-            height: 72px;
-            background: rgba(13, 17, 28, 0.8);
+            min-height: 64px;
+            background: rgba(13, 17, 28, 0.85);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--admin-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            padding: 0.6rem 2rem;
             position: sticky;
             top: 0;
             z-index: 1030;
@@ -144,6 +163,7 @@
         .admin-content {
             padding: 2rem;
             flex: 1;
+            min-width: 0;
         }
 
         /* Glass Cards */
@@ -189,14 +209,27 @@
         }
 
         @media (max-width: 991.98px) {
+            body.admin-body {
+                background-attachment: scroll;
+            }
             .admin-sidebar {
-                transform: translateX(-100%);
+                inline-size: min(280px, 85dvw);
+                height: 100svh;
+                transform: translateX(-105%);
+                visibility: hidden;
             }
             .admin-sidebar.show {
                 transform: translateX(0);
+                visibility: visible;
             }
             .admin-main {
                 margin-left: 0;
+            }
+            .admin-topbar {
+                padding: 0.5rem 1rem;
+            }
+            .admin-content {
+                padding: 1rem;
             }
         }
     </style>
@@ -215,7 +248,7 @@
                         <div class="small text-danger fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">MASTER CONTROL</div>
                     </div>
                 </div>
-                <button class="btn-close btn-close-white d-lg-none" type="button" onclick="document.getElementById('adminSidebar').classList.remove('show')"></button>
+                <button class="btn-close btn-close-white d-lg-none" type="button" onclick="toggleAdminSidebar(false)" aria-label="Close admin sidebar"></button>
             </div>
 
             <!-- Server Status Widget -->
@@ -278,31 +311,34 @@
             </div>
         </aside>
 
+        <!-- Mobile Admin Sidebar Backdrop -->
+        <div class="admin-backdrop d-lg-none" id="adminBackdrop" onclick="toggleAdminSidebar(false)"></div>
+
         <!-- Main Wrapper -->
         <div class="admin-main">
             <!-- Topbar -->
             <header class="admin-topbar">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-dark d-lg-none p-1 px-2 border" type="button" onclick="document.getElementById('adminSidebar').classList.add('show')">
+                <div class="d-flex align-items-center gap-2 gap-sm-3 min-w-0">
+                    <button class="btn btn-dark d-lg-none p-1 px-2 border" type="button" onclick="toggleAdminSidebar(true)" aria-label="Open admin menu">
                         <i class="bi bi-list fs-5"></i>
                     </button>
-                    <div>
+                    <div class="min-w-0">
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-danger text-white rounded-pill px-2 py-1 small" style="font-size: 0.72rem;">SUPER ADMIN</span>
-                            <span class="text-muted small">|</span>
-                            <span class="text-white small fw-medium">Global Multi-Tenant Control Hub</span>
+                            <span class="text-muted small d-none d-md-inline">|</span>
+                            <span class="text-white small fw-medium d-none d-md-inline text-truncate">Global Multi-Tenant Control Hub</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2 gap-sm-3 flex-shrink-0">
                     <!-- Quick System Actions -->
-                    <button onclick="Livewire.dispatch('trigger-cron')" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1 rounded-pill px-3" title="Trigger Background Scheduler">
+                    <button onclick="Livewire.dispatch('trigger-cron')" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1 rounded-pill px-2 px-md-3" title="Trigger Background Scheduler">
                         <i class="bi bi-clock-history"></i>
                         <span class="d-none d-md-inline">Run Cron</span>
                     </button>
 
-                    <button onclick="Livewire.dispatch('clear-cache')" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1 rounded-pill px-3" title="Clear Application Cache">
+                    <button onclick="Livewire.dispatch('clear-cache')" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1 rounded-pill px-2 px-md-3" title="Clear Application Cache">
                         <i class="bi bi-lightning-charge"></i>
                         <span class="d-none d-md-inline">Flush Cache</span>
                     </button>
@@ -349,6 +385,25 @@
 
     @livewireScripts
     @stack('scripts')
+    <script>
+        function toggleAdminSidebar(forceOpen) {
+            const sb = document.getElementById('adminSidebar');
+            const bd = document.getElementById('adminBackdrop');
+            if (!sb || !bd) return;
+            const open = typeof forceOpen === 'boolean' ? forceOpen : !sb.classList.contains('show');
+            sb.classList.toggle('show', open);
+            bd.classList.toggle('show', open);
+            document.body.classList.toggle('overflow-hidden', open);
+        }
+        document.querySelectorAll('#adminSidebar .admin-nav-item').forEach(el => {
+            el.addEventListener('click', () => {
+                if (window.innerWidth < 992) toggleAdminSidebar(false);
+            });
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleAdminSidebar(false);
+        });
+    </script>
 </body>
 </html>
 

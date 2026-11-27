@@ -7,7 +7,7 @@
             </h4>
             <p class="text-muted small mb-0">Manage scheduled posts, inspect delivery status across platforms, and retry failed publications.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('calendar') }}" class="btn btn-sm btn-white bg-white border rounded-pill px-3 py-2 text-dark shadow-xs" style="font-size: 0.82rem; font-weight: 600;">
                 <i class="bi bi-calendar3 me-1"></i> Calendar View
             </a>
@@ -42,7 +42,7 @@
 
     <!-- Status Pills Nav -->
     <div class="card-frosted p-3 mb-4">
-        <div class="d-flex flex-wrap gap-2 mb-3">
+        <div class="status-pills-scroller gap-2 mb-3 pb-1">
             <button wire:click="setStatusFilter('all')" class="btn btn-sm rounded-pill px-3 py-2 fw-semibold transition {{ $statusFilter === 'all' ? 'btn-dark' : 'btn-light border bg-white' }}">
                 All Posts
                 <span class="badge {{ $statusFilter === 'all' ? 'bg-white text-dark' : 'bg-light text-secondary border' }} ms-1 rounded-pill">{{ $metrics['all'] }}</span>
@@ -71,13 +71,13 @@
 
         <!-- Filter Controls -->
         <div class="row g-2 align-items-center pt-2 border-top">
-            <div class="col-md-5">
+            <div class="col-12 col-md-5">
                 <div class="search-pill-box w-100 bg-white">
                     <i class="bi bi-search text-muted small"></i>
                     <input type="text" wire:model.live.debounce.300ms="search" class="w-100 border-0 bg-transparent" style="outline: none;" placeholder="Search caption, title, or client...">
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <select wire:model.live="clientId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
                     <option value="">All Clients</option>
                     @foreach($clients as $c)
@@ -85,7 +85,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <select wire:model.live="platform" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
                     <option value="">All Social Platforms</option>
                     @foreach($platforms as $p)
@@ -93,7 +93,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-1 text-end">
+            <div class="col-12 col-md-1 text-end">
                 @if($search || $clientId || $platform || $statusFilter !== 'all')
                     <button wire:click="$set('search', ''); $set('clientId', null); $set('platform', ''); $set('statusFilter', 'all');" class="btn btn-sm btn-link text-muted p-0" title="Reset Filters">
                         <i class="bi bi-x-circle fs-5"></i>
@@ -105,8 +105,8 @@
 
     <!-- Posts Table / Cards -->
     <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Posts directory">
+            <table class="table table-hover align-middle mb-0 table-stack-mobile">
                 <thead class="table-light text-muted small text-uppercase">
                     <tr>
                         <th style="width: 320px;">Content</th>
@@ -126,8 +126,8 @@
                         @endphp
                         <tr>
                             <!-- Content & Thumbnail -->
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
+                            <td class="td-primary-stack" data-label="Content">
+                                <div class="d-flex align-items-center gap-3 min-w-0">
                                     <div class="rounded bg-light border d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 48px; height: 48px;">
                                         @if($firstMedia)
                                             @if($firstMedia->isVideo())
@@ -144,7 +144,7 @@
                                             <i class="bi bi-card-text text-muted fs-4"></i>
                                         @endif
                                     </div>
-                                    <div class="text-truncate" style="max-width: 240px;">
+                                    <div class="min-w-0 flex-grow-1">
                                         <div class="fw-semibold text-dark text-truncate mb-0" style="font-size: 0.9rem;">
                                             {{ $post->title ?: Str::limit($post->base_caption, 40) }}
                                         </div>
@@ -152,7 +152,7 @@
                                             {{ Str::limit($post->base_caption, 50) ?: 'No text caption' }}
                                         </small>
                                         @if($post->destination_link)
-                                            <small class="text-primary d-inline-block text-truncate" style="max-width: 200px;">
+                                            <small class="text-primary d-inline-block text-truncate w-100">
                                                 <i class="bi bi-link-45deg"></i> {{ $post->destination_link }}
                                             </small>
                                         @endif
@@ -161,7 +161,7 @@
                             </td>
 
                             <!-- Client -->
-                            <td>
+                            <td data-label="Client">
                                 @if($post->client)
                                     <span class="badge bg-light text-dark border">
                                         <i class="bi bi-building me-1 text-primary"></i> {{ $post->client->name }}
@@ -172,8 +172,8 @@
                             </td>
 
                             <!-- Platforms & Variants Status -->
-                            <td>
-                                <div class="d-flex flex-wrap gap-1 align-items-center">
+                            <td data-label="Platforms">
+                                <div class="d-flex flex-wrap gap-1 align-items-center justify-content-end justify-content-md-start">
                                     @foreach($post->variants as $variant)
                                         @php
                                             $vPlatform = $variant->socialProfile?->platform;
@@ -194,7 +194,7 @@
                             </td>
 
                             <!-- Timing -->
-                            <td>
+                            <td data-label="Schedule">
                                 <div class="small">
                                     @if($post->status === \App\Enums\PostStatus::PUBLISHED)
                                         <span class="text-success fw-medium">
@@ -214,7 +214,7 @@
                             </td>
 
                             <!-- Status Badge -->
-                            <td>
+                            <td data-label="Status">
                                 <span class="badge {{ $post->status->badgeClass() }}">
                                     {{ $post->status->label() }}
                                 </span>
@@ -226,17 +226,17 @@
                             </td>
 
                             <!-- Action Buttons -->
-                            <td class="text-end">
+                            <td class="text-end" data-label="Actions">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button wire:click="openDetailModal({{ $post->id }})" class="btn btn-sm btn-outline-secondary" title="Inspect Post Details">
+                                    <button wire:click="openDetailModal({{ $post->id }})" class="btn btn-sm btn-outline-secondary" title="Inspect Post Details" aria-label="Inspect Post Details">
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    <button wire:click="clonePost({{ $post->id }})" class="btn btn-sm btn-outline-secondary" title="Duplicate as Draft">
+                                    <button wire:click="clonePost({{ $post->id }})" class="btn btn-sm btn-outline-secondary" title="Duplicate as Draft" aria-label="Duplicate as Draft">
                                         <i class="bi bi-copy"></i>
                                     </button>
 
-                                    <button wire:click="deletePost({{ $post->id }})" wire:confirm="Are you sure you want to delete this post?" class="btn btn-sm btn-outline-danger" title="Delete Post">
+                                    <button wire:click="deletePost({{ $post->id }})" wire:confirm="Are you sure you want to delete this post?" class="btn btn-sm btn-outline-danger" title="Delete Post" aria-label="Delete Post">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -305,29 +305,29 @@
     <!-- Post Details Modal -->
     @if($showDetailModal && $selectedPost)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2 min-w-0">
                             <span class="badge {{ $selectedPost->status->badgeClass() }}">
                                 {{ $selectedPost->status->label() }}
                             </span>
-                            <h6 class="modal-title fw-bold mb-0">
+                            <h6 class="modal-title fw-bold mb-0 text-truncate">
                                 {{ $selectedPost->title ?: 'Post Details' }}
                             </h6>
                             @if($selectedPost->client)
-                                <span class="badge bg-light text-dark border ms-2">
+                                <span class="badge bg-light text-dark border">
                                     <i class="bi bi-building me-1 text-primary"></i> {{ $selectedPost->client->name }}
                                 </span>
                             @endif
                         </div>
-                        <button type="button" class="btn-close" wire:click="closeDetailModal"></button>
+                        <button type="button" class="btn-close" wire:click="closeDetailModal" aria-label="Close"></button>
                     </div>
 
-                    <div class="modal-body p-4">
+                    <div class="modal-body p-3 p-md-4">
                         <div class="row g-4">
                             <!-- Left Column: Master Post Info -->
-                            <div class="col-md-5 border-end">
+                            <div class="col-md-5 border-md-end">
                                 <h6 class="fw-bold text-dark mb-3">Master Post Details</h6>
 
                                 <div class="mb-3">
@@ -377,7 +377,7 @@
                                 <div class="d-flex flex-column gap-3" style="max-height: 480px; overflow-y: auto;">
                                     @foreach($selectedPost->variants as $variant)
                                         <div class="card border p-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <span class="badge {{ $variant->socialProfile?->platform?->cssClass() ?? 'bg-primary' }} p-1 px-2">
                                                         <i class="bi {{ $variant->socialProfile?->platform?->icon() }} me-1"></i>

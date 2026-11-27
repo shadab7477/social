@@ -2,18 +2,18 @@
     <!-- Top Action & Filter Bar -->
     <div class="card-frosted p-3 p-md-4 mb-4">
         <div class="row g-3 align-items-center">
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <h4 class="mb-0 fw-bold d-flex align-items-center text-dark" style="letter-spacing: -0.02em;">
                     <i class="bi bi-calendar3 me-2 text-dark"></i> Content Calendar
                 </h4>
                 <small class="text-muted">Interactive schedule, queue timeline & publishing manager</small>
             </div>
 
-            <div class="col-md-8">
-                <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
+            <div class="col-lg-8">
+                <div class="row g-2 justify-content-lg-end align-items-center">
                     <!-- Client Filter -->
-                    <div style="min-width: 150px;">
-                        <select wire:model.live="selectedClientId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                    <div class="col-6 col-sm-4 col-lg-auto">
+                        <select wire:model.live="selectedClientId" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs w-100">
                             <option value="">All Clients</option>
                             @foreach($clients as $c)
                                 <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -22,8 +22,8 @@
                     </div>
 
                     <!-- Platform Filter -->
-                    <div style="min-width: 140px;">
-                        <select wire:model.live="selectedPlatform" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                    <div class="col-6 col-sm-4 col-lg-auto">
+                        <select wire:model.live="selectedPlatform" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs w-100">
                             <option value="">All Platforms</option>
                             @foreach($platforms as $p)
                                 <option value="{{ $p->value }}">{{ $p->label() }}</option>
@@ -32,8 +32,8 @@
                     </div>
 
                     <!-- Status Filter -->
-                    <div style="min-width: 130px;">
-                        <select wire:model.live="selectedStatus" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs">
+                    <div class="col-6 col-sm-4 col-lg-auto">
+                        <select wire:model.live="selectedStatus" class="form-select form-select-sm rounded-pill px-3 py-2 border bg-white shadow-xs w-100">
                             <option value="">All Statuses</option>
                             @foreach($statuses as $s)
                                 <option value="{{ $s->value }}">{{ $s->label() }}</option>
@@ -42,9 +42,11 @@
                     </div>
 
                     <!-- Create Post CTA -->
-                    <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none">
-                        <i class="bi bi-plus-lg"></i> <span>Create Post</span>
-                    </a>
+                    <div class="col-6 col-sm-12 col-lg-auto text-end">
+                        <a href="{{ route('composer') }}" class="btn-black-pill text-decoration-none w-100 w-lg-auto">
+                            <i class="bi bi-plus-lg"></i> <span>Create Post</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,28 +75,28 @@
     <!-- Post Variant Details & Rescheduling Modal -->
     @if($showDetailModal && $selectedVariant)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2 min-w-0">
                             <span class="badge {{ $selectedVariant->socialProfile?->platform?->cssClass() ?? 'badge-platform-facebook' }} px-2 py-1">
                                 <i class="bi {{ $selectedVariant->socialProfile?->platform?->icon() }} me-1"></i>
                                 {{ $selectedVariant->socialProfile?->platform?->label() }}
                             </span>
-                            <h6 class="modal-title fw-bold mb-0">
+                            <h6 class="modal-title fw-bold mb-0 text-truncate">
                                 {{ $selectedVariant->socialProfile?->name ?? 'Social Profile' }}
                             </h6>
-                            <span class="badge {{ $selectedVariant->status->badgeClass() }} ms-2">
+                            <span class="badge {{ $selectedVariant->status->badgeClass() }}">
                                 {{ $selectedVariant->status->label() }}
                             </span>
                         </div>
-                        <button type="button" class="btn-close" wire:click="closeVariantModal"></button>
+                        <button type="button" class="btn-close" wire:click="closeVariantModal" aria-label="Close"></button>
                     </div>
 
-                    <div class="modal-body p-4">
+                    <div class="modal-body p-3 p-md-4">
                         <div class="row g-4">
                             <!-- Left: Content & Media Preview -->
-                            <div class="col-md-7 border-end">
+                            <div class="col-md-7 border-md-end">
                                 <div class="mb-3">
                                     <div class="small text-muted mb-1 fw-medium">Client</div>
                                     <div class="fw-semibold text-dark">
@@ -230,14 +232,15 @@
                     try { this.calendar.destroy(); } catch (e) {}
                 }
 
+                const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+
                 this.calendar = new Calendar(calendarEl, {
                     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-                    initialView: 'dayGridMonth',
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-                    },
+                    initialView: isMobile ? 'listMonth' : 'dayGridMonth',
+                    height: 'auto',
+                    headerToolbar: isMobile
+                        ? { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' }
+                        : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' },
                     buttonText: {
                         today: 'Today',
                         month: 'Month',
@@ -249,7 +252,15 @@
                     editable: true,
                     selectable: true,
                     nowIndicator: true,
-                    dayMaxEvents: 3,
+                    dayMaxEvents: isMobile ? 2 : 3,
+                    windowResize: () => {
+                        const nowMobile = window.matchMedia('(max-width: 767.98px)').matches;
+                        if (this.calendar) {
+                            this.calendar.setOption('headerToolbar', nowMobile
+                                ? { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' }
+                                : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' });
+                        }
+                    },
                     events: (info, successCallback, failureCallback) => {
                         wire.getEvents(info.startStr, info.endStr)
                             .then(events => successCallback(events || []))

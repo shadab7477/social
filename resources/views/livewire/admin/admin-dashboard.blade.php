@@ -12,8 +12,8 @@
 
     <!-- Top Master Control Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
+        <div class="min-w-0">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <h3 class="fw-bold text-white mb-0">Platform Master Control Panel</h3>
                 <span class="badge bg-danger bg-opacity-25 text-danger border border-danger-subtle px-2 py-1 small fw-semibold">
                     <i class="bi bi-shield-shaded me-1"></i> Root Governance
@@ -23,7 +23,7 @@
                 Complete platform supervision over all tenants, agency workspaces, registered users, and connected social media APIs.
             </p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             <button wire:click="runCron" wire:loading.attr="disabled" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1 rounded-pill px-3">
                 <i class="bi bi-clock-history"></i>
                 <span>Execute Cron & Due Posts</span>
@@ -37,68 +37,68 @@
 
     <!-- Global Platform KPI Cards Row -->
     <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="col-6 col-xl-3">
             <div class="admin-metric-card h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Users</span>
                         <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['totalUsers']) }}</h2>
                         <span class="text-danger small fw-medium" style="font-size: 0.75rem;">
                             {{ $metrics['totalSuperAdmins'] }} Super Admin(s)
                         </span>
                     </div>
-                    <div class="rounded-3 p-3 fs-3" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
                         <i class="bi bi-people-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="col-6 col-xl-3">
             <div class="admin-metric-card h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Active Workspaces</span>
                         <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['totalActiveWorkspaces']) }}</h2>
                         <span class="text-muted small" style="font-size: 0.75rem;">
-                            Total created: {{ $metrics['totalWorkspaces'] }}
+                            Total: {{ $metrics['totalWorkspaces'] }}
                         </span>
                     </div>
-                    <div class="rounded-3 p-3 fs-3" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
                         <i class="bi bi-buildings-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="col-6 col-xl-3">
             <div class="admin-metric-card h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Connected Channels</span>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div class="min-w-0">
+                        <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Channels</span>
                         <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['totalSocialProfiles']) }}</h2>
                         <span class="text-info small fw-medium" style="font-size: 0.75rem;">
-                            {{ $metrics['totalSocialConnections'] }} OAuth Connections
+                            {{ $metrics['totalSocialConnections'] }} OAuth
                         </span>
                     </div>
-                    <div class="rounded-3 p-3 fs-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
                         <i class="bi bi-share-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="col-6 col-xl-3">
             <div class="admin-metric-card h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div class="min-w-0">
                         <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Published Posts</span>
                         <h2 class="fw-bold text-white mb-0 mt-1">{{ number_format($metrics['publishedPosts']) }}</h2>
                         <span class="text-warning small fw-medium" style="font-size: 0.75rem;">
-                            {{ $metrics['scheduledPosts'] }} Scheduled | {{ $metrics['failedPosts'] }} Failed
+                            {{ $metrics['scheduledPosts'] }} Sched | {{ $metrics['failedPosts'] }} Fail
                         </span>
                     </div>
-                    <div class="rounded-3 p-3 fs-3" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                    <div class="rounded-3 p-2 p-sm-3 fs-4 fs-sm-3 flex-shrink-0" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
                         <i class="bi bi-send-check-fill"></i>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
     </div>
 
     <!-- Navigation Pills Bar -->
-    <ul class="nav nav-pills p-2 rounded-4 shadow-sm mb-4 gap-2" style="background: rgba(18, 24, 38, 0.7); border: 1px solid var(--admin-border);">
+    <ul class="nav nav-pills nav-pills-scrollable p-2 rounded-4 shadow-sm mb-4 gap-2" style="background: rgba(18, 24, 38, 0.7); border: 1px solid var(--admin-border);">
         <li class="nav-item">
             <button wire:click="setTab('overview')" class="nav-link px-3 py-2 fw-semibold rounded-3 {{ $activeTab === 'overview' ? 'active' : 'text-light' }}">
                 <i class="bi bi-speedometer2 me-1"></i> Overview
@@ -276,8 +276,8 @@
                     <h5 class="fw-bold text-white mb-0">Platform Users Directory</h5>
                     <small class="text-muted">Inspect registered accounts, toggle roles, or impersonate users.</small>
                 </div>
-                <div class="d-flex align-items-center gap-2 col-md-5 col-12 justify-content-end">
-                    <div class="input-group input-group-sm">
+                <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1 flex-lg-grow-0 justify-content-end" style="max-width: 460px;">
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 190px;">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
                         <input type="text" class="form-control bg-dark border-secondary text-white" wire:model.live.debounce.300ms="userSearch" placeholder="Search user by name or email...">
                     </div>
@@ -288,8 +288,8 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-light" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Platform users directory">
+                <table class="table table-hover align-middle mb-0 text-light table-stack-mobile" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
                     <thead class="small text-uppercase text-muted" style="border-bottom: 1px solid var(--admin-border);">
                         <tr>
                             <th class="ps-3 py-3">User</th>
@@ -302,18 +302,18 @@
                     <tbody>
                         @forelse ($users as $u)
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td class="ps-3">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center text-white fw-bold" style="width: 36px; height: 36px;">
+                                <td class="ps-3 td-primary-stack" data-label="User">
+                                    <div class="d-flex align-items-center gap-2 min-w-0">
+                                        <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0" style="width: 36px; height: 36px;">
                                             {{ strtoupper(substr($u->name, 0, 1)) }}
                                         </div>
-                                        <div>
-                                            <div class="fw-bold text-white">{{ $u->name }}</div>
-                                            <small class="text-muted">{{ $u->email }}</small>
+                                        <div class="min-w-0 flex-grow-1">
+                                            <div class="fw-bold text-white text-truncate">{{ $u->name }}</div>
+                                            <small class="text-muted text-break">{{ $u->email }}</small>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Role">
                                     @if ($u->is_super_admin)
                                         <span class="badge bg-danger text-white px-2 py-1">
                                             <i class="bi bi-shield-fill me-1"></i> Super Admin
@@ -322,14 +322,14 @@
                                         <span class="badge bg-secondary-subtle text-secondary px-2 py-1">Regular User</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Workspaces">
                                     <span class="badge bg-dark border text-light">{{ $u->ownedWorkspaces->count() }} workspace(s)</span>
                                 </td>
-                                <td>
+                                <td data-label="Joined">
                                     <small class="text-muted">{{ $u->created_at?->format('M d, Y') ?? 'N/A' }}</small>
                                 </td>
-                                <td class="text-end pe-3">
-                                    <div class="btn-group btn-group-sm">
+                                <td class="text-end pe-3" data-label="Actions">
+                                    <div class="btn-group btn-group-sm flex-wrap">
                                         <button wire:click="impersonateUser({{ $u->id }})" class="btn btn-outline-info" title="Impersonate User">
                                             <i class="bi bi-box-arrow-in-right"></i> Log In As
                                         </button>
@@ -372,7 +372,7 @@
                     <h5 class="fw-bold text-white mb-0">Agency Workspaces Directory</h5>
                     <small class="text-muted">Manage tenant subscription tiers, maximum profile quotas, and inspect team members.</small>
                 </div>
-                <div class="col-md-4 col-12">
+                <div class="flex-grow-1 flex-lg-grow-0" style="max-width: 340px;">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
                         <input type="text" class="form-control bg-dark border-secondary text-white" wire:model.live.debounce.300ms="workspaceSearch" placeholder="Search workspace by name or slug...">
@@ -380,8 +380,8 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-light" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Agency workspaces directory">
+                <table class="table table-hover align-middle mb-0 text-light table-stack-mobile" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
                     <thead class="small text-uppercase text-muted" style="border-bottom: 1px solid var(--admin-border);">
                         <tr>
                             <th class="ps-3 py-3">Workspace</th>
@@ -396,35 +396,35 @@
                     <tbody>
                         @forelse ($workspaces as $ws)
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td class="ps-3">
+                                <td class="ps-3 td-primary-stack" data-label="Workspace">
                                     <div class="fw-bold text-white">{{ $ws->name }}</div>
                                     <small class="text-muted mono">{{ $ws->slug }}</small>
                                 </td>
-                                <td>
+                                <td data-label="Owner">
                                     <div class="small text-white">{{ $ws->owner?->name ?? 'None' }}</div>
-                                    <small class="text-muted">{{ $ws->owner?->email ?? '' }}</small>
+                                    <small class="text-muted text-break">{{ $ws->owner?->email ?? '' }}</small>
                                 </td>
-                                <td>
+                                <td data-label="Plan">
                                     <span class="badge bg-primary-subtle text-primary text-uppercase px-2 py-1">
                                         {{ $ws->plan_type ?? 'starter' }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Profiles Limit">
                                     <span class="small text-light">{{ $ws->socialProfiles->count() }} / {{ $ws->max_profiles ?? 10 }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     @if ($ws->is_active)
                                         <span class="badge bg-success-subtle text-success px-2 py-1">Active</span>
                                     @else
                                         <span class="badge bg-danger-subtle text-danger px-2 py-1">Suspended</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Team">
                                     <button wire:click="openTeamModal({{ $ws->id }})" class="btn btn-xs btn-outline-light rounded-pill px-2">
                                         <i class="bi bi-people me-1"></i> {{ $ws->members->count() }} Members
                                     </button>
                                 </td>
-                                <td class="text-end pe-3">
+                                <td class="text-end pe-3" data-label="Actions">
                                     <div class="btn-group btn-group-sm">
                                         <button wire:click="switchIntoWorkspace({{ $ws->id }})" class="btn btn-outline-primary" title="Enter Workspace">
                                             <i class="bi bi-box-arrow-in-up-right"></i> Enter
@@ -462,10 +462,10 @@
         <div class="admin-card">
             <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-color: var(--admin-border) !important;">
                 <div>
-                    <h5 class="fw-bold text-white mb-0">Connected Social Channels & APIs</h5>
+                    <h5 class="fw-bold text-white mb-0">Connected Social Channels &amp; APIs</h5>
                     <small class="text-muted">Monitor OAuth token health, trigger background metric sync, or force token refresh.</small>
                 </div>
-                <div class="d-flex align-items-center gap-2 col-md-5 col-12 justify-content-end">
+                <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1 flex-lg-grow-0 justify-content-end" style="max-width: 460px;">
                     <select wire:model.live="platformFilter" class="form-select form-select-sm bg-dark border-secondary text-white w-auto">
                         <option value="">All Platforms</option>
                         <option value="facebook">Facebook</option>
@@ -474,15 +474,15 @@
                         <option value="linkedin">LinkedIn</option>
                         <option value="google_business">Google Business</option>
                     </select>
-                    <div class="input-group input-group-sm">
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 170px;">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
                         <input type="text" class="form-control bg-dark border-secondary text-white" wire:model.live.debounce.300ms="profileSearch" placeholder="Search profile...">
                     </div>
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-light" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Connected social channels">
+                <table class="table table-hover align-middle mb-0 text-light table-stack-mobile" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
                     <thead class="small text-uppercase text-muted" style="border-bottom: 1px solid var(--admin-border);">
                         <tr>
                             <th class="ps-3 py-3">Profile / Channel</th>
@@ -496,19 +496,19 @@
                     <tbody>
                         @forelse ($profiles as $prof)
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td class="ps-3">
+                                <td class="ps-3 td-primary-stack" data-label="Channel">
                                     <div class="fw-bold text-white">{{ $prof->name }}</div>
                                     <small class="text-muted mono">ID: {{ $prof->profile_id }}</small>
                                 </td>
-                                <td>
+                                <td data-label="Platform">
                                     <span class="badge bg-dark border text-light">
                                         <i class="bi {{ $prof->platform->icon() }} me-1 text-primary"></i> {{ $prof->platform->label() }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Workspace">
                                     <span class="small text-muted">{{ $prof->workspace?->name ?? 'None' }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Token">
                                     @php
                                         $conn = $prof->connection;
                                         $isExp = $conn ? $conn->isExpired() : true;
@@ -525,12 +525,12 @@
                                         <span class="badge bg-danger-subtle text-danger">No Connection</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Publishing">
                                     <button wire:click="toggleProfilePublishing({{ $prof->id }})" class="btn btn-xs {{ $prof->publishing_enabled ? 'btn-success' : 'btn-outline-secondary' }} rounded-pill">
                                         {{ $prof->publishing_enabled ? 'Enabled' : 'Paused' }}
                                     </button>
                                 </td>
-                                <td class="text-end pe-3">
+                                <td class="text-end pe-3" data-label="Actions">
                                     <div class="btn-group btn-group-sm">
                                         @if ($prof->connection)
                                             <button wire:click="forceRefreshToken({{ $prof->connection->id }})" class="btn btn-outline-warning" title="Force Refresh OAuth Token">
@@ -567,10 +567,10 @@
         <div class="admin-card">
             <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3" style="border-color: var(--admin-border) !important;">
                 <div>
-                    <h5 class="fw-bold text-white mb-0">Platform Content & Publishing Queue</h5>
+                    <h5 class="fw-bold text-white mb-0">Platform Content &amp; Publishing Queue</h5>
                     <small class="text-muted">Inspect scheduled, queued, published, and failed posts across all agency workspaces.</small>
                 </div>
-                <div class="d-flex align-items-center gap-2 col-md-5 col-12 justify-content-end">
+                <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1 flex-lg-grow-0 justify-content-end" style="max-width: 460px;">
                     <select wire:model.live="postStatusFilter" class="form-select form-select-sm bg-dark border-secondary text-white w-auto">
                         <option value="">All Statuses</option>
                         <option value="published">Published</option>
@@ -578,19 +578,19 @@
                         <option value="queued">Queued</option>
                         <option value="failed">Failed</option>
                     </select>
-                    <div class="input-group input-group-sm">
+                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 170px;">
                         <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
                         <input type="text" class="form-control bg-dark border-secondary text-white" wire:model.live.debounce.300ms="postSearch" placeholder="Search caption or post ID...">
                     </div>
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-light" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Platform publishing queue">
+                <table class="table table-hover align-middle mb-0 text-light table-stack-mobile" style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(255,255,255,0.03);">
                     <thead class="small text-uppercase text-muted" style="border-bottom: 1px solid var(--admin-border);">
                         <tr>
                             <th class="ps-3 py-3" style="width: 320px;">Content / Caption</th>
-                            <th>Platform & Channel</th>
+                            <th>Platform &amp; Channel</th>
                             <th>Workspace</th>
                             <th>Status</th>
                             <th>Timestamp</th>
@@ -600,12 +600,12 @@
                     <tbody>
                         @forelse ($allPosts as $variant)
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td class="ps-3">
-                                    <div class="d-flex align-items-center gap-2">
+                                <td class="ps-3 td-primary-stack" data-label="Content">
+                                    <div class="d-flex align-items-center gap-2 min-w-0">
                                         @if ($variant->mediaAssets->isNotEmpty())
-                                            <img src="{{ $variant->mediaAssets->first()->public_url }}" class="rounded object-fit-cover" style="width: 42px; height: 42px;" alt="">
+                                            <img src="{{ $variant->mediaAssets->first()->public_url }}" class="rounded object-fit-cover flex-shrink-0" style="width: 42px; height: 42px;" alt="">
                                         @endif
-                                        <div class="text-truncate" style="max-width: 250px;">
+                                        <div class="min-w-0 flex-grow-1">
                                             <div class="text-white small fw-medium text-truncate">{{ $variant->getEffectiveCaption() ?: 'Media Post' }}</div>
                                             @if ($variant->external_post_id)
                                                 <small class="text-muted mono" style="font-size: 0.7rem;">Ext ID: {{ $variant->external_post_id }}</small>
@@ -616,26 +616,26 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Channel">
                                     <span class="badge bg-dark border text-light">
                                         <i class="bi {{ $variant->socialProfile?->platform?->icon() ?? 'bi-share' }} text-primary me-1"></i>
                                         {{ $variant->socialProfile?->name ?? 'Unknown' }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Workspace">
                                     <small class="text-muted">{{ $variant->post?->workspace?->name ?? 'Workspace' }}</small>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     <span class="badge {{ $variant->status->badgeClass() }}">
                                         {{ $variant->status->label() }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Time">
                                     <small class="text-muted">
                                         {{ $variant->published_at?->format('M d, Y h:i A') ?? ($variant->scheduled_at?->format('M d, Y h:i A') ?? 'N/A') }}
                                     </small>
                                 </td>
-                                <td class="text-end pe-3">
+                                <td class="text-end pe-3" data-label="Actions">
                                     @if ($variant->status === \App\Enums\PostStatus::FAILED || $variant->status === \App\Enums\PostStatus::SCHEDULED)
                                         <button wire:click="retryPublishVariant({{ $variant->id }})" class="btn btn-xs btn-outline-warning rounded-pill px-2">
                                             <i class="bi bi-arrow-repeat me-1"></i> Publish Now
@@ -708,8 +708,8 @@
                     <h5 class="fw-bold text-white mb-3"><i class="bi bi-journal-text text-info me-2"></i>Recent Analytics Synchronization Logs</h5>
                     <p class="small text-muted mb-3">Live feed of provider API ingestion attempts and record counts.</p>
 
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle mb-0 text-light" style="--bs-table-bg: transparent;">
+                    <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Analytics synchronization logs">
+                        <table class="table table-sm table-hover align-middle mb-0 text-light table-stack-mobile" style="--bs-table-bg: transparent;">
                             <thead class="small text-uppercase text-muted" style="border-bottom: 1px solid var(--admin-border);">
                                 <tr>
                                     <th>Channel</th>
@@ -721,18 +721,18 @@
                             <tbody>
                                 @forelse ($recentSyncLogs as $log)
                                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                        <td>
+                                        <td class="td-primary-stack" data-label="Channel">
                                             <span class="small fw-semibold text-white">{{ $log->socialProfile?->name ?? 'Profile #' . $log->social_profile_id }}</span>
                                         </td>
-                                        <td>
+                                        <td data-label="Status">
                                             @if ($log->status === 'success')
                                                 <span class="badge bg-success-subtle text-success">Success</span>
                                             @else
                                                 <span class="badge bg-danger-subtle text-danger" title="{{ $log->error_message }}">Failed</span>
                                             @endif
                                         </td>
-                                        <td class="mono small">{{ $log->records_ingested }} records</td>
-                                        <td class="small text-muted">{{ $log->synced_at?->diffForHumans() ?? 'Just now' }}</td>
+                                        <td class="mono small" data-label="Records">{{ $log->records_ingested }} records</td>
+                                        <td class="small text-muted" data-label="Timestamp">{{ $log->synced_at?->diffForHumans() ?? 'Just now' }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -752,7 +752,7 @@
     <!-- ========================================== -->
     @if ($showCreateUserModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content admin-card text-light border-0 shadow-lg">
                     <div class="modal-header border-bottom py-3" style="border-color: var(--admin-border) !important;">
                         <h6 class="modal-title fw-bold text-white"><i class="bi bi-person-plus text-primary me-2"></i>Create New Platform User</h6>
@@ -791,7 +791,7 @@
     <!-- ========================================== -->
     @if ($showPasswordModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content admin-card text-light border-0 shadow-lg">
                     <div class="modal-header border-bottom py-3" style="border-color: var(--admin-border) !important;">
                         <h6 class="modal-title fw-bold text-white"><i class="bi bi-key-fill text-warning me-2"></i>Reset Password for {{ $passwordUserName }}</h6>
@@ -817,7 +817,7 @@
     <!-- ========================================== -->
     @if ($showWorkspaceModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content admin-card text-light border-0 shadow-lg">
                     <div class="modal-header border-bottom py-3" style="border-color: var(--admin-border) !important;">
                         <h6 class="modal-title fw-bold text-white"><i class="bi bi-pencil-square text-info me-2"></i>Edit Workspace & Quota</h6>
@@ -856,7 +856,7 @@
     <!-- ========================================== -->
     @if ($showTeamModal && $selectedWorkspace)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content admin-card text-light border-0 shadow-lg">
                     <div class="modal-header border-bottom py-3" style="border-color: var(--admin-border) !important;">
                         <h6 class="modal-title fw-bold text-white">
@@ -864,9 +864,9 @@
                         </h6>
                         <button type="button" class="btn-close btn-close-white" wire:click="closeTeamModal"></button>
                     </div>
-                    <div class="modal-body p-4">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 text-light" style="--bs-table-bg: transparent;">
+                    <div class="modal-body p-3 p-sm-4">
+                        <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Workspace team members">
+                            <table class="table table-hover align-middle mb-0 text-light table-stack-mobile" style="--bs-table-bg: transparent;">
                                 <thead class="small text-uppercase text-muted" style="border-bottom: 1px solid var(--admin-border);">
                                     <tr>
                                         <th>Member Name</th>
@@ -878,16 +878,16 @@
                                 <tbody>
                                     @forelse ($selectedWorkspace->members as $mem)
                                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                            <td>
+                                            <td class="td-primary-stack" data-label="Member">
                                                 <div class="fw-bold text-white">{{ $mem->user?->name ?? 'User #' . $mem->user_id }}</div>
                                             </td>
-                                            <td>
-                                                <small class="text-muted">{{ $mem->user?->email ?? 'N/A' }}</small>
+                                            <td data-label="Email">
+                                                <small class="text-muted text-break">{{ $mem->user?->email ?? 'N/A' }}</small>
                                             </td>
-                                            <td>
+                                            <td data-label="Role">
                                                 <span class="badge bg-dark border text-light">{{ ucfirst($mem->role->value) }}</span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-end" data-label="Change Role">
                                                 <select class="form-select form-select-sm bg-dark border-secondary text-white d-inline-block w-auto"
                                                     wire:change="updateMemberRole({{ $mem->id }}, $event.target.value)">
                                                     <option value="owner" {{ $mem->role->value === 'owner' ? 'selected' : '' }}>Owner</option>

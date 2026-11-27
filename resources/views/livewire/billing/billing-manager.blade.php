@@ -80,7 +80,9 @@
                     <h6 class="fw-bold mb-0 text-dark">Resource Distribution Chart</h6>
                 </div>
                 <div class="card-body p-3 d-flex align-items-center justify-content-center" wire:ignore>
-                    <canvas id="billingUsageChart" style="max-height: 220px;"></canvas>
+                    <div class="position-relative w-100" style="height: 220px;">
+                        <canvas id="billingUsageChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,7 +95,7 @@
                 $isCurrent = $selectedPlan === $planKey;
                 $price = $billingCycle === 'annual' ? $plan['annual'] : $plan['monthly'];
             @endphp
-            <div class="col-md-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="card border-0 shadow-sm rounded-4 h-100 {{ $isCurrent ? 'border border-2 border-dark' : '' }}">
                     <div class="card-body p-4 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-center mb-2">

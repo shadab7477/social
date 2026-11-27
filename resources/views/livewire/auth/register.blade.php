@@ -65,7 +65,7 @@
                     <label class="form-label small fw-semibold mb-0">Enter 6-Digit Email Code</label>
                     <button type="button" wire:click="editDetails" class="btn btn-link btn-sm p-0 text-decoration-none">Edit details</button>
                 </div>
-                <input type="text" maxlength="6" inputmode="numeric" class="form-control form-control-lg text-center fw-bold @error('otpCode') is-invalid @enderror" wire:model="otpCode" placeholder="000000" style="letter-spacing: 8px;" required autofocus>
+                <input type="text" maxlength="6" inputmode="numeric" class="form-control form-control-lg text-center fw-bold @error('otpCode') is-invalid @enderror" wire:model="otpCode" placeholder="000000" style="letter-spacing: clamp(4px, 2vw, 8px);" required autofocus>
                 @error('otpCode') <div class="invalid-feedback d-block small">{{ $message }}</div> @enderror
                 <div class="form-text small">Verification code sent to {{ $email }}.</div>
             </div>

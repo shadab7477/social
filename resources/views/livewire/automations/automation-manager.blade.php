@@ -61,7 +61,9 @@
                     <h6 class="fw-bold mb-0 text-dark">7-Day Publishing &amp; Schedule Activity</h6>
                 </div>
                 <div class="card-body p-3" wire:ignore>
-                    <canvas id="automationActivityChart" style="height: 190px;"></canvas>
+                    <div class="position-relative w-100" style="height: 200px;">
+                        <canvas id="automationActivityChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -102,24 +104,24 @@
             </div>
 
             @foreach ($automations as $rule)
-                <div class="list-group-item py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <div class="list-group-item py-3 px-3 px-md-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-3 min-w-0 flex-grow-1">
+                        <span class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
                             <i class="bi {{ ($rule['type'] ?? '') === 'rss_feed' ? 'bi-rss-fill' : 'bi-arrow-repeat' }} fs-5"></i>
                         </span>
-                        <div>
-                            <div class="fw-bold text-dark small">{{ $rule['name'] }}</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">
+                        <div class="min-w-0 flex-grow-1">
+                            <div class="fw-bold text-dark small text-truncate">{{ $rule['name'] }}</div>
+                            <div class="text-muted text-break" style="font-size: 0.75rem;">
                                 {{ ucwords(str_replace('_', ' ', $rule['type'])) }}
                                 @if(!empty($rule['source_url'])) &bull; {{ $rule['source_url'] }} @endif
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
                         <button type="button" wire:click="toggleAutomation('{{ $rule['id'] }}')" class="btn btn-sm rounded-pill px-3 {{ ($rule['is_active'] ?? true) ? 'btn-success' : 'btn-outline-secondary' }}">
                             {{ ($rule['is_active'] ?? true) ? 'Enabled' : 'Paused' }}
                         </button>
-                        <button type="button" wire:click="deleteAutomation('{{ $rule['id'] }}')" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete">
+                        <button type="button" wire:click="deleteAutomation('{{ $rule['id'] }}')" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete" aria-label="Delete workflow">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
@@ -131,7 +133,7 @@
     <!-- Create Automation Modal -->
     @if ($showCreateModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15,23,42,0.55); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg rounded-4">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold mb-0">Create Automation Workflow</h6>

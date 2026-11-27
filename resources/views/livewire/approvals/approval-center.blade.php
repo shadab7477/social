@@ -26,7 +26,7 @@
     <!-- Status Tabs Nav & Filters -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white border-bottom-0 pb-0 ">
-            <ul class="nav nav-tabs card-header-tabs border-bottom-0 gap-1">
+            <ul class="nav nav-tabs nav-tabs-scrollable card-header-tabs border-bottom-0 gap-1">
                 <li class="nav-item">
                     <button wire:click="setStatusFilter('pending')" class="nav-link py-2 px-3 fw-medium {{ $statusFilter === 'pending' ? 'active text-primary fw-bold' : 'text-muted' }}">
                         <i class="bi bi-hourglass-split me-1 text-warning"></i> Pending Review
@@ -102,7 +102,7 @@
                 <div class="card border shadow-sm rounded-3 overflow-hidden">
                     <!-- Approval Header Bar -->
                     <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
                             <span class="badge {{ $approval->status->badgeClass() }}">
                                 {{ $approval->status->label() }}
                             </span>
@@ -116,7 +116,7 @@
                             @endif
                         </div>
 
-                        <div class="small text-muted d-flex align-items-center gap-3">
+                        <div class="small text-muted d-flex flex-wrap align-items-center gap-2 gap-sm-3">
                             <span>
                                 <i class="bi bi-person me-1"></i> Submitted by <strong>{{ $approval->requestedBy?->name ?? 'User' }}</strong>
                             </span>
@@ -127,10 +127,10 @@
                     </div>
 
                     <!-- Approval Card Content -->
-                    <div class="card-body p-4">
+                    <div class="card-body p-3 p-md-4">
                         <div class="row g-4">
                             <!-- Left: Post Content, Media & Target Profiles -->
-                            <div class="col-lg-7 border-end-lg">
+                            <div class="col-lg-7 border-lg-end">
                                 <h6 class="fw-bold text-dark mb-2">
                                     {{ $post->title ?: 'Post Preview' }}
                                     @if($post->revision > 1)
@@ -300,7 +300,7 @@
     <!-- Request Changes Modal -->
     @if($showChangesModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold text-dark mb-0">
@@ -334,7 +334,7 @@
     <!-- Reject Modal -->
     @if($showRejectModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold text-danger mb-0">

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Connect Social Accounts — {{ $workspace->name }} | PostSync</title>
 
     <!-- Google Fonts (Inter) -->
@@ -13,8 +13,8 @@
 
     @vite(['resources/css/app.scss', 'resources/js/app.js'])
 </head>
-<body class="bg-light min-vh-100 py-5">
-    <div class="container" style="max-width: 680px;">
+<body class="bg-light py-4 py-md-5 px-2" style="min-height: 100dvh;">
+    <div class="container px-2 px-sm-3" style="max-width: 680px;">
         
         <!-- Header Brand & Workspace -->
         <div class="text-center mb-4">
@@ -66,17 +66,17 @@
             <!-- Facebook & Instagram -->
             <div class="col-12">
                 <div class="card border shadow-xs hover-shadow transition">
-                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded-3" style="width: 48px; height: 48px;">
+                    <div class="card-body p-3 p-sm-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded-3 flex-shrink-0" style="width: 48px; height: 48px;">
                                 <i class="bi bi-facebook fs-4"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <h6 class="fw-bold text-dark mb-1">Facebook Pages & Instagram</h6>
                                 <p class="text-muted small mb-0">Connect Facebook Pages, Reels, and linked Instagram Business accounts.</p>
                             </div>
                         </div>
-                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'facebook']) }}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3">
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'facebook']) }}" class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 w-100 w-sm-auto flex-shrink-0">
                             <i class="bi bi-plug-fill"></i>
                             <span>Connect Facebook & IG</span>
                         </a>
@@ -87,17 +87,17 @@
             <!-- LinkedIn -->
             <div class="col-12">
                 <div class="card border shadow-xs hover-shadow transition">
-                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center text-white rounded-3" style="width: 48px; height: 48px; background-color: #0077b5;">
+                    <div class="card-body p-3 p-sm-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <div class="d-flex align-items-center justify-content-center text-white rounded-3 flex-shrink-0" style="width: 48px; height: 48px; background-color: #0077b5;">
                                 <i class="bi bi-linkedin fs-4"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <h6 class="fw-bold text-dark mb-1">LinkedIn Company Pages & Profiles</h6>
                                 <p class="text-muted small mb-0">Publish professional articles, image posts, and company updates.</p>
                             </div>
                         </div>
-                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'linkedin']) }}" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3">
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'linkedin']) }}" class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 w-100 w-sm-auto flex-shrink-0">
                             <i class="bi bi-plug-fill"></i>
                             <span>Connect LinkedIn</span>
                         </a>
@@ -108,17 +108,17 @@
             <!-- YouTube -->
             <div class="col-12">
                 <div class="card border shadow-xs hover-shadow transition">
-                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center bg-danger text-white rounded-3" style="width: 48px; height: 48px;">
+                    <div class="card-body p-3 p-sm-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <div class="d-flex align-items-center justify-content-center bg-danger text-white rounded-3 flex-shrink-0" style="width: 48px; height: 48px;">
                                 <i class="bi bi-youtube fs-4"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <h6 class="fw-bold text-dark mb-1">YouTube Channel</h6>
                                 <p class="text-muted small mb-0">Direct video and Shorts publishing to your official brand channel.</p>
                             </div>
                         </div>
-                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'youtube']) }}" class="btn btn-outline-danger d-inline-flex align-items-center gap-2 px-3">
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'youtube']) }}" class="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2 px-3 w-100 w-sm-auto flex-shrink-0">
                             <i class="bi bi-plug-fill"></i>
                             <span>Connect YouTube</span>
                         </a>
@@ -129,17 +129,17 @@
             <!-- Pinterest -->
             <div class="col-12">
                 <div class="card border shadow-xs hover-shadow transition">
-                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center bg-danger text-white rounded-3" style="width: 48px; height: 48px;">
+                    <div class="card-body p-3 p-sm-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <div class="d-flex align-items-center justify-content-center bg-danger text-white rounded-3 flex-shrink-0" style="width: 48px; height: 48px;">
                                 <i class="bi bi-pin-angle-fill fs-4"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <h6 class="fw-bold text-dark mb-1">Pinterest Business &amp; Boards</h6>
                                 <p class="text-muted small mb-0">Pin images, videos, and destination links directly to your boards.</p>
                             </div>
                         </div>
-                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'pinterest']) }}" class="btn btn-outline-danger d-inline-flex align-items-center gap-2 px-3">
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'pinterest']) }}" class="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2 px-3 w-100 w-sm-auto flex-shrink-0">
                             <i class="bi bi-plug-fill"></i>
                             <span>Connect Pinterest</span>
                         </a>
@@ -150,17 +150,17 @@
             <!-- Google Business Profile -->
             <div class="col-12">
                 <div class="card border shadow-xs hover-shadow transition">
-                    <div class="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center bg-success text-white rounded-3" style="width: 48px; height: 48px;">
+                    <div class="card-body p-3 p-sm-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <div class="d-flex align-items-center justify-content-center bg-success text-white rounded-3 flex-shrink-0" style="width: 48px; height: 48px;">
                                 <i class="bi bi-google fs-4"></i>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <h6 class="fw-bold text-dark mb-1">Google Business Profile</h6>
                                 <p class="text-muted small mb-0">Publish local updates, photos, offers, and CTA links to Google Search &amp; Maps.</p>
                             </div>
                         </div>
-                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'google_business']) }}" class="btn btn-outline-success d-inline-flex align-items-center gap-2 px-3">
+                        <a href="{{ route('client-connect.oauth', ['uuid' => $workspace->uuid, 'platform' => 'google_business']) }}" class="btn btn-outline-success d-inline-flex align-items-center justify-content-center gap-2 px-3 w-100 w-sm-auto flex-shrink-0">
                             <i class="bi bi-plug-fill"></i>
                             <span>Connect Google Business</span>
                         </a>

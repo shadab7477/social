@@ -36,12 +36,12 @@
                     @endphp
                     <div class="col-6 col-md-3">
                         <button type="button" wire:click="goToStep({{ $sNum }})"
-                            class="btn w-100 rounded-pill py-2 px-3 d-flex align-items-center justify-content-center gap-2 fw-semibold transition {{ $isActive ? 'btn-dark shadow-xs' : ($isDone ? 'btn-light border text-success' : 'btn-light border text-muted') }}"
-                            style="font-size: 0.82rem;">
-                            <i class="bi {{ $isDone ? 'bi-check-circle-fill text-success' : $sInfo['icon'] }}"></i>
-                            <span>{{ $sInfo['label'] }}</span>
+                            class="btn w-100 rounded-pill py-2 px-2 px-md-3 d-flex align-items-center justify-content-center gap-1 gap-md-2 fw-semibold transition {{ $isActive ? 'btn-dark shadow-xs' : ($isDone ? 'btn-light border text-success' : 'btn-light border text-muted') }}"
+                            style="font-size: clamp(0.72rem, 0.65rem + 0.35vw, 0.82rem);">
+                            <i class="bi {{ $isDone ? 'bi-check-circle-fill text-success' : $sInfo['icon'] }} flex-shrink-0"></i>
+                            <span class="text-truncate">{{ $sInfo['label'] }}</span>
                             @if ($sNum === 1 && count($selectedProfileIds) > 0)
-                                <span class="badge {{ $isActive ? 'bg-white text-dark' : 'bg-dark text-white' }} rounded-pill">{{ count($selectedProfileIds) }}</span>
+                                <span class="badge {{ $isActive ? 'bg-white text-dark' : 'bg-dark text-white' }} rounded-pill flex-shrink-0">{{ count($selectedProfileIds) }}</span>
                             @endif
                         </button>
                     </div>
@@ -63,13 +63,13 @@
     <!-- ========================================================== -->
     @if ($currentStep === 1)
         <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="card-header bg-white py-3 px-3 px-md-4 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <div>
                     <h6 class="fw-bold mb-0 text-dark">Step 1: Where do you want to publish?</h6>
                     <small class="text-muted">Select one or more social accounts below.</small>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <select class="form-select form-select-sm bg-light rounded-pill px-3" wire:model.live="selectedClientId" style="min-width: 180px;">
+                <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto justify-content-sm-end">
+                    <select class="form-select form-select-sm bg-light rounded-pill px-3 flex-grow-1 flex-sm-grow-0" wire:model.live="selectedClientId">
                         <option value="">All Clients / Agency</option>
                         @foreach ($clients as $client)
                             <option value="{{ $client->id }}">{{ $client->name }}</option>
@@ -80,7 +80,7 @@
                 </div>
             </div>
 
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-md-4">
                 <div class="row g-3">
                     @forelse ($availableProfiles as $profile)
                         @php
@@ -115,7 +115,7 @@
                 </div>
             </div>
 
-            <div class="card-footer bg-white py-3 px-4 border-top d-flex justify-content-between align-items-center">
+            <div class="card-footer bg-white py-3 px-3 px-md-4 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span class="small text-muted fw-medium">{{ count($selectedProfileIds) }} account(s) selected</span>
                 <button type="button" wire:click="nextStep" class="btn btn-dark rounded-pill px-4 fw-semibold">
                     Next: Media &amp; Caption <i class="bi bi-arrow-right ms-1"></i>
@@ -128,22 +128,22 @@
     <!-- ========================================================== -->
     @elseif ($currentStep === 2)
         <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white py-3 px-4 border-bottom">
+            <div class="card-header bg-white py-3 px-3 px-md-4 border-bottom">
                 <h6 class="fw-bold mb-0 text-dark">Step 2: Add Media &amp; Write Caption</h6>
                 <small class="text-muted">Upload your photo/video and write your caption or video description.</small>
             </div>
 
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-md-4">
                 <div class="row g-4">
                     <!-- Left: Media Upload -->
                     <div class="col-lg-5">
                         <label class="form-label small fw-bold text-dark mb-2">Photos or Videos</label>
-                        <div class="border border-dashed rounded-4 p-4 text-center bg-light mb-3">
+                        <div class="border border-dashed rounded-4 p-3 p-sm-4 text-center bg-light mb-3">
                             <i class="bi bi-cloud-arrow-up fs-2 text-primary d-block mb-2"></i>
                             <div class="fw-semibold small text-dark mb-1">Upload from device or pick from library</div>
                             <div class="text-muted mb-3" style="font-size: 0.72rem;">Supports JPG, PNG, MP4, MOV (max 100MB)</div>
 
-                            <div class="d-flex justify-content-center gap-2">
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
                                 <label class="btn btn-sm btn-dark rounded-pill px-3 mb-0 cursor-pointer">
                                     <span wire:loading.remove wire:target="directMediaUpload"><i class="bi bi-upload me-1"></i> Upload File</span>
                                     <span wire:loading wire:target="directMediaUpload"><span class="spinner-border spinner-border-sm me-1"></span> Uploading...</span>
@@ -202,7 +202,7 @@
                 </div>
             </div>
 
-            <div class="card-footer bg-white py-3 px-4 border-top d-flex justify-content-between align-items-center">
+            <div class="card-footer bg-white py-3 px-3 px-md-4 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <button type="button" wire:click="prevStep" class="btn btn-light border rounded-pill px-4 fw-semibold">
                     <i class="bi bi-arrow-left me-1"></i> Back
                 </button>
@@ -222,7 +222,7 @@
                 <small class="text-muted">Choose video format, thumbnail, Reel/Story mode, or customize caption per network.</small>
             </div>
 
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-md-4">
                 <div class="d-flex flex-column gap-4">
                     @foreach ($availableProfiles as $profile)
                         @if (in_array($profile->id, $selectedProfileIds, true))
@@ -231,7 +231,7 @@
                                 $pEnum = $profile->platform instanceof \App\Enums\SocialPlatform ? $profile->platform : \App\Enums\SocialPlatform::tryFrom($profile->platform);
                                 $settings = $platformSettings[$profile->id] ?? [];
                             @endphp
-                            <div class="p-4 border rounded-4 bg-light" x-data="{ customCap: {{ !empty($customizedFlags[$profile->id]) ? 'true' : 'false' }}, showMoreYt: false }">
+                            <div class="p-3 p-md-4 border rounded-4 bg-light" x-data="{ customCap: {{ !empty($customizedFlags[$profile->id]) ? 'true' : 'false' }}, showMoreYt: false }">
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="platform-icon {{ $pEnum?->value ?? 'facebook' }}" style="width: 34px; height: 34px;">
@@ -258,7 +258,7 @@
                                         <!-- Format -->
                                         <div class="col-12">
                                             <label class="form-label small fw-bold text-dark mb-1">Upload Type</label>
-                                            <div class="d-flex gap-2">
+                                            <div class="d-flex flex-wrap gap-2">
                                                 <button type="button" wire:click="$set('platformSettings.{{ $profile->id }}.post_type', 'video')"
                                                     class="btn btn-sm flex-grow-1 rounded-pill py-2 {{ ($settings['post_type'] ?? 'video') === 'video' ? 'btn-danger' : 'btn-white bg-white border text-dark' }}">
                                                     <i class="bi bi-film me-1"></i> Standard Video (16:9)
@@ -290,7 +290,7 @@
                                         <div class="col-12">
                                             <label class="form-label small fw-bold text-dark mb-1">Custom Video Thumbnail (Optional)</label>
                                             @if (!empty($settings['thumbnail_url']))
-                                                <div class="d-flex align-items-center gap-3 p-2 bg-white border rounded-3">
+                                                <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3 p-2 bg-white border rounded-3">
                                                     <img src="{{ $settings['thumbnail_url'] }}" class="rounded" style="width: 96px; height: 54px; object-fit: cover;">
                                                     <div class="flex-grow-1 small text-success fw-semibold">Thumbnail Attached</div>
                                                     <button type="button" wire:click="removeThumbnail({{ $profile->id }})" class="btn btn-sm btn-outline-danger rounded-pill px-3">Remove</button>
@@ -447,7 +447,7 @@
                 </div>
             </div>
 
-            <div class="card-footer bg-white py-3 px-4 border-top d-flex justify-content-between align-items-center">
+            <div class="card-footer bg-white py-3 px-3 px-md-4 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <button type="button" wire:click="prevStep" class="btn btn-light border rounded-pill px-4 fw-semibold">
                     <i class="bi bi-arrow-left me-1"></i> Back
                 </button>
@@ -589,28 +589,28 @@
                 @endif
 
                 <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-body p-4">
+                    <div class="card-body p-3 p-md-4">
                         <h6 class="fw-bold mb-3 text-dark">Publishing Options</h6>
 
-                        <div class="btn-group w-100 mb-3" role="group">
+                        <div class="d-flex flex-wrap gap-1 mb-3 p-1 bg-light rounded-3 border" role="group">
                             <input type="radio" class="btn-check" wire:model.live="publishMode" value="now" id="modeNow" autocomplete="off">
-                            <label class="btn btn-outline-dark" for="modeNow">Publish Now</label>
+                            <label class="btn btn-sm btn-outline-dark border-0 flex-fill rounded-2" for="modeNow">Publish Now</label>
 
                             <input type="radio" class="btn-check" wire:model.live="publishMode" value="schedule" id="modeSchedule" autocomplete="off">
-                            <label class="btn btn-outline-dark" for="modeSchedule">Schedule</label>
+                            <label class="btn btn-sm btn-outline-dark border-0 flex-fill rounded-2" for="modeSchedule">Schedule</label>
 
                             <input type="radio" class="btn-check" wire:model.live="publishMode" value="draft" id="modeDraft" autocomplete="off">
-                            <label class="btn btn-outline-dark" for="modeDraft">Draft</label>
+                            <label class="btn btn-sm btn-outline-dark border-0 flex-fill rounded-2" for="modeDraft">Draft</label>
                         </div>
 
                         @if ($publishMode === 'schedule')
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold text-muted">Date &amp; Time</label>
                                 <div class="row g-2">
-                                    <div class="col-7">
+                                    <div class="col-12 col-sm-7">
                                         <input type="date" class="form-control" wire:model="scheduledDate">
                                     </div>
-                                    <div class="col-5">
+                                    <div class="col-12 col-sm-5">
                                         <input type="time" class="form-control" wire:model="scheduledTime">
                                     </div>
                                 </div>
@@ -648,7 +648,7 @@
     <!-- Media Library Asset Selector Modal -->
     @if ($showMediaModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
                         <div>
@@ -658,8 +658,8 @@
                         <button type="button" class="btn-close" wire:click="$set('showMediaModal', false)"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <input type="text" class="form-control form-control-sm bg-light w-50" wire:model.live.debounce.300ms="mediaSearch" placeholder="Search library...">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <input type="text" class="form-control form-control-sm bg-light flex-grow-1" style="max-width: 360px;" wire:model.live.debounce.300ms="mediaSearch" placeholder="Search library...">
                             <span class="small text-muted">{{ count($selectedMediaAssetIds) }} asset(s) selected</span>
                         </div>
 
@@ -705,7 +705,7 @@
     <!-- AI Content Assistant Modal -->
     @if ($showAiModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -779,7 +779,7 @@
     <!-- Custom Thumbnail Selector Modal (Media Library) -->
     @if ($showThumbnailModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1060;">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content border-0 shadow-lg rounded-4">
                     <div class="modal-header border-bottom py-3">
                         <div class="d-flex align-items-center gap-2">

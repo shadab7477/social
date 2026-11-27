@@ -3,7 +3,7 @@
         <!-- Main Column (Left / Center, 8 cols) -->
         <div class="col-xl-8 col-lg-7">
             <!-- Section 1: Your activities today -->
-            <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                 <h4 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">
                     Your activities today <span class="text-secondary fw-normal">({{ $totalConnectedProfiles }})</span>
                 </h4>
@@ -16,7 +16,7 @@
             <div class="row g-3 mb-4">
                 <!-- Mint Card 1: Meta Suite -->
                 <div class="col-md-6">
-                    <div class="card-pastel-mint p-4 h-100 position-relative">
+                    <div class="card-pastel-mint p-3 p-sm-4 h-100 position-relative">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <!-- Avatar Cluster Pile -->
                             <div class="avatar-pile">
@@ -32,12 +32,12 @@
                                 ⭐ 4.9
                             </span>
                         </div>
-                        <div class="d-flex align-items-end justify-content-between">
-                            <div>
+                        <div class="d-flex align-items-end justify-content-between gap-2">
+                            <div class="min-w-0">
                                 <h5 class="fw-bold mb-1">Meta & Instagram</h5>
                                 <span class="small opacity-75">Feed, Reels & Stories Publishing</span>
                             </div>
-                            <a href="{{ route('social-accounts.index') }}" class="btn-circle-arrow" title="Open Meta Channels">
+                            <a href="{{ route('social-accounts.index') }}" class="btn-circle-arrow flex-shrink-0" title="Open Meta Channels" aria-label="Open Meta Channels">
                                 ↗
                             </a>
                         </div>
@@ -46,7 +46,7 @@
 
                 <!-- Blush Pink Card 2: YouTube Hub -->
                 <div class="col-md-6">
-                    <div class="card-pastel-pink p-4 h-100 position-relative">
+                    <div class="card-pastel-pink p-3 p-sm-4 h-100 position-relative">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <div class="avatar-pile">
                                 <div class="avatar-item bg-danger text-white d-flex align-items-center justify-content-center" style="font-size: 0.75rem;">
@@ -61,12 +61,12 @@
                                 ⭐ 4.8
                             </span>
                         </div>
-                        <div class="d-flex align-items-end justify-content-between">
-                            <div>
+                        <div class="d-flex align-items-end justify-content-between gap-2">
+                            <div class="min-w-0">
                                 <h5 class="fw-bold mb-1">Video & YouTube Hub</h5>
                                 <span class="small opacity-75">Custom Thumbnails & Resumable Upload</span>
                             </div>
-                            <a href="{{ route('composer') }}" class="btn-circle-arrow" title="Create Video Post">
+                            <a href="{{ route('composer') }}" class="btn-circle-arrow flex-shrink-0" title="Create Video Post" aria-label="Create Video Post">
                                 ↗
                             </a>
                         </div>
@@ -81,12 +81,12 @@
 
             <div class="row g-3 mb-4">
                 <!-- Mint Metric: Completed / Delivered -->
-                <div class="col-sm-6 col-md-4 col-xl">
+                <div class="col-6 col-md-3 col-xl">
                     <div class="card-pastel-mint p-3 h-100 d-flex flex-column justify-content-between">
                         <span class="small fw-bold opacity-75 mb-2">Completed</span>
-                        <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="d-flex align-items-baseline justify-content-between gap-2">
                             <h2 class="fw-bold mb-0">{{ $publishedPostsCount }}</h2>
-                            <a href="{{ route('posts.index') }}" class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Posts">
+                            <a href="{{ route('posts.index') }}" class="btn-circle-arrow flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Posts" aria-label="View Posts">
                                 ↗
                             </a>
                         </div>
@@ -94,12 +94,12 @@
                 </div>
 
                 <!-- Butter Yellow Metric: Scheduled Queue -->
-                <div class="col-sm-6 col-md-4 col-xl">
+                <div class="col-6 col-md-3 col-xl">
                     <div class="card-pastel-yellow p-3 h-100 d-flex flex-column justify-content-between">
                         <span class="small fw-bold opacity-75 mb-2">Queued</span>
-                        <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="d-flex align-items-baseline justify-content-between gap-2">
                             <h2 class="fw-bold mb-0">{{ $scheduledPostsCount }}</h2>
-                            <a href="{{ route('calendar') }}" class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Calendar">
+                            <a href="{{ route('calendar') }}" class="btn-circle-arrow flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Calendar" aria-label="View Calendar">
                                 ↗
                             </a>
                         </div>
@@ -107,12 +107,12 @@
                 </div>
 
                 <!-- Lavender Metric: Pending Approvals -->
-                <div class="col-sm-6 col-md-4 col-xl">
+                <div class="col-6 col-md-3 col-xl">
                     <div class="card-pastel-lavender p-3 h-100 d-flex flex-column justify-content-between">
                         <span class="small fw-bold opacity-75 mb-2">Approvals</span>
-                        <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="d-flex align-items-baseline justify-content-between gap-2">
                             <h2 class="fw-bold mb-0">{{ $pendingApprovalsCount }}</h2>
-                            <a href="{{ route('approvals.index') }}" class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Approvals">
+                            <a href="{{ route('approvals.index') }}" class="btn-circle-arrow flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Approvals" aria-label="View Approvals">
                                 ↗
                             </a>
                         </div>
@@ -120,12 +120,12 @@
                 </div>
 
                 <!-- Ice Blue Metric: Active Clients -->
-                <div class="col-sm-6 col-md-4 col-xl">
+                <div class="col-6 col-md-3 col-xl">
                     <div class="card-pastel-blue p-3 h-100 d-flex flex-column justify-content-between">
                         <span class="small fw-bold opacity-75 mb-2">Clients</span>
-                        <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="d-flex align-items-baseline justify-content-between gap-2">
                             <h2 class="fw-bold mb-0">{{ $clientsCount }}</h2>
-                            <a href="{{ route('clients.index') }}" class="btn-circle-arrow" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Clients">
+                            <a href="{{ route('clients.index') }}" class="btn-circle-arrow flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;" title="View Clients" aria-label="View Clients">
                                 ↗
                             </a>
                         </div>
@@ -134,9 +134,9 @@
             </div>
 
             <!-- Section 3: Feature Progress Bars (Pastel Yellow & Pink) -->
-            <div class="card-pastel-yellow p-4 mb-3 position-relative">
-                <div class="d-flex align-items-start justify-content-between mb-2">
-                    <div>
+            <div class="card-pastel-yellow p-3 p-sm-4 mb-3 position-relative">
+                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                    <div class="min-w-0">
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <i class="bi bi-lightning-charge-fill text-dark"></i>
                             <span class="small fw-bold text-uppercase" style="letter-spacing: 0.05em;">Next Scheduled Release</span>
@@ -158,9 +158,9 @@
                 </div>
             </div>
 
-            <div class="card-pastel-pink p-4 mb-4 position-relative">
-                <div class="d-flex align-items-start justify-content-between mb-2">
-                    <div>
+            <div class="card-pastel-pink p-3 p-sm-4 mb-4 position-relative">
+                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                    <div class="min-w-0">
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <i class="bi bi-broadcast text-dark"></i>
                             <span class="small fw-bold text-uppercase" style="letter-spacing: 0.05em;">Social Channels Status</span>
@@ -172,7 +172,7 @@
                             Live Token Encryption & Background Queue Dispatched
                         </h5>
                     </div>
-                    <a href="{{ route('social-accounts.index') }}" class="btn-circle-arrow" title="Manage Accounts">
+                    <a href="{{ route('social-accounts.index') }}" class="btn-circle-arrow flex-shrink-0" title="Manage Accounts" aria-label="Manage Accounts">
                         ↗
                     </a>
                 </div>
@@ -182,8 +182,8 @@
             </div>
 
             <!-- Section 4: Upcoming Queue Table (Frosted Glass Card) -->
-            <div class="card-frosted p-4 mb-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="card-frosted p-3 p-sm-4 mb-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                     <h5 class="fw-bold text-dark mb-0">Publishing Timeline</h5>
                     <a href="{{ route('posts.index') }}" class="text-dark small fw-bold text-decoration-none">
                         View All Posts &rarr;
@@ -191,8 +191,8 @@
                 </div>
 
                 @if ($upcomingVariants->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0">
+                    <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Publishing timeline">
+                        <table class="table table-borderless align-middle mb-0 table-stack-mobile">
                             <thead>
                                 <tr class="text-muted small text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
                                     <th>Post Caption</th>
@@ -209,29 +209,29 @@
                                         $caption = $v->custom_caption ?: ($v->post?->base_caption ?: 'No caption');
                                     @endphp
                                     <tr class="border-top border-light-subtle">
-                                        <td class="py-3">
-                                            <div class="fw-bold text-dark text-truncate" style="max-width: 220px;" title="{{ $caption }}">
+                                        <td class="py-3 td-primary-stack" data-label="Post Caption">
+                                            <div class="fw-bold text-dark text-truncate" style="max-width: 100%;" title="{{ $caption }}">
                                                 {{ $caption }}
                                             </div>
                                         </td>
-                                        <td>
+                                        <td data-label="Channel">
                                             <span class="badge bg-light text-dark border rounded-pill px-2 py-1 small">
                                                 <i class="bi {{ $plat?->icon() ?? 'bi-share' }} me-1"></i> {{ $v->socialProfile?->name ?? 'Channel' }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Client">
                                             @if ($v->post?->client)
                                                 <span class="badge bg-light text-dark border">{{ $v->post->client->name }}</span>
                                             @else
                                                 <span class="text-muted small">&mdash;</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Scheduled">
                                             <span class="small fw-semibold text-dark">
                                                 {{ $v->scheduled_at ? $v->scheduled_at->format('M d, g:i A') : 'Immediately' }}
                                             </span>
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-end" data-label="Action">
                                             <a href="{{ route('calendar') }}" class="btn btn-sm btn-white bg-white border rounded-pill px-3 py-1 shadow-sm" style="font-size: 0.75rem; font-weight: 600;">
                                                 Edit
                                             </a>
@@ -261,7 +261,7 @@
             </h4>
 
             <!-- Mini Calendar Card (Reference Image 2) -->
-            <div class="card-frosted mini-calendar-card p-4 mb-4">
+            <div class="card-frosted mini-calendar-card p-3 p-sm-4 mb-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.01em;">
                         {{ $currentMonthYear }}
@@ -385,7 +385,7 @@
             </div>
 
             <!-- Client Brands Quick Card -->
-            <div class="card-frosted p-4">
+            <div class="card-frosted p-3 p-sm-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h6 class="fw-bold text-dark mb-0">Client Workspaces</h6>
                     <a href="{{ route('clients.index') }}" class="small fw-bold text-dark text-decoration-none">
@@ -395,14 +395,14 @@
                 @if ($activeClients->count() > 0)
                     <div class="d-flex flex-column gap-2">
                         @foreach ($activeClients->take(3) as $cl)
-                            <div class="d-flex align-items-center justify-content-between p-2 rounded-3 bg-light">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle bg-white border d-flex align-items-center justify-content-center fw-bold text-dark shadow-sm" style="width: 30px; height: 30px; font-size: 0.75rem;">
+                            <div class="d-flex align-items-center justify-content-between gap-2 p-2 rounded-3 bg-light">
+                                <div class="d-flex align-items-center gap-2 min-w-0">
+                                    <div class="rounded-circle bg-white border d-flex align-items-center justify-content-center fw-bold text-dark shadow-sm flex-shrink-0" style="width: 30px; height: 30px; font-size: 0.75rem;">
                                         {{ substr($cl->name, 0, 1) }}
                                     </div>
-                                    <span class="small fw-bold text-dark">{{ $cl->name }}</span>
+                                    <span class="small fw-bold text-dark text-truncate">{{ $cl->name }}</span>
                                 </div>
-                                <span class="badge bg-white text-muted border small">{{ $cl->profiles_count }} channels</span>
+                                <span class="badge bg-white text-muted border small flex-shrink-0">{{ $cl->profiles_count }} channels</span>
                             </div>
                         @endforeach
                     </div>

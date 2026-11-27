@@ -1,10 +1,10 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="container py-5 my-5">
+<div class="container py-4 py-md-5 my-3 my-md-5">
     <div class="row justify-content-center">
         <div class="col-lg-7 text-center">
-            <div class="bg-light p-5 rounded-4 shadow-sm border">
+            <div class="bg-light p-3 p-sm-4 p-md-5 rounded-4 shadow-sm border">
                 <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
                     <i class="bi bi-shield-check fs-2"></i>
                 </div>

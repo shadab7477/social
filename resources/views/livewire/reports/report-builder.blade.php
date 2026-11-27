@@ -7,7 +7,7 @@
             </h4>
             <p class="text-muted small mb-0">Compile agency-branded executive summaries, performance PDFs, and CSV datasets for your clients.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             <button wire:click="openScheduleModal" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center">
                 <i class="bi bi-clock-history me-1"></i> Recurring Schedule
             </button>
@@ -29,7 +29,7 @@
     <!-- Navigation Tabs -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white border-bottom-0 pb-0 pt-3">
-            <ul class="nav nav-tabs card-header-tabs border-bottom-0 gap-1">
+            <ul class="nav nav-tabs nav-tabs-scrollable card-header-tabs border-bottom-0 gap-1">
                 <li class="nav-item">
                     <button wire:click="$set('activeTab', 'reports')" class="nav-link py-2 px-3 fw-medium {{ $activeTab === 'reports' ? 'active text-primary fw-bold' : 'text-muted' }}">
                         <i class="bi bi-archive me-1"></i> Generated Reports Archive
@@ -78,8 +78,8 @@
     @if($activeTab === 'reports')
         <!-- Reports Archive Table -->
         <div class="card border-0 shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Generated reports archive">
+                <table class="table table-hover align-middle mb-0 table-stack-mobile">
                     <thead class="table-light text-muted small text-uppercase">
                         <tr>
                             <th style="width: 320px;">Report Title</th>
@@ -94,11 +94,11 @@
                     <tbody wire:loading.remove wire:target="selectedClientId, formatFilter, activeTab">
                         @forelse($reports as $report)
                             <tr>
-                                <td>
-                                    <div class="fw-semibold text-dark">{{ $report->title }}</div>
+                                <td class="td-primary-stack" data-label="Report">
+                                    <div class="fw-semibold text-dark text-break">{{ $report->title }}</div>
                                     <small class="text-muted">{{ $report->created_at->format('M d, Y h:i A') }}</small>
                                 </td>
-                                <td>
+                                <td data-label="Client">
                                     @if($report->client)
                                         <span class="badge bg-light text-dark border">
                                             <i class="bi bi-building text-primary me-1"></i> {{ $report->client->name }}
@@ -107,38 +107,38 @@
                                         <span class="text-muted small">Workspace Global</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Format">
                                     <span class="badge {{ $report->format->badgeClass() }} d-inline-flex align-items-center gap-1">
                                         <i class="bi {{ $report->format->icon() }}"></i>
                                         {{ strtoupper($report->format->value) }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Period">
                                     <span class="small text-dark fw-medium">
                                         {{ $report->date_from->format('M d, Y') }} – {{ $report->date_to->format('M d, Y') }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     <span class="badge {{ $report->status->badgeClass() }}">
                                         {{ $report->status->label() }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Created By">
                                     <span class="small text-muted">{{ $report->createdBy?->name ?? 'System' }}</span>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end" data-label="Actions">
                                     <div class="d-flex justify-content-end gap-1">
                                         @if($report->isReady())
-                                            <a href="{{ route('reports.download', $report->id) }}" target="_blank" download class="btn btn-sm btn-outline-primary" title="Download Report">
+                                            <a href="{{ route('reports.download', $report->id) }}" target="_blank" download class="btn btn-sm btn-outline-primary" title="Download Report" aria-label="Download Report">
                                                 <i class="bi bi-download"></i>
                                             </a>
                                             @if($report->format === \App\Enums\ReportFormat::PDF && $report->file_url)
-                                                <a href="{{ $report->file_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View in Browser">
+                                                <a href="{{ $report->file_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View in Browser" aria-label="View in Browser">
                                                     <i class="bi bi-box-arrow-up-right"></i>
                                                 </a>
                                             @endif
                                         @endif
-                                        <button wire:click="deleteReport({{ $report->id }})" wire:confirm="Are you sure you want to delete this report?" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <button wire:click="deleteReport({{ $report->id }})" wire:confirm="Are you sure you want to delete this report?" class="btn btn-sm btn-outline-danger" title="Delete" aria-label="Delete report">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -186,8 +186,8 @@
     @else
         <!-- Automated Schedules Tab -->
         <div class="card border-0 shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+            <div class="table-wrapper table-responsive" tabindex="0" role="region" aria-label="Automated dispatch schedules">
+                <table class="table table-hover align-middle mb-0 table-stack-mobile">
                     <thead class="table-light text-muted small text-uppercase">
                         <tr>
                             <th>Schedule Name</th>
@@ -202,35 +202,35 @@
                     <tbody wire:loading.remove wire:target="selectedClientId, formatFilter, activeTab">
                         @forelse($schedules as $sched)
                             <tr>
-                                <td class="fw-semibold text-dark">{{ $sched->name }}</td>
-                                <td>
+                                <td class="fw-semibold text-dark td-primary-stack" data-label="Schedule">{{ $sched->name }}</td>
+                                <td data-label="Client">
                                     @if($sched->client)
                                         <span class="badge bg-light text-dark border">{{ $sched->client->name }}</span>
                                     @else
                                         <span class="text-muted small">Entire Workspace</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Frequency">
                                     <span class="badge bg-indigo-subtle text-indigo">
                                         {{ ucfirst($sched->frequency->value) }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-1">
+                                <td data-label="Recipients">
+                                    <div class="d-flex flex-wrap justify-content-end justify-content-md-start gap-1">
                                         @foreach($sched->recipients as $email)
-                                            <span class="badge bg-light text-muted border small">{{ $email }}</span>
+                                            <span class="badge bg-light text-muted border small text-break">{{ $email }}</span>
                                         @endforeach
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="form-check form-switch mb-0">
-                                        <input class="form-check-input" type="checkbox" wire:click="toggleSchedule({{ $sched->id }})" {{ $sched->is_active ? 'checked' : '' }}>
+                                <td data-label="Status">
+                                    <div class="form-check form-switch mb-0 d-inline-block">
+                                        <input class="form-check-input" type="checkbox" wire:click="toggleSchedule({{ $sched->id }})" {{ $sched->is_active ? 'checked' : '' }} aria-label="Toggle schedule">
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Last Sent">
                                     <span class="small text-muted">{{ $sched->last_sent_at?->format('M d, Y') ?? 'Never' }}</span>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end" data-label="Actions">
                                     <button wire:click="toggleSchedule({{ $sched->id }})" class="btn btn-xs btn-outline-secondary">
                                         {{ $sched->is_active ? 'Pause' : 'Activate' }}
                                     </button>
@@ -273,7 +273,7 @@
     <!-- Generate Report Modal -->
     @if($showCreateModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold text-dark mb-0">
@@ -310,27 +310,32 @@
 
                             <div class="col-12">
                                 <label class="form-label small fw-semibold">Reporting Timeframe</label>
-                                <div class="btn-group btn-group-sm w-100 mb-2" role="group">
-                                    <input type="radio" class="btn-check" wire:model.live="datePreset" value="7d" id="preset7d">
-                                    <label class="btn btn-outline-secondary" for="preset7d">Last 7 Days</label>
-
-                                    <input type="radio" class="btn-check" wire:model.live="datePreset" value="30d" id="preset30d">
-                                    <label class="btn btn-outline-secondary" for="preset30d">Last 30 Days</label>
-
-                                    <input type="radio" class="btn-check" wire:model.live="datePreset" value="90d" id="preset90d">
-                                    <label class="btn btn-outline-secondary" for="preset90d">Last 90 Days</label>
-
-                                    <input type="radio" class="btn-check" wire:model.live="datePreset" value="custom" id="presetCustom">
-                                    <label class="btn btn-outline-secondary" for="presetCustom">Custom Range</label>
+                                <div class="row g-2 mb-2" role="group">
+                                    <div class="col-6 col-sm-3">
+                                        <input type="radio" class="btn-check" wire:model.live="datePreset" value="7d" id="preset7d">
+                                        <label class="btn btn-sm btn-outline-secondary w-100" for="preset7d">Last 7 Days</label>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <input type="radio" class="btn-check" wire:model.live="datePreset" value="30d" id="preset30d">
+                                        <label class="btn btn-sm btn-outline-secondary w-100" for="preset30d">Last 30 Days</label>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <input type="radio" class="btn-check" wire:model.live="datePreset" value="90d" id="preset90d">
+                                        <label class="btn btn-sm btn-outline-secondary w-100" for="preset90d">Last 90 Days</label>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <input type="radio" class="btn-check" wire:model.live="datePreset" value="custom" id="presetCustom">
+                                        <label class="btn btn-sm btn-outline-secondary w-100" for="presetCustom">Custom</label>
+                                    </div>
                                 </div>
 
                                 @if($datePreset === 'custom')
                                     <div class="row g-2">
-                                        <div class="col-6">
+                                        <div class="col-12 col-sm-6">
                                             <label class="form-label small text-muted">From Date</label>
                                             <input type="date" wire:model="customDateFrom" class="form-control form-control-sm">
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-12 col-sm-6">
                                             <label class="form-label small text-muted">To Date</label>
                                             <input type="date" wire:model="customDateTo" class="form-control form-control-sm">
                                         </div>
@@ -372,7 +377,7 @@
     <!-- Automated Schedule Modal -->
     @if($showScheduleModal)
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-lg rounded-3">
                     <div class="modal-header border-bottom py-3">
                         <h6 class="modal-title fw-bold text-dark mb-0">

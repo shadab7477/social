@@ -2,20 +2,20 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="py-5 bg-light border-bottom">
-    <div class="container py-5">
-        <div class="row align-items-center g-5">
+<section class="py-4 py-md-5 bg-light border-bottom">
+    <div class="container py-3 py-md-5">
+        <div class="row align-items-center g-4 g-lg-5">
             <div class="col-lg-7 text-center text-lg-start">
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
-                    <i class="bi bi-stars me-1"></i> PostSync SaaS — Built for Digital Agencies & Creators
+                    <i class="bi bi-stars me-1"></i> PostSync SaaS — Built for Digital Agencies &amp; Creators
                 </span>
-                <h1 class="display-4 fw-bold text-dark lh-sm mb-3">
-                    Manage, Schedule & Publish with <span class="text-primary">PostSync SaaS</span> Across 10 Networks.
+                <h1 class="display-5 display-lg-4 fw-bold text-dark lh-sm mb-3">
+                    Manage, Schedule &amp; Publish with <span class="text-primary">PostSync SaaS</span> Across 10 Networks.
                 </h1>
                 <p class="lead text-secondary mb-4">
                     PostSync SaaS is an all-in-one social media scheduling and publishing platform for creators, marketing agencies, and enterprises. Seamlessly connect your authorized accounts including YouTube, Facebook Pages, Instagram, LinkedIn, and more.
                 </p>
-                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                <div class="d-grid d-sm-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
                     <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4 shadow-sm">
                         <i class="bi bi-rocket-takeoff-fill me-2"></i> Start 14-Day Free Trial
                     </a>
@@ -23,7 +23,7 @@
                         <i class="bi bi-box-arrow-in-right me-2"></i> Sign In to Workspace
                     </a>
                 </div>
-                <div class="d-flex align-items-center gap-4 mt-4 pt-2 text-muted small justify-content-center justify-content-lg-start">
+                <div class="d-flex flex-wrap align-items-center gap-3 gap-md-4 mt-4 pt-2 text-muted small justify-content-center justify-content-lg-start">
                     <div><i class="bi bi-shield-check text-success me-1"></i> AES-256 Encrypted OAuth</div>
                     <div><i class="bi bi-check-circle text-success me-1"></i> Multi-Tier Approvals</div>
                     <div><i class="bi bi-credit-card text-success me-1"></i> Razorpay & Stripe Ready</div>
@@ -212,7 +212,7 @@
             <!-- Professional -->
             <div class="col-lg-3 col-md-6 text-start">
                 <div class="card h-100 p-4 border border-primary shadow">
-                    <div class="badge bg-primary text-white w-50 mb-2">Most Popular</div>
+                    <div class="badge bg-primary text-white align-self-start mb-2">Most Popular</div>
                     <h5 class="fw-bold text-dark">Professional</h5>
                     <p class="text-muted small">For growing marketing teams</p>
                     <div class="my-3">

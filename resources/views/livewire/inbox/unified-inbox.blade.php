@@ -1,76 +1,99 @@
-<div class="unified-inbox-wrapper" style="height: calc(100vh - 120px);">
+<div class="unified-inbox-wrapper" x-data="{ mobilePane: @js($activeConversation ? 'chat' : 'list'), showFilters: false }">
+    <style>
+        @media (min-width: 768px) {
+            .inbox-pane-col {
+                height: 100%;
+            }
+        }
+        @media (max-width: 767.98px) {
+            .inbox-thread-scroll {
+                max-height: 62dvh;
+            }
+            .inbox-chat-scroll {
+                min-height: 45dvh;
+                max-height: 58dvh;
+            }
+        }
+    </style>
     <div class="card border-0 shadow-sm h-100 overflow-hidden">
         <div class="row g-0 h-100">
             <!-- Column 1: Folders & Filters Sidebar -->
-            <div class="col-lg-3 col-md-4 border-end h-100 d-flex flex-column bg-light">
-                <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
-                    <div>
+            <div class="col-lg-3 col-md-4 border-md-end inbox-pane-col d-flex flex-column bg-light" :class="{ 'inbox-pane-mobile-hidden': mobilePane === 'chat' }">
+                <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between gap-2">
+                    <div class="min-w-0">
                         <h5 class="fw-bold mb-0 text-dark d-flex align-items-center">
                             <i class="bi bi-chat-dots-fill text-primary me-2"></i> Social Inbox
                         </h5>
-                        <small class="text-muted">Unified comments & direct messages</small>
+                        <small class="text-muted">Unified comments &amp; direct messages</small>
                     </div>
-                    <button class="btn btn-xs btn-outline-primary flex-shrink-0 d-inline-flex align-items-center gap-1" type="button" wire:click="syncLiveComments" wire:loading.attr="disabled">
-                        <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat"></i> Sync</span>
-                        <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm"></span></span>
-                    </button>
+                    <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                        <button type="button" @click="showFilters = !showFilters" class="btn btn-xs btn-light border d-md-none" title="Toggle Filters" aria-label="Toggle Filters">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                        <button class="btn btn-xs btn-outline-primary flex-shrink-0 d-inline-flex align-items-center gap-1" type="button" wire:click="syncLiveComments" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat"></i> Sync</span>
+                            <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm"></span></span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Folders Navigation -->
-                <div class="p-3 border-bottom">
-                    <div class="nav flex-column nav-pills gap-1">
-                        <button wire:click="setFolder('open')" class="nav-link text-start d-flex justify-content-between align-items-center py-2 px-3 {{ $folder === 'open' ? 'active' : 'text-dark' }}">
-                            <span><i class="bi bi-inbox me-2"></i> All Open</span>
+                <div class="p-2 p-md-3 border-bottom">
+                    <div class="nav nav-pills status-pills-scroller flex-md-column gap-1 pb-1 pb-md-0">
+                        <button wire:click="setFolder('open')" class="nav-link text-start d-flex justify-content-between align-items-center gap-2 py-2 px-3 {{ $folder === 'open' ? 'active' : 'text-dark' }}">
+                            <span><i class="bi bi-inbox me-1 me-md-2"></i> All Open</span>
                             <span class="badge {{ $folder === 'open' ? 'bg-white text-primary' : 'bg-primary-subtle text-primary' }} rounded-pill">{{ $metrics['open'] }}</span>
                         </button>
 
-                        <button wire:click="setFolder('unread')" class="nav-link text-start d-flex justify-content-between align-items-center py-2 px-3 {{ $folder === 'unread' ? 'active' : 'text-dark' }}">
-                            <span><i class="bi bi-envelope-open me-2"></i> Unread</span>
+                        <button wire:click="setFolder('unread')" class="nav-link text-start d-flex justify-content-between align-items-center gap-2 py-2 px-3 {{ $folder === 'unread' ? 'active' : 'text-dark' }}">
+                            <span><i class="bi bi-envelope-open me-1 me-md-2"></i> Unread</span>
                             <span class="badge {{ $folder === 'unread' ? 'bg-white text-danger' : 'bg-danger-subtle text-danger' }} rounded-pill">{{ $metrics['unread'] }}</span>
                         </button>
 
-                        <button wire:click="setFolder('assigned_me')" class="nav-link text-start d-flex justify-content-between align-items-center py-2 px-3 {{ $folder === 'assigned_me' ? 'active' : 'text-dark' }}">
-                            <span><i class="bi bi-person-check me-2"></i> Assigned to Me</span>
+                        <button wire:click="setFolder('assigned_me')" class="nav-link text-start d-flex justify-content-between align-items-center gap-2 py-2 px-3 {{ $folder === 'assigned_me' ? 'active' : 'text-dark' }}">
+                            <span><i class="bi bi-person-check me-1 me-md-2"></i> Assigned</span>
                             <span class="badge {{ $folder === 'assigned_me' ? 'bg-white text-indigo' : 'bg-secondary-subtle text-secondary' }} rounded-pill">{{ $metrics['assigned_me'] }}</span>
                         </button>
 
-                        <button wire:click="setFolder('resolved')" class="nav-link text-start d-flex justify-content-between align-items-center py-2 px-3 {{ $folder === 'resolved' ? 'active' : 'text-dark' }}">
-                            <span><i class="bi bi-check2-circle me-2"></i> Resolved</span>
+                        <button wire:click="setFolder('resolved')" class="nav-link text-start d-flex justify-content-between align-items-center gap-2 py-2 px-3 {{ $folder === 'resolved' ? 'active' : 'text-dark' }}">
+                            <span><i class="bi bi-check2-circle me-1 me-md-2"></i> Resolved</span>
                             <span class="badge {{ $folder === 'resolved' ? 'bg-white text-success' : 'bg-success-subtle text-success' }} rounded-pill">{{ $metrics['resolved'] }}</span>
                         </button>
 
-                        <button wire:click="setFolder('spam')" class="nav-link text-start d-flex justify-content-between align-items-center py-2 px-3 {{ $folder === 'spam' ? 'active' : 'text-dark' }}">
-                            <span><i class="bi bi-archive me-2"></i> Spam & Archived</span>
+                        <button wire:click="setFolder('spam')" class="nav-link text-start d-flex justify-content-between align-items-center gap-2 py-2 px-3 {{ $folder === 'spam' ? 'active' : 'text-dark' }}">
+                            <span><i class="bi bi-archive me-1 me-md-2"></i> Spam &amp; Archived</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Filters -->
-                <div class="p-3 flex-grow-1 overflow-y-auto">
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted text-uppercase mb-1" style="font-size: 0.7rem;">Filter by Client</label>
-                        <select wire:model.live="selectedClientId" class="form-select form-select-sm">
-                            <option value="">All Clients</option>
-                            @foreach($clients as $c)
-                                <option value="{{ $c->id }}">{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div class="p-3 flex-grow-1 overflow-y-auto d-md-block" :class="{ 'd-none': !showFilters }">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-12 mb-md-2">
+                            <label class="form-label small fw-semibold text-muted text-uppercase mb-1" style="font-size: 0.7rem;">Filter by Client</label>
+                            <select wire:model.live="selectedClientId" class="form-select form-select-sm">
+                                <option value="">All Clients</option>
+                                @foreach($clients as $c)
+                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted text-uppercase mb-1" style="font-size: 0.7rem;">Social Platform</label>
-                        <select wire:model.live="selectedPlatform" class="form-select form-select-sm">
-                            <option value="">All Social Networks</option>
-                            @foreach($platforms as $p)
-                                <option value="{{ $p->value }}">{{ $p->label() }}</option>
-                            @endforeach
-                        </select>
+                        <div class="col-6 col-md-12">
+                            <label class="form-label small fw-semibold text-muted text-uppercase mb-1" style="font-size: 0.7rem;">Social Platform</label>
+                            <select wire:model.live="selectedPlatform" class="form-select form-select-sm">
+                                <option value="">All Networks</option>
+                                @foreach($platforms as $p)
+                                    <option value="{{ $p->value }}">{{ $p->label() }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Column 2: Thread List -->
-            <div class="col-lg-4 col-md-4 border-end h-100 d-flex flex-column bg-white">
+            <div class="col-lg-4 col-md-4 border-md-end inbox-pane-col d-flex flex-column bg-white" :class="{ 'inbox-pane-mobile-hidden': mobilePane === 'chat' }">
                 <!-- Search header -->
                 <div class="p-3 border-bottom">
                     <div class="input-group input-group-sm">
@@ -80,7 +103,7 @@
                 </div>
 
                 <!-- Conversation list -->
-                <div class="flex-grow-1 overflow-y-auto">
+                <div class="flex-grow-1 overflow-y-auto inbox-thread-scroll">
                     <div wire:loading.remove wire:target="setFolder, search, selectedClientId, selectedPlatform">
                     @forelse($conversations as $conv)
                         @php
@@ -89,11 +112,12 @@
                         @endphp
                         <div 
                             wire:click="selectConversation({{ $conv->id }})" 
+                            @click="mobilePane = 'chat'"
                             class="p-3 border-bottom cursor-pointer transition-all {{ $isSelected ? 'bg-primary-subtle border-start border-start-4 border-start-primary' : 'hover-bg-light' }}"
                             style="cursor: pointer;"
                         >
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
                                     <div class="position-relative">
                                         @if($conv->sender_avatar)
                                             <img src="{{ $conv->sender_avatar }}" alt="{{ $conv->sender_name }}" class="rounded-circle object-fit-cover" style="width: 32px; height: 32px;">
@@ -158,12 +182,15 @@
             </div>
 
             <!-- Column 3: Active Conversation & Reply Console -->
-            <div class="col-lg-5 col-md-4 h-100 d-flex flex-column bg-light">
+            <div class="col-lg-5 col-md-4 inbox-pane-col d-flex flex-column bg-light" :class="{ 'inbox-pane-mobile-hidden': mobilePane === 'list' }">
                 @if($activeConversation)
                     @php $activePlat = $activeConversation->socialProfile?->platform; @endphp
                     <!-- Thread Header -->
-                    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center gap-2">
+                    <div class="p-2 p-sm-3 border-bottom bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div class="d-flex align-items-center gap-2 min-w-0">
+                            <button type="button" @click="mobilePane = 'list'" class="btn btn-sm btn-light border d-md-none flex-shrink-0" aria-label="Back to thread list">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
                             <div class="min-w-0">
                                 <h6 class="fw-bold mb-1 text-dark text-truncate">{{ $activeConversation->sender_name }}</h6>
                                 <div class="d-flex flex-wrap align-items-center gap-1">
@@ -220,7 +247,7 @@
                     @endif
 
                     <!-- Message History Bubbles -->
-                    <div class="flex-grow-1 p-3 overflow-y-auto d-flex flex-column gap-3">
+                    <div class="flex-grow-1 p-3 overflow-y-auto inbox-chat-scroll d-flex flex-column gap-3">
                         @foreach($activeConversation->messages as $msg)
                             @if($msg->direction->isInbound())
                                 <!-- Inbound Bubble (Left) -->
@@ -231,7 +258,7 @@
                                     <div>
                                         <div class="bg-white p-3 rounded-3 shadow-xs border">
                                             <div class="fw-semibold text-dark small mb-1">{{ $msg->sender_name }}</div>
-                                            <div class="text-dark small" style="white-space: pre-wrap;">{{ $msg->body }}</div>
+                                            <div class="text-dark small text-break" style="white-space: pre-wrap;">{{ $msg->body }}</div>
                                         </div>
                                         <small class="text-muted ms-1" style="font-size: 0.65rem;">{{ $msg->sent_at->format('M d, h:i A') }}</small>
                                     </div>
@@ -242,10 +269,10 @@
                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.75rem;">
                                         <i class="bi bi-person-fill"></i>
                                     </div>
-                                    <div class="text-end">
+                                    <div class="text-end min-w-0">
                                         <div class="bg-primary text-white p-3 rounded-3 shadow-xs text-start">
                                             <div class="small fw-semibold mb-1 text-white-50">{{ $msg->sender_name }} (Agency)</div>
-                                            <div class="small" style="white-space: pre-wrap;">{{ $msg->body }}</div>
+                                            <div class="small text-break" style="white-space: pre-wrap;">{{ $msg->body }}</div>
                                         </div>
                                         <small class="text-muted me-1" style="font-size: 0.65rem;">{{ $msg->sent_at->format('M d, h:i A') }}</small>
                                     </div>
@@ -255,7 +282,7 @@
                     </div>
 
                     <!-- Quick Canned Responses -->
-                    <div class="p-2 px-3 bg-white border-top border-bottom d-flex flex-wrap align-items-center gap-1">
+                    <div class="p-2 px-3 bg-white border-top border-bottom status-pills-scroller align-items-center gap-1">
                         <span class="text-muted small me-1" style="font-size: 0.75rem;">Quick:</span>
                         <button type="button" wire:click="applyTemplate('Thanks for reaching out! We appreciate your support.')" class="btn btn-xs btn-outline-secondary rounded-pill text-nowrap">
                             Thanks for reaching out
@@ -305,7 +332,7 @@
                             <p class="text-muted mb-4" style="max-width: 460px; font-size: 0.92rem;">
                                 Your social accounts are connected. Click <strong>Sync Live Comments</strong> to pull recent comments &amp; DMs from Facebook, Instagram, and YouTube.
                             </p>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
                                 <button wire:click="syncLiveComments" wire:loading.attr="disabled" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold shadow-sm">
                                     <span wire:loading.remove wire:target="syncLiveComments"><i class="bi bi-arrow-repeat me-1"></i> Sync Live Comments</span>
                                     <span wire:loading wire:target="syncLiveComments"><span class="spinner-border spinner-border-sm me-1"></span> Syncing...</span>
@@ -319,7 +346,7 @@
                             <p class="text-muted mb-4" style="max-width: 440px; font-size: 0.95rem;">
                                 To start managing comments and direct messages in your PostSync Inbox, connect your Facebook, Instagram, or YouTube account first.
                             </p>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
                                 <a href="{{ route('social-accounts.index') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
                                     Connect Social Account
                                 </a>
